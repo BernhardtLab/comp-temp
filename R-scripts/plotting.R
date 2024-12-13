@@ -807,6 +807,7 @@ ggplot() +
 ### read in the empirical data
 library(janitor)
 library(cowplot)
+library(tidyverse)
 theme_set(theme_cowplot())	
 	
 data <- read_csv("data/mac-means.csv") %>% 
