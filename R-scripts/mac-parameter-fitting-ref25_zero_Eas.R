@@ -1571,7 +1571,7 @@ ggplot() +
 	scale_color_viridis_c() +
 	theme(axis.text=element_text(size=24),
 		  axis.title=element_text(size=24,face="bold"))
-ggsave("figures/pompom-favourite-1000.png",  width = 12, height = 10)
+ggsave("figures/pompom-favourite-1000.png",  width = 12, height = 10) ### December 13 this looks like latest script
 
 
 results_favourite_warm <- results_favourite %>% 
