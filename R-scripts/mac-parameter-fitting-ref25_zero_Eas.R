@@ -1548,7 +1548,7 @@ plot_MacArthur <- function(Data.parameter, Data.temperature){
 
 results_favourite <- data.frame()
 for(f in 1:1000){
-	hold = temp_dependences_MacArthur_zero(T = seq(0, 50, by = 0.1), 
+	hold = temp_dependences_MacArthur_zero(T = seq(0, 50, by = 0.1), ### Dec 2024; I can't find this function --- (temp_dependences_MacArthur_zero)
 										   c_Ea2N = sample_n(lm_consumption_rate, size = 1)$intercept,
 										v_EaN = sample_n(lm_conv_eff, size = 1)$intercept,
 										r_EaN = sample_n(lm_rgr, size = 1)$intercept)
