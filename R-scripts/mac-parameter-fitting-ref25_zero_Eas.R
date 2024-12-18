@@ -215,12 +215,12 @@ results_b %>%
 
 
 #### working graphs
-res_sum <- results_b %>% 
+res_sum <- results_b25b %>% ### update dec 18 2024
 	group_by(T) %>% 
 	summarise(mean_fit = mean(fit_ratio),
 			  mean_stabil = mean(stabil_potential))
 
-results_b %>% 
+results_b25b %>% 
 	ggplot() +
 	geom_path(aes(x =(T-25), y = log(fit_ratio), group = iteration), alpha = 0.1) +
 	geom_point(aes(x = T-25, y = log(mean_fit)), data = res_sum, color = "red", size = 0.5) +
@@ -1543,6 +1543,9 @@ plot_MacArthur <- function(Data.parameter, Data.temperature){
 # let's do a scenario that favours one species and make all the ot --------
 ## May 24
 #let's favour species 2, which prefers N
+
+### Come back here December 18 2024 (figure out where the temp_dependences_MacArthur_zero comes from)
+
 results_favourite <- data.frame()
 for(f in 1:1000){
 	hold = temp_dependences_MacArthur_zero(T = seq(0, 50, by = 0.1), 
