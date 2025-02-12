@@ -9,6 +9,8 @@ library(cowplot)
 theme_set(theme_cowplot())
 library(patchwork)
 
+source("R-scripts/temp_dependences_MacArthur.R")
+source("R-scripts/temp_dependences_MacArthurb.R")
 
 
 
@@ -30,7 +32,7 @@ mac_means <- read_csv("data/mac-means.csv") %>%
 
 
 
-### mortality rates
+### mortality rates ----------
 
 lm_mort <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "mortality rate"), burnin = 1000) %>% 
 	as.data.frame() %>% 
@@ -186,7 +188,7 @@ for(f in 1:200){
 
 View(results_b25b)
 head(results_b25b)
-write_csv(results_b25b, "data-processed/results_b25b.csv")
+# write_csv(results_b25b, "data-processed/results_b25b.csv")
 
 # results05 <- results_b
 # results10 <- results_b
@@ -202,7 +204,7 @@ write_csv(results_b25, "data-processed/results_b25.csv")
 
 
 
-results_b %>% 
+results_b25 %>% 
 	ggplot(aes(x = T, y = abs(log(fit_ratio)), group = iteration)) + geom_line(alpha = 0.1) +
 	ylab("Absolute value of Log Fitness ratio") + xlab("Temperature")
 # ggsave("figures/fitness-ratio-lines-log-v-low-mortality.jpeg", width = 8, height = 6)
@@ -225,7 +227,7 @@ results_b25b %>%
 	geom_path(aes(x =(T-25), y = log(fit_ratio), group = iteration), alpha = 0.1) +
 	geom_point(aes(x = T-25, y = log(mean_fit)), data = res_sum, color = "red", size = 0.5) +
 	ylab("Fitness ratio") + xlab("(temperature - ref temp)")
-ggsave("figures/averages.png", width = 8, height = 6)
+# ggsave("figures/averages.png", width = 8, height = 6)
 
 results_b %>% 
 	ggplot() +
