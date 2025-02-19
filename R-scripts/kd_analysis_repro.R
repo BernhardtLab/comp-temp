@@ -12,30 +12,23 @@ library(MCMCvis)
 library(cowplot)
 theme_set(theme_cowplot())
 library(patchwork)
+library(colorspace)
 
 # get referencing set up for macarthur temp dependence function
-# source("R-scripts/temp_dependences_MacArthur.R") #this is only the macarthur translation function and only reports the estimated macarthur parameters -- no need to use this one, since we have the one below
-source("R-scripts/temp_dependences_MacArthurb.R") #this contains the macarthur translation function, exactly as temp_dependence_MacArthur.R, but reports all Arrhenius parameters utilized in addition to all estimated macarthur parameters; it also contains the arrhenius function with a couple of different reference temps and the full macarthur translation function again with ref temp set to 0
+source("R-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, exactly as Joey's functions did, but has all parameters flexibly defined in the function for assigning at time of use. Nothing is hard coded in.
+
+#functions: 
+# temp_dep_mac -- my iteration of JB's temp_dependences_MacArthurb equation, with no parameter values hard coded in. Arrhenius parameters, including E and b1 for each dynamic/biological param from Song et al equations and the static/technical parm, ref_temp. Thinking of this like an biological vs technical replicate in experiments.
+
  
-# list of functions:
+# list of functions from Joey script:
 # temp_dependences_MacArthurb -- translation equation. Inputs: temp & arrhenius params, output: macarthur params
 # arrhenius_function -- basic arrhenius, w/ ref_temp == 25. Inputs: temps and arrhenius params and output is metabolic rate
 # arrhenius_function_25 -- basic arrhenius w/ref_temp == 25. Inputs: temp & arrhenius params, output: metabolic rate
 # arrhenius_function_0 -- basic arrhenius w/ ref_temp == 0. Inputs: temp & arrhenius params, output: metabolic rate
 # temp_dependences_MacArthurc -- my iteration of translation equation, will fully flexible parameters -- nothing hard coded in
 
-
-### Arrhenius function to model the temperature dependence
-arrhenius_function <- function(Temp, E, b1, ref_temp = 25) {
-  k <- 8.62e-05 #Boltzmann's constant
-  E <- E # 0.6 # activation energy (eV)
-  T <- Temp+273.15 #range of temp in K
-  Tc <- ref_temp+273.15 #reference temperature
-  
-  metabolism<-(b1*exp(1)^(E*(1/(k*Tc)-1/(k*T))))
-  return(metabolism)
-}
-
+#got rid of Arrhenius fn definition here, because it is in the source script
 
 #get data for published parameter estimates of relevant traits
 mac_means <- read_csv("data/mac-means.csv") %>% 
@@ -59,8 +52,8 @@ mort_ea_plot <- lm_mort %>%
   xlab("Activation energy for mortality rate") +
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "black", size = 3, shape = 1) +
-  geom_vline(aes(xintercept = mean(lm_mort$intercept))) +
-  geom_vline(aes(xintercept = median(lm_mort$intercept)), color = "pink") +
+  geom_vline(aes(xintercept = mean(intercept))) +
+  geom_vline(aes(xintercept = median(intercept)), color = "pink") +
   coord_flip()
 
 # resource growth rate ----------------------------------------------------
@@ -141,13 +134,17 @@ consumption_rate_plot <- lm_consumption_rate %>%
   geom_vline(aes(xintercept = median(intercept)), color = "pink") +
   coord_flip()
 
-
+#### plot all distributions #####
 ea_plots <- mort_ea_plot +  rgr_plot + conv_eff_plot + carrying_capacity_plot + consumption_rate_plot
 # ggsave(filename = "figures/kd-figs/ea-plots.pdf", ea_plots, width = 15, height = 12)
 
+#stitch all these dfs together for use in other scripts
+# bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>% 
+  # write_csv(., "data/processed-data/param_post_dists.csv")
 
 # simulate fitness and niche params with 0.1 interval ---------------------
 
+#joey's function
 results_b25 <- data.frame()
 for(f in 1:200){
   hold = temp_dependences_MacArthurb(T = seq(0, 50, by = 0.1),
@@ -167,207 +164,41 @@ for(f in 1:200){
   results_b25 <- bind_rows(results_b25, hold) 
 }
 
-results_c25 <- data.frame()
+#my function
+results_rt25 <- data.frame()
 for(f in 1:200){
-  hold = temp_dependences_MacArthurc(T = seq(0, 50, by = 0.1),
-                                     r_EaN = sample_n(lm_rgr, size = 1)$intercept,
-                                     r_EaP = sample_n(lm_rgr, size = 1)$intercept, 
-                                     K_EaN = sample_n(lm_carrying_capacity, size = 1)$intercept, 
-                                     K_EaP = sample_n(lm_carrying_capacity, size = 1)$intercept, 
-                                     c_Ea1N = sample_n(lm_consumption_rate, size = 1)$intercept,
-                                     c_Ea1P = sample_n(lm_consumption_rate, size = 1)$intercept, 
-                                     c_Ea2N = sample_n(lm_consumption_rate, size = 1)$intercept,
-                                     c_Ea2P = sample_n(lm_consumption_rate, size = 1)$intercept, 
-                                     v_EaN = sample_n(lm_conv_eff, size = 1)$intercept,
-                                     v_EaP = sample_n(lm_conv_eff, size = 1)$intercept, 
-                                     m_Ea1 = sample_n(lm_mort, size = 1)$intercept, 
-                                     m_Ea2 = sample_n(lm_mort, size = 1)$intercept,
-                                     c1N_b = tdma_parms$c1N_b, c2P_b = tdma_parms$c2P_b,
-                                     c1P_b = tdma_parms$c1P_b, c2N_b = tdma_parms$c2N_b,
-                                     r_N_b = tdma_parms$r_N_b, r_P_b = tdma_parms$r_P_b,
-                                     K_N_b = tdma_parms$K_N_b, K_P_b = tdma_parms$K_P_b,
-                                     v1N_b = tdma_parms$v1N_b, v1P_b = tdma_parms$v1P_b,
-                                     v2N_b = tdma_parms$v2N_b, v2P_b = tdma_parms$v2P_b,
-                                     m1_b = tdma_parms$m1_b, m2_b = tdma_parms$m2_b)  
+  hold = temp_dep_mac(T = seq(0, 50, by = 0.1),
+                      ref_temp = 25,
+                      r_EaN = sample_n(lm_rgr, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaP = sample_n(lm_rgr, size = 1)$intercept, 
+                      c_Ea1N = sample_n(lm_consumption_rate, size = 1)$intercept,
+                      c_Ea1P = sample_n(lm_consumption_rate, size = 1)$intercept, 
+                      c_Ea2N = sample_n(lm_consumption_rate, size = 1)$intercept,
+                      c_Ea2P = sample_n(lm_consumption_rate, size = 1)$intercept, 
+                      K_EaN = sample_n(lm_carrying_capacity, size = 1)$intercept, 
+                      K_EaP = sample_n(lm_carrying_capacity, size = 1)$intercept, 
+                      v_EaN = sample_n(lm_conv_eff, size = 1)$intercept,
+                      v_EaP = sample_n(lm_conv_eff, size = 1)$intercept, 
+                      m_Ea1 = sample_n(lm_mort, size = 1)$intercept, 
+                      m_Ea2 = sample_n(lm_mort, size = 1)$intercept,
+                      c1N_b = 0.2, c1P_b = 0.4, #spec 1 consumes more P
+                      c2N_b = 0.4, c2P_b = 0.2, #spec 2 consumes more N
+                      r_N_b = 0.1, r_P_b = 0.05, #growth rate for each resource at ref temp
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp
+                      v1N_b = 0.2, v1P_b = 0.4, #sp 1 converts P more efficiently
+                      v2N_b = 0.4, v2P_b = 0.2, #sp 2 converts N more efficiently
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
   hold$iteration <- f
-  results_c25 <- bind_rows(results_c25, hold) 
+  results_rt25 <- bind_rows(results_rt25, hold) 
 }
 
-#parameter values from JB's temp_dependences_macarthurb.R script
-tdma_parms <- data.frame(r_EaN = 0.5, r_EaP = 0.5,
-                c_Ea1N = 0.8, c_Ea1P = 0.8,
-                c_Ea2N = 0.8, c_Ea2P = 0.8,
-                K_EaN = -0.3, K_EaP = -0.3,
-                v_EaN = 0.0, v_EaP = 0.0,
-                m_Ea1 = 0.6, m_Ea2 = 0.6,
-                c1N_b = 0.2, c2P_b = 0.2,
-                c1P_b = 0.4, c2N_b = 0.4,
-                r_N_b = 0.1, r_P_b = 0.05,
-                K_N_b = 2000, K_P_b = 2000,
-                v1N_b = 0.2, v1P_b = 0.4,
-                v2N_b = 0.4, v2P_b = 0.2,
-                m1_b = 0.01, m2_b = 0.01)
+res25 <- results_rt25 %>% 
+  mutate(std_temp = T - 25)
 
-# results05 <- results_b
-# results10 <- results_b
-# results15 <- results_b
-# results20 <- results_b
-# results25 <- results_b	
-# results30 <- results_b	
-# results35 <- results_b
-
-
-# write_csv(results_b25, "data-processed/results_b25.csv")
-
-### now save activation energies and b's
-#if I change this fn to temp_dependences_MacArthur_ref0, nothing changes. Results very similar, but not identical. Anchor point at ~-20, 0.4 is identical. But the arrhenius fn built into that mac function contains a tref of 25, so that may need to be manually changed
-results_b25b <- data.frame()
-for(f in 1:200){
-  hold = temp_dependences_MacArthurb(T = seq(0, 50, by = 0.5),
-                                     r_EaN = sample_n(lm_rgr, size = 1)$intercept,
-                                     r_EaP = sample_n(lm_rgr, size = 1)$intercept, 
-                                     K_EaN = sample_n(lm_carrying_capacity, size = 1)$intercept, 
-                                     K_EaP = sample_n(lm_carrying_capacity, size = 1)$intercept, 
-                                     c_Ea1N = sample_n(lm_consumption_rate, size = 1)$intercept,
-                                     c_Ea1P = sample_n(lm_consumption_rate, size = 1)$intercept, 
-                                     c_Ea2N = sample_n(lm_consumption_rate, size = 1)$intercept,
-                                     c_Ea2P = sample_n(lm_consumption_rate, size = 1)$intercept, 
-                                     v_EaN = sample_n(lm_conv_eff, size = 1)$intercept,
-                                     v_EaP = sample_n(lm_conv_eff, size = 1)$intercept, 
-                                     m_Ea1 = sample_n(lm_mort, size = 1)$intercept, 
-                                     m_Ea2 = sample_n(lm_mort, size = 1)$intercept)
-  hold$iteration <- f
-  # hold$r_EaN <- r_EaN
-  results_b25b <- bind_rows(results_b25b, hold)
-}
-
-View(results_b25b)
-head(results_b25b)
-# write_csv(results_b25b, "data-processed/results_b25b.csv")
-
-# results05 <- results_b
-# results10 <- results_b
-# results15 <- results_b
-# results20 <- results_b
-# results25 <- results_b	
-# results30 <- results_b	
-# results35 <- results_b
-
-
-# write_csv(results_b25, "data-processed/results_b25.csv")
-
-
-
-results_c25 %>%
-# results_b25 %>%
-  ggplot(aes(x = T, y = abs(log(fit_ratio)), group = iteration)) + geom_line(alpha = 0.1) +
-  # ggplot(aes(x = T, y = log(fit_ratio), group = iteration)) + geom_line(alpha = 0.1) +
-  ylab("Absolute value of Log Fitness ratio") + xlab("Temperature")
-# ggsave("figures/fitness-ratio-lines-log-v-low-mortality.jpeg", width = 8, height = 6)
-# ggsave("figures/fitness-ratio-lines-log-high-K.jpeg", width = 8, height = 6)
-
-
-#### working graphs
-res_sum <- results_c25 %>% ### update dec 18 2024
-  group_by(T) %>% 
-  summarise(mean_fit = mean(fit_ratio),
-            mean_stabil = mean(stabil_potential))
-
-results_c25 %>% 
-  ggplot() +
-  geom_line(aes(x =(T-25), y = log(fit_ratio), group = iteration, color = coexist), alpha = 0.1) +
-  # geom_point(aes(x = T-25, y = log(mean_fit)), data = res_sum, color = "red", size = 0.5) +
-  ylab("Fitness ratio") + xlab("(temperature - ref temp)")
-# ggsave("figures/averages.png", width = 8, height = 6)
-
-results_c25 %>% 
-  ggplot() +
-  geom_path(aes(x =(T-25), y = (stabil_potential), group = iteration), alpha = 0.1) +
-  geom_point(aes(x = T-25, y = (mean_stabil)), data = res_sum, color = "red", size = 0.5) +
-  ylab("Stabilization potential") + xlab("(temperature - ref temp)")
-# ggsave("figures/averages-stabil.png", width = 8, height = 6)
-
-
-results_c25 %>% 
-  ggplot(aes(x = T, y = stabil_potential, group = iteration)) + 
-  geom_line(alpha = 0.5) +
-  ylab("Stabilization potential") + xlab("Temperature")
-# ggsave("figures/stabil-reftemp-20.jpeg", width = 8, height = 6)
-# ggsave("figures/stabil-reftemp-25.jpeg", width = 8, height = 6)
-
-
-results_c25 %>% 
-  ggplot(aes(x = T, y = fit_ratio, group = iteration, color = coexist)) + geom_path(alpha = 0.6) +
-  ylab("Fitness ratio") + xlab("Temperature")
-# ggsave("figures/fitness-reftemp-25.jpeg", width = 8, height = 6)
-
-results_c25 %>% 
-  filter(iteration %in% c(1:45)) %>% 
-  ggplot(aes(x = T, y = fit_ratio, group = iteration, color = coexist)) + geom_path(alpha = 0.6) +
-  ylab("Fitness ratio") + xlab("Temperature") +
-  facet_wrap( ~ iteration)
-# ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
-# ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
-
-
-results_b25b %>% 
-  filter(iteration %in% c(1:50)) %>%
-  ggplot(aes(x = stabil_potential, y = fit_ratio, group = iteration, color = coexist)) + 
-  geom_path(size = 2) +
-  ylab("Fitness ratio") + xlab("stabilization potential") +
-  facet_wrap( ~ iteration)
-# ggsave("figures/fitness-stabil-reftemp-20.jpeg", width = 20, height = 16)
-# ggsave("figures/fitness-stabil-reftemp-20-1.2.jpeg", width = 20, height = 16)
-
-# here JB plays around with different ref temps, but this seems arduous. Do I need to change ref temp for arrhenius equation and MacArthur equation? It's not clear why there is a temperature set in the macarthur equation in the first place.
-results05$ref_temp <- 5
-results10$ref_temp <- 10
-results15$ref_temp <- 15
-results20$ref_temp <- 20
-results25$ref_temp <- 25
-results35$ref_temp <- 35
-
-all_results <- bind_rows(results05, results15, results25, results35, results10, results20)
-
-results20 %>% 
-  group_by(coexist) %>% 
-  tally()
-
-all_results %>% 
-  group_by(iteration, coexist, ref_temp) %>% 
-  tally() %>% 
-  ggplot(aes(x = n, fill = coexist)) + geom_density(alpha = 0.5) + 
-  facet_wrap( ~ ref_temp, scales = "free")
-ggsave("figures/coexist-reftemp-25.jpeg", width = 20, height = 16)
-ggsave("figures/coexist-reftemp-range.jpeg", width = 20, height = 16)
-ggsave("figures/coexist-reftemp-range-2.jpeg", width = 20, height = 16)
-
-
-all_results %>% 
-  group_by(coexist, ref_temp) %>% 
-  count() %>% 
-  ggplot(aes(x = ref_temp, y = n, group = coexist, fill = coexist)) + geom_bar(stat = "identity")
-
-results25 <- results_b	
-
-#### calculate distances
-res20 <- results_b %>% 
-  filter(T == 0)
-
-results_b <- results_b25
-
-
-resb2 <- results_b %>% 
-  mutate(stand_temp = T - 25) 
-
-resb2b <- results_b %>% 
-  mutate(stand_temp = T - 25) 
-
-library(colorspace)
-
+#quick pompom plot
 ggplot() +
-  geom_path(data = resb2, aes(x = stabil_potential, y = fit_ratio, color = stand_temp, group = iteration), size = 2) +
-  geom_ribbon(data = data.frame(x = seq(min(resb2$stabil_potential)*0.99, max(resb2$stabil_potential)*1.01, 0.001)),
+  geom_path(data = res25, aes(x = stabil_potential, y = fit_ratio, color = std_temp, group = iteration), size = 2) +
+  geom_ribbon(data = data.frame(x = seq(min(res25$stabil_potential)*0.99, max(res25$stabil_potential)*1.01, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = 1-x,
@@ -378,11 +209,118 @@ ggplot() +
   scale_colour_continuous_diverging() +
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
-ggsave("figures/stabil-fitness-ref-temp-25-diverging.jpeg", width = 8, height = 6)
-ggsave("figures/stabil-fitness-ref-temp-1.jpeg", width = 8, height = 6)
 
-res3_warming <- resb2 %>% 
+
+# #parameter values from JB's temp_dependences_macarthurb.R script
+# tdma_parms <- data.frame(r_EaN = 0.5, r_EaP = 0.5,
+#                 c_Ea1N = 0.8, c_Ea1P = 0.8,
+#                 c_Ea2N = 0.8, c_Ea2P = 0.8,
+#                 K_EaN = -0.3, K_EaP = -0.3,
+#                 v_EaN = 0.0, v_EaP = 0.0,
+#                 m_Ea1 = 0.6, m_Ea2 = 0.6,
+#                 c1N_b = 0.2, c2P_b = 0.2,
+#                 c1P_b = 0.4, c2N_b = 0.4,
+#                 r_N_b = 0.1, r_P_b = 0.05,
+#                 K_N_b = 2000, K_P_b = 2000,
+#                 v1N_b = 0.2, v1P_b = 0.4,
+#                 v2N_b = 0.4, v2P_b = 0.2,
+#                 m1_b = 0.01, m2_b = 0.01)
+
+# results_rt25 %>%
+# results_rt0 %>%
+results_rt10 %>%
+  ggplot(aes(x = T, y = abs(log(fit_ratio)), group = iteration)) + geom_line(alpha = 0.1) +
+  # ggplot(aes(x = T, y = log(fit_ratio), group = iteration)) + geom_line(alpha = 0.1) +
+  ylab("Absolute value of Log Fitness ratio") + xlab("Temperature")
+
+
+
+#### working graphs
+res_sum <- results_rt25 %>% 
+  group_by(T) %>% 
+  summarise(mean_fit = mean(fit_ratio),
+            mean_stabil = mean(stabil_potential))
+
+results_rt25 %>% 
+  ggplot() +
+  geom_line(aes(x =(T-25), y = log(fit_ratio), group = iteration, color = coexist), alpha = 0.1) +
+  # geom_point(aes(x = T-25, y = log(mean_fit)), data = res_sum, color = "red", size = 0.5) +
+  ylab("Fitness ratio") + xlab("(temperature - ref temp)")
+# ggsave("figures/averages.png", width = 8, height = 6)
+
+results_rt25 %>% 
+  ggplot() +
+  geom_path(aes(x =(T-25), y = (stabil_potential), group = iteration), alpha = 0.1) +
+  geom_point(aes(x = T-25, y = (mean_stabil)), data = res_sum, color = "red", size = 0.5) +
+  ylab("Stabilization potential") + xlab("(temperature - ref temp)") #Is it a coincidence that the rough line where majority coexistence shifts to majority exclusion is approximately where the mean stabilization potential line is?
+# ggsave("figures/averages-stabil.png", width = 8, height = 6)
+
+
+results_rt25 %>% 
+  ggplot(aes(x = T, y = stabil_potential, group = iteration)) + 
+  geom_line(alpha = 0.5) +
+  ylab("Stabilization potential") + xlab("Temperature")
+# ggsave("figures/stabil-reftemp-20.jpeg", width = 8, height = 6)
+# ggsave("figures/stabil-reftemp-25.jpeg", width = 8, height = 6)
+
+
+results_rt25 %>% 
+  ggplot(aes(x = T, y = fit_ratio, group = iteration, color = coexist)) + geom_path(alpha = 0.6) +
+  ylab("Fitness ratio") + xlab("Temperature")
+# ggsave("figures/fitness-reftemp-25.jpeg", width = 8, height = 6)
+
+#fitness ratios over temp
+results_rt25 %>% 
+  filter(iteration %in% c(1:45)) %>% 
+  ggplot(aes(x = T, y = fit_ratio, group = iteration, color = coexist)) + geom_path() +
+  ylab("Fitness Ratio") + xlab("Temperature") +
+  facet_wrap( ~ iteration)
+# ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
+# ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
+
+#stabilizing potentials over temp
+results_rt25 %>% 
+  filter(iteration %in% c(1:45)) %>% 
+  ggplot(aes(x = T, y = stabil_potential, group = iteration, color = coexist)) + geom_path() +
+  ylab("Stabilizing Potential") + xlab("Temperature") +
+  facet_wrap( ~ iteration)
+
+#stab potential:fitness ratios by iteration
+results_rt25 %>% 
+  filter(iteration %in% c(1:50)) %>%
+  ggplot(aes(x = stabil_potential, y = fit_ratio, group = iteration, color = coexist)) + 
+  geom_path(size = 2) +
+  ylab("Fitness ratio") + xlab("stabilization potential") +
+  facet_wrap( ~ iteration)
+# ggsave("figures/fitness-stabil-reftemp-20.jpeg", width = 20, height = 16)
+# ggsave("figures/fitness-stabil-reftemp-20-1.2.jpeg", width = 20, height = 16)
+
+#visualize movement away from standard temperature ####
+#create standardized temperature column
+res_st <- results_rt25 %>% 
+  mutate(stand_temp = T - 25) 
+
+#first pompom plot -- all the data
+ggplot() +
+  geom_path(data = res_st, aes(x = stabil_potential, y = fit_ratio, color = stand_temp, group = iteration), size = 2) +
+  geom_ribbon(data = data.frame(x = seq(min(res_st$stabil_potential)*0.99, max(res_st$stabil_potential)*1.01, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = 1-x,
+                  ymax = 1/(1-x)),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # geom_point(data = res20, aes(x = stabil_potential, y = fit_ratio), color = "pink", size = 4, shape = 1) +
+  geom_hline(yintercept = 1, linetype=5) + 
+  scale_colour_continuous_diverging() +
+  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
+  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
+# ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
+# ggsave("figures/stabil-fitness-ref-temp-25-diverging.jpeg", width = 8, height = 6)
+# ggsave("figures/stabil-fitness-ref-temp-1.jpeg", width = 8, height = 6)
+
+#warming and cooling separately
+#ref temp and warmer
+res3_warming <- res_st %>% 
   filter(stand_temp > 0)
 
 ggplot() +
@@ -398,122 +336,69 @@ ggplot() +
   scale_colour_continuous_diverging() +
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25-warming.jpeg", width = 8, height = 6)
+# ggsave("figures/stabil-fitness-ref-temp-25-warming.jpeg", width = 8, height = 6)
 
-res3_cooling <- resb2 %>% 
+#ref temp and cooler
+res3_cooling <- res_st %>% 
   filter(stand_temp < 0)
 
 ggplot() +
   geom_path(data = res3_cooling, aes(x = stabil_potential, y = fit_ratio, color = stand_temp, group = iteration), size = 2) +
   geom_ribbon(data = data.frame(x = seq(min(res3_cooling$stabil_potential)*0.99, max(res3_cooling$stabil_potential)*1.01, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = 1-x,
-                  ymax = 1/(1-x)),
-              fill = "grey", color = "black", alpha = 0.2) +
+  aes(x = x,
+  y = NULL,
+  ymin = 1-x,
+  ymax = 1/(1-x)),
+  fill = "grey", color = "black", alpha = 0.2) +
   # geom_point(data = res20, aes(x = stabil_potential, y = fit_ratio), color = "pink", size = 4, shape = 1) +
   geom_hline(yintercept = 1, linetype=5) + 
   scale_colour_continuous_diverging() +
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25-cooling.jpeg", width = 8, height = 6)
+# ggsave("figures/stabil-fitness-ref-temp-25-cooling.jpeg", width = 8, height = 6)
 
-
-
-
-
-
-res20b <- res20 %>% 
-  mutate(std_temp = T-0)
-
-results_bb <- results_b %>% 
-  mutate(std_temp = T-0)
-
-str(results_bb)
-
-
-resmat <- results_bb %>% 
-  dplyr::select(fit_ratio, stabil_potential) %>% 
-  as.matrix()
-
-res20b_mat <- res20b %>% 
-  dplyr::select(fit_ratio, stabil_potential) %>% 
-  distinct() %>% 
-  as.matrix()
-library(fields)
-
-distances <-  rdist(res20b_mat, resmat) %>% 
-  as.data.frame() %>% 
-  gather()
-
-all_distances <- bind_cols(results_bb, distances)
-
-all_distances %>% 
-  ggplot(aes(x = std_temp, y = value)) + geom_point(alpha = 0.1)
-ggsave("figures/distances-ref0-all.png", width = 6, height = 4)
-
-all_distances %>% 
-  group_by(std_temp) %>% 
-  summarise(mean_distance = mean(value)) %>% 
-  ggplot(aes(x = std_temp, y = mean_distance)) + geom_point()
-ggsave("figures/distances-ref25.png", width = 6, height = 4)
-ggsave("figures/distances-ref1.png", width = 6, height = 4)
-ggsave("figures/distances-ref0.png", width = 6, height = 4)
-
-
-all_distances %>% 
-  ggplot(aes(x = std_temp, y = value, color = coexist)) + geom_point(alpha = 0.1)+
-  facet_wrap( ~ iteration, scales = "free")
-ggsave("figures/distances-ref0-all-coexist-facs-free.png", width = 20, height = 20)
-
-### come back here to do with ref temp = 1
-
-
-ggplot() +
-  geom_path(data = results_bb, aes(x = stabil_potential, y = fit_ratio, color = std_temp, group = iteration), size = 2) +
-  geom_ribbon(data = data.frame(x = seq(min(results_b$stabil_potential)*0.99, max(results_b$stabil_potential)*1.01, 0.001)),
+#distribution of points at T==0
+res_st %>% 
+  filter(T == 0) %>% 
+  ggplot(aes(x = stabil_potential, y = fit_ratio, colour = coexist)) + 
+  geom_ribbon(data = data.frame(x = seq(min(res_st$stabil_potential)*0.99, max(res_st$stabil_potential)*1.01, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = 1-x,
                   ymax = 1/(1-x)),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = res20b, aes(x = stabil_potential, y = fit_ratio), color = "pink", size = 4, shape = 1) +
-  geom_hline(yintercept = 1, linetype=5) + scale_color_viridis_c() +
-  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
+  geom_point() + 
+  geom_hline(yintercept = 1, linetype=5) + 
+  guides(colour = "none") + 
+  ggtitle("Coexistence trait pairs for all iterations, at T = 0")
+
+#distribution of points at T == 25 (== ref temp)
+res_st %>% 
+  filter(T == 25) %>% 
+  ggplot(aes(x = stabil_potential, y = fit_ratio, colour = coexist)) + 
+  geom_ribbon(data = data.frame(x = seq(min(res_st$stabil_potential)*0.99, max(res_st$stabil_potential)*1.01, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = 1-x,
+                  ymax = 1/(1-x)),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point() + 
+  geom_hline(yintercept = 1, linetype=5) + 
+  guides(colour = "none") + 
+  ggtitle("Coexistence trait pairs for all iterations, at T = 25")
 
 
-
-
-
-#### Now find the number of cases where they coexist at 20, but then with warming they no longer co-exist
-
-results_b %>%
-  filter(T != 20) %>% 
-  group_by(coexist) %>% 
-  tally()
-
-results_b
-
-# rho <- sqrt((a12*a21)/(a11*a22)) #niche overlap
-# stabil_potential <- 1 - rho #stabilizing potential
-# fit_ratio <- sqrt((a11*a12)/(a22*a21))  #fitness ratio
-# coexist <- rho < fit_ratio &  fit_ratio < 1/rho
-
-
-# now do the thing where I manipulate each param by a percent -------------
+# manipulate each param by a percent -------------
+### KD not doing this for now, can come back ######
 ## manipulate each by 25% of the max, and then manipulate each by  25% of its value
 ## start by finding out: which one has the biggest range?
 
-
-
-results_b %>% 
+results_25 %>% 
   # filter(iteration == "415") %>% 
   gather(key = parameter, value = value, 2:26) %>% 
   ggplot(aes(x = T, y = value, color = parameter)) + geom_line() +
   facet_wrap(~ parameter, scales = "free")
-ggsave("figures/params-vlow-mort.jpeg", width = 12, height = 12)
+# ggsave("figures/params-vlow-mort.jpeg", width = 12, height = 12)
 
 
 results_b %>% 
@@ -1603,10 +1488,11 @@ plot_MacArthur <- function(Data.parameter, Data.temperature){
 
 results_favourite <- data.frame()
 for(f in 1:100){
-  hold = temp_dependences_MacArthur_ref0(T = seq(0, 50, by = 0.1), ### Dec 2024; I can't find this function --- (temp_dependences_MacArthur_zero); so I'm swapping it for (temp_dependences_MacArthur_ref0)
-                                         c_Ea2N = sample_n(lm_consumption_rate, size = 1)$intercept,
-                                         v_EaN = sample_n(lm_conv_eff, size = 1)$intercept,
-                                         r_EaN = sample_n(lm_rgr, size = 1)$intercept)
+  hold = temp_dep_mac(T = seq(0, 50, by = 0.1), 
+                      ref_temp = 25,
+                      c_Ea2N = sample_n(lm_consumption_rate, size = 1)$intercept,
+                      v_EaN = sample_n(lm_conv_eff, size = 1)$intercept,
+                      r_EaN = sample_n(lm_rgr, size = 1)$intercept)
   hold$iteration <- f
   results_favourite   <- bind_rows(results_favourite, hold)
 }
