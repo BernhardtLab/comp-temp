@@ -1,7 +1,7 @@
 #here is my version of JB's temp_dependences_macarthur script, where all parameters appear in the top list
 temp_dep_mac <- function(T, ref_temp, 
                          r_EaN, r_EaP, #activation energy growth rate N and P
-                         c_Ea1N, c_Ea1P, #acivation energy consumption rate N and P, species 1
+                         c_Ea1N, c_Ea1P, #activation energy consumption rate N and P, species 1
                          c_Ea2N, c_Ea2P, #activation energy consumption rate N and P, species 2
                          K_EaN, K_EaP, #activation energy carrying capacity N and P
                          v_EaN, v_EaP, #activation energy conversion efficiency N & P (same for both species)
@@ -11,7 +11,7 @@ temp_dep_mac <- function(T, ref_temp,
                          r_N_b, r_P_b, #growth rate for each resource at ref temp
                          K_N_b, K_P_b, #carrying capacity for each resource at ref temp
                          v1N_b, v1P_b, #conversion efficiency for each resource at ref temp for species 1
-                         v2N_b, v2P_b, #conversion efficency for each resource at ref temp for species 2
+                         v2N_b, v2P_b, #conversion efficiency for each resource at ref temp for species 2
                          m1_b, m2_b){ #mortality rate at ref temp for each species
   
   # resource growth rates

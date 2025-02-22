@@ -131,11 +131,11 @@ consumption_rate_plot <- lm_consumption_rate %>%
 
 
 ea_plots <- mort_ea_plot +  rgr_plot + conv_eff_plot + carrying_capacity_plot + consumption_rate_plot
-# ggsave(filename = "figures/ea-plots.pdf", ea_plots, width = 15, height = 12)
+# #ggsave(filename = "figures/ea-plots.pdf", ea_plots, width = 15, height = 12)
 
 
 # simulate fitness and niche params with 0.1 interval ---------------------
-
+#macarthur fn defines T as 25, and borrows arrhenius from above, with tref = 25
 results_b25 <- data.frame()
 for(f in 1:200){
 	hold = temp_dependences_MacArthur(T = seq(0, 50, by = 0.1),
@@ -163,11 +163,11 @@ for(f in 1:200){
 # results35 <- results_b
 
 
-write_csv(results_b25, "data-processed/results_b25.csv")
+# #write_csv(results_b25, "data-processed/results_b25.csv")
 
 ### now save activation energies and b's
 results_b25b <- data.frame()
-for(f in 1:200){
+for(f in 1:200){ #this fn is the same as temp_temependences_MacArthur, it just reports more params
 	hold = temp_dependences_MacArthurb(T = seq(0, 50, by = 0.1),
 									  r_EaN = sample_n(lm_rgr, size = 1)$intercept,
 									  r_EaP = sample_n(lm_rgr, size = 1)$intercept, 
@@ -188,7 +188,7 @@ for(f in 1:200){
 
 View(results_b25b)
 head(results_b25b)
-# write_csv(results_b25b, "data-processed/results_b25b.csv")
+# #write_csv(results_b25b, "data-processed/results_b25b.csv")
 
 # results05 <- results_b
 # results10 <- results_b
@@ -199,7 +199,7 @@ head(results_b25b)
 # results35 <- results_b
 
 
-write_csv(results_b25, "data-processed/results_b25.csv")
+#write_csv(results_b25, "data-processed/results_b25.csv")
 
 
 
@@ -207,13 +207,13 @@ write_csv(results_b25, "data-processed/results_b25.csv")
 results_b25 %>% 
 	ggplot(aes(x = T, y = abs(log(fit_ratio)), group = iteration)) + geom_line(alpha = 0.1) +
 	ylab("Absolute value of Log Fitness ratio") + xlab("Temperature")
-# ggsave("figures/fitness-ratio-lines-log-v-low-mortality.jpeg", width = 8, height = 6)
-# ggsave("figures/fitness-ratio-lines-log-high-K.jpeg", width = 8, height = 6)
+# #ggsave("figures/fitness-ratio-lines-log-v-low-mortality.jpeg", width = 8, height = 6)
+# #ggsave("figures/fitness-ratio-lines-log-high-K.jpeg", width = 8, height = 6)
 
-results_b %>% 
+results_b25 %>% 
 	ggplot(aes(x =(T-25), y = fit_ratio, group = iteration)) + geom_path(alpha = 0.1) +
 	ylab("Fitness ratio") + xlab("(temperature - ref temp)")
-# ggsave("figures/fitness-ratio-reftemp-20-relative-to-ref-temp.jpeg", width = 8, height = 6)
+# #ggsave("figures/fitness-ratio-reftemp-20-relative-to-ref-temp.jpeg", width = 8, height = 6)
 
 
 #### working graphs
@@ -227,88 +227,89 @@ results_b25b %>%
 	geom_path(aes(x =(T-25), y = log(fit_ratio), group = iteration), alpha = 0.1) +
 	geom_point(aes(x = T-25, y = log(mean_fit)), data = res_sum, color = "red", size = 0.5) +
 	ylab("Fitness ratio") + xlab("(temperature - ref temp)")
-# ggsave("figures/averages.png", width = 8, height = 6)
+# #ggsave("figures/averages.png", width = 8, height = 6)
 
-results_b %>% 
+results_b25 %>% 
 	ggplot() +
 	geom_path(aes(x =(T-25), y = (stabil_potential), group = iteration), alpha = 0.1) +
 	geom_point(aes(x = T-25, y = (mean_stabil)), data = res_sum, color = "red", size = 0.5) +
 	ylab("Stabilization potential") + xlab("(temperature - ref temp)")
-ggsave("figures/averages-stabil.png", width = 8, height = 6)
+#ggsave("figures/averages-stabil.png", width = 8, height = 6)
 
 
-results_b %>% 
+results_b25 %>% 
 	ggplot(aes(x = T, y = stabil_potential, group = iteration)) + geom_line(alpha = 0.5) +
 	ylab("Stabilization potential") + xlab("Temperature")
-# ggsave("figures/stabil-reftemp-20.jpeg", width = 8, height = 6)
-ggsave("figures/stabil-reftemp-25.jpeg", width = 8, height = 6)
+# #ggsave("figures/stabil-reftemp-20.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-reftemp-25.jpeg", width = 8, height = 6)
 
 
-results_b %>% 
+results_b25 %>% 
 	ggplot(aes(x = T, y = fit_ratio, group = iteration, color = coexist)) + geom_path(alpha = 0.6) +
 	ylab("Fitness ratio") + xlab("Temperature")
-ggsave("figures/fitness-reftemp-25.jpeg", width = 8, height = 6)
+#ggsave("figures/fitness-reftemp-25.jpeg", width = 8, height = 6)
 
-results_b %>% 
+results_b25 %>% 
 	filter(iteration %in% c(1:45)) %>% 
 	ggplot(aes(x = T, y = fit_ratio, group = iteration, color = coexist)) + geom_path(alpha = 0.6) +
 	ylab("Fitness ratio") + xlab("Temperature") +
 	facet_wrap( ~ iteration)
-# ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
-# ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
+# #ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
+# #ggsave("figures/fitness-reftemp-20.jpeg", width = 8, height = 6)
 
 
-results_b %>% 
+results_b25 %>% 
 	# filter(iteration %in% c(1:50)) %>% 
 	ggplot(aes(x = stabil_potential, y = fit_ratio, group = iteration, color = coexist)) + geom_path(size = 2) +
 	ylab("Fitness ratio") + xlab("stabilization potential") +
 	facet_wrap( ~ iteration)
-ggsave("figures/fitness-stabil-reftemp-20.jpeg", width = 20, height = 16)
-ggsave("figures/fitness-stabil-reftemp-20-1.2.jpeg", width = 20, height = 16)
+#ggsave("figures/fitness-stabil-reftemp-20.jpeg", width = 20, height = 16)
+#ggsave("figures/fitness-stabil-reftemp-20-1.2.jpeg", width = 20, height = 16)
 
 
-results05$ref_temp <- 5
-results10$ref_temp <- 10
-results15$ref_temp <- 15
-results20$ref_temp <- 20
-results25$ref_temp <- 25
-results35$ref_temp <- 35
+# results05$ref_temp <- 5
+# results10$ref_temp <- 10
+# results15$ref_temp <- 15
+# results20$ref_temp <- 20
+# results25$ref_temp <- 25
+# results35$ref_temp <- 35
 
-all_results <- bind_rows(results05, results15, results25, results35, results10, results20)
+# all_results <- bind_rows(results05, results15, results25, results35, results10, results20)
 
-results20 %>% 
+# results20 %>% 
 	group_by(coexist) %>% 
 	tally()
 
-all_results %>% 
+# all_results %>% 
 	group_by(iteration, coexist, ref_temp) %>% 
 	tally() %>% 
 	ggplot(aes(x = n, fill = coexist)) + geom_density(alpha = 0.5) + 
 	facet_wrap( ~ ref_temp, scales = "free")
-ggsave("figures/coexist-reftemp-25.jpeg", width = 20, height = 16)
-ggsave("figures/coexist-reftemp-range.jpeg", width = 20, height = 16)
-ggsave("figures/coexist-reftemp-range-2.jpeg", width = 20, height = 16)
+#ggsave("figures/coexist-reftemp-25.jpeg", width = 20, height = 16)
+#ggsave("figures/coexist-reftemp-range.jpeg", width = 20, height = 16)
+#ggsave("figures/coexist-reftemp-range-2.jpeg", width = 20, height = 16)
 
 
-all_results %>% 
+# all_results %>% 
 	group_by(coexist, ref_temp) %>% 
 	count() %>% 
 	ggplot(aes(x = ref_temp, y = n, group = coexist, fill = coexist)) + geom_bar(stat = "identity")
 
-results25 <- results_b	
+# results25 <- results_b	
 
 #### calculate distances
-res20 <- results_b %>% 
-	filter(T == 0)
+res20 <- results_b25 %>% #the macarthur simulation, with dfn T = 25 and arrhenius tref = 25
+	filter(T == 0) #T = 0 --> Tadj = -25?
 
-results_b <- results_b25
+results_b <- results_b25 #the full simulation at 500 temps, 0-50 by 0.1, drawing EAs from empirically-estimated distribution 
 
 
 resb2 <- results_b %>% 
 	mutate(stand_temp = T - 25) 
 
-resb2b <- results_b %>% 
-	mutate(stand_temp = T - 25) 
+#commenting this out, because it's the same as above
+# resb2b <- results_b %>% 
+# 	mutate(stand_temp = T - 25) 
 
 library(colorspace)
 
@@ -325,9 +326,9 @@ ggplot() +
 	scale_colour_continuous_diverging() +
 		xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 		ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
-ggsave("figures/stabil-fitness-ref-temp-25-diverging.jpeg", width = 8, height = 6)
-ggsave("figures/stabil-fitness-ref-temp-1.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-fitness-ref-temp-25-diverging.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-fitness-ref-temp-1.jpeg", width = 8, height = 6)
 
 res3_warming <- resb2 %>% 
 	filter(stand_temp > 0)
@@ -345,7 +346,7 @@ ggplot() +
 	scale_colour_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25-warming.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-fitness-ref-temp-25-warming.jpeg", width = 8, height = 6)
 
 res3_cooling <- resb2 %>% 
 	filter(stand_temp < 0)
@@ -363,22 +364,20 @@ ggplot() +
 	scale_colour_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25-cooling.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-fitness-ref-temp-25-cooling.jpeg", width = 8, height = 6)
 
 
 
 
+res20b <- res20 %>% #res 20 is results_b, filtered down to temp == 0
+	mutate(std_temp = T-0) #all std_temp == 0
 
-
-res20b <- res20 %>% 
-	mutate(std_temp = T-0)
-
-results_bb <- results_b %>% 
+results_bb <- results_b %>% #not sure why we're subtracting off 0 here, the ref temp is 25
 	mutate(std_temp = T-0)
 
 str(results_bb)
 
-
+# KD: skipping this part for now
 resmat <- results_bb %>% 
 	dplyr::select(fit_ratio, stabil_potential) %>% 
 	as.matrix()
@@ -386,36 +385,38 @@ resmat <- results_bb %>%
 res20b_mat <- res20b %>% 
 	dplyr::select(fit_ratio, stabil_potential) %>% 
 	distinct() %>% 
-	as.matrix()
+	as.matrix() 
 library(fields)
 
-distances <-  rdist(res20b_mat, resmat) %>% 
+#res20b is a subset of results_bb where T == 0, so, if this were Tref == 0, then this would show all the distances from Tref achieved across the simulations. BUT, Tref == 25, so I think this is wrong, as currently written.
+distances <-  rdist(res20b_mat, resmat) %>% #distances between all pairs of values of fitness ratio and stabilizing potential
 	as.data.frame() %>% 
 	gather()
 
+# QUESTION: these have nothing to join by -- how is the binding supposed to work?
 all_distances <- bind_cols(results_bb, distances)
 
 all_distances %>% 
 	ggplot(aes(x = std_temp, y = value)) + geom_point(alpha = 0.1)
-ggsave("figures/distances-ref0-all.png", width = 6, height = 4)
+#ggsave("figures/distances-ref0-all.png", width = 6, height = 4)
 
 all_distances %>% 
 	group_by(std_temp) %>% 
 	summarise(mean_distance = mean(value)) %>% 
 	ggplot(aes(x = std_temp, y = mean_distance)) + geom_point()
-ggsave("figures/distances-ref25.png", width = 6, height = 4)
-ggsave("figures/distances-ref1.png", width = 6, height = 4)
-ggsave("figures/distances-ref0.png", width = 6, height = 4)
+#ggsave("figures/distances-ref25.png", width = 6, height = 4)
+#ggsave("figures/distances-ref1.png", width = 6, height = 4)
+#ggsave("figures/distances-ref0.png", width = 6, height = 4)
 
 
 all_distances %>% 
 	ggplot(aes(x = std_temp, y = value, color = coexist)) + geom_point(alpha = 0.1)+
 	facet_wrap( ~ iteration, scales = "free")
-ggsave("figures/distances-ref0-all-coexist-facs-free.png", width = 20, height = 20)
+#ggsave("figures/distances-ref0-all-coexist-facs-free.png", width = 20, height = 20)
 
 ### come back here to do with ref temp = 1
 	
-
+# Need to think about how to interpret the positions of the pink circles here... that is where temp == 0
 ggplot() +
 	geom_path(data = results_bb, aes(x = stabil_potential, y = fit_ratio, color = std_temp, group = iteration), size = 2) +
 	geom_ribbon(data = data.frame(x = seq(min(results_b$stabil_potential)*0.99, max(results_b$stabil_potential)*1.01, 0.001)),
@@ -428,14 +429,14 @@ ggplot() +
 	geom_hline(yintercept = 1, linetype=5) + scale_color_viridis_c() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
-ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
+#ggsave("figures/stabil-fitness-ref-temp-25.jpeg", width = 8, height = 6)
 
 
 
 
 
 #### Now find the number of cases where they coexist at 20, but then with warming they no longer co-exist
-
+#KD -- I don't full understand this - why T != 20?
 results_b %>%
 	filter(T != 20) %>% 
 	group_by(coexist) %>% 
@@ -460,52 +461,59 @@ results_b %>%
 	gather(key = parameter, value = value, 2:26) %>% 
 	ggplot(aes(x = T, y = value, color = parameter)) + geom_line() +
 	facet_wrap(~ parameter, scales = "free")
-ggsave("figures/params-vlow-mort.jpeg", width = 12, height = 12)
+#ggsave("figures/params-vlow-mort.jpeg", width = 12, height = 12)
 
 
 results_b %>% 
-	filter(iteration == "415") %>% 
+	filter(iteration == "15") %>% 
 	dplyr::select(T, a11, beta11, g1) %>% 
-	mutate(new_alpha = beta11/g1) %>% 
-	gather(key = parameter, value = value, a11, beta11, g1, new_alpha) %>% 
+	# mutate(new_alpha = beta11/g1) %>% #this is identical to alpha
+  gather(key = parameter, value = value, a11, beta11, g1) %>% 
 	ggplot(aes(x = T, y = value, color = parameter)) + geom_line() +
 	facet_wrap(~ parameter, scales = "free")
-ggsave("figures/params-415-a11.jpeg", width = 8, height = 4)
+#ggsave("figures/params-415-a11.jpeg", width = 8, height = 4)
 
 results_b %>% 
-	filter(iteration == "415") %>% 
+	filter(iteration == "15") %>% 
 	dplyr::select(T, a11, beta11, g1) %>% 
 	mutate(new_alpha = beta11/g1) %>% 
 	gather(key = parameter, value = value, beta11, g1) %>% 
 	ggplot(aes(x = T, y = value, color = parameter)) + geom_line(size = 2) +
 	geom_hline(yintercept = 0)
-ggsave("figures/params-415-a11.jpeg", width = 8, height = 4)
+#ggsave("figures/params-415-a11.jpeg", width = 8, height = 4)
 
 
 # resultsb <- results_b
 res_sum <- results_b %>% 
 	mutate(iteration = rownames(.)) %>% 
 	group_by(T) %>% 
-	mutate(fit_ratio = log(fit_ratio)) %>% ### log transforming the fitness ratio
-	mutate(fit_ratio = abs(fit_ratio)) %>%  ### taking the absolute value of the fitness ratio
-	mutate(mean_fit = mean(fit_ratio)) %>% 
-	mutate(lower_q50 = quantile(fit_ratio, prob = 0.25)) %>% 
-	mutate(upper_q50 = quantile(fit_ratio, prob = 0.75))  %>% 
-	mutate(lower_q95 = quantile(fit_ratio, prob = 0.025)) %>% 
-	mutate(upper_q95 = quantile(fit_ratio, prob = 0.975)) %>% 
+  #why this transformation?
+	mutate(log_fit_ratio = log(fit_ratio)) %>% ### log transforming the fitness ratio
+	mutate(log_abs_fit_ratio = abs(fit_ratio)) %>%  ### taking the absolute value of the fitness ratio
+	mutate(mean_fit = mean(log_abs_fit_ratio)) %>% 
+	mutate(lower_q50 = quantile(log_abs_fit_ratio, prob = 0.25)) %>% 
+	mutate(upper_q50 = quantile(log_abs_fit_ratio, prob = 0.75))  %>% 
+	mutate(lower_q95 = quantile(log_abs_fit_ratio, prob = 0.025)) %>% 
+	mutate(upper_q95 = quantile(log_abs_fit_ratio, prob = 0.975)) %>% 
 	mutate(mean_fit_s = mean(stabil_potential)) %>% 
 	mutate(lower_q50s = quantile(stabil_potential, prob = 0.25)) %>% 
 	mutate(upper_q50s = quantile(stabil_potential, prob = 0.75))  %>% 
 	mutate(lower_q95s = quantile(stabil_potential, prob = 0.025)) %>% 
 	mutate(upper_q95s = quantile(stabil_potential, prob = 0.975)) 
-# write_csv(res_sum, "data-processed/sum_bayes_param40_0.1.csv")
-write_csv(res_sum, "data-processed/sum_bayes_param40_0.1_vlow_mortality.csv")
-write_csv(res_sum, "data-processed/sum_bayes_param-high-k.csv")
+# #write_csv(res_sum, "data-processed/sum_bayes_param40_0.1.csv")
+#write_csv(res_sum, "data-processed/sum_bayes_param40_0.1_vlow_mortality.csv")
+#write_csv(res_sum, "data-processed/sum_bayes_param-high-k.csv")
+
+# trying to understand this shape a bit better - KD
+results_b %>% 
+  filter(iteration %in% c(1:20)) %>% 
+  ggplot(aes(x = stabil_potential, y = fit_ratio)) + 
+  geom_point(aes(group = iteration, colour = T-25)) 
+  # facet_wrap(~iteration)
 
 
 
-
-res_sum <- read_csv("data-processed/sum_bayes_param40.csv")
+# res_sum <- read_csv("data-processed/sum_bayes_param40.csv")
 
 ### 50 percentiles
 
@@ -537,14 +545,14 @@ plot2 <- res_sum %>%
 	
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-0.1-low-mortality.jpeg", plot = plots, width = 10, height = 5)
-ggsave(filename = "figures/bayes-parms-high-k.jpeg", plot = plots, width = 10, height = 5)
-ggsave(filename = "figures/bayes-parms-high-k-log.jpeg", plot = plots, width = 10, height = 5)
-ggsave(filename = "figures/bayes-parms-high-k-log-abs.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-0.1-low-mortality.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-high-k.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-high-k-log.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-high-k-log-abs.jpeg", plot = plots, width = 10, height = 5)
 
-# ggsave(filename = "figures/bayes-parms-0.1-50per.jpeg", plot = plots, width = 10, height = 5)
+# #ggsave(filename = "figures/bayes-parms-0.1-50per.jpeg", plot = plots, width = 10, height = 5)
 
-
+#not working
 res_sum %>% 
 	ggplot() + 
 	# geom_point(alpha = 0.1) +
@@ -560,14 +568,15 @@ res_sum %>%
 ### update May 7 2024 -- coming back here because this seems promising
 ### Ok i need to look at this function 'temp_dependences_MacArthur' to figure out how I set up the scenario
 
-
+## KD - need to go track down this function, because not present in temp_dependences_MacArthur or temp_dependences_MacArthurb at the moment
+## update -- I cannot find this. I believe it sets all EAs == 0. I am going to shift my focus to creating the single, integrated function, then will impose these exploratory treatments myself with that function.
 # REAP --------------------------------------------------------------------
 
 
 results_r_EaP <- data.frame()
 for(f in 1:1000){
 	hold = temp_dependences_MacArthur_zero(T = seq(0, 40, by = 0.1), 
-									  r_EaP  = sample_n(lm_rgr, size = 1)$intercept)
+									  r_EaP  = sample_n(lm_rgr, size = 1)$intercept) #maybe all tdeps are 0?
 	results_r_EaP   <- bind_rows(results_r_EaP, hold)
 }
 
@@ -584,7 +593,7 @@ res_r_EaP  <- results_r_EaP  %>%
 	mutate(upper_q50s = quantile(stabil_potential, prob = 0.75))  %>% 
 	mutate(lower_q95s = quantile(stabil_potential, prob = 0.025)) %>% 
 	mutate(upper_q95s = quantile(stabil_potential, prob = 0.975)) 
-write_csv(res_r_EaP, "data-processed/res_r_EaP_zero.csv")
+#write_csv(res_r_EaP, "data-processed/res_r_EaP_zero.csv")
 
 
 plot1 <- res_r_EaP  %>% 
@@ -603,7 +612,7 @@ plot2 <- res_r_EaP  %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-r_EaP_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-r_EaP_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 ggplot() +
@@ -620,7 +629,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_r_EaP-biplot-afternoon-2.jpeg", width = 8, height= 6)
+#ggsave("figures/res_r_EaP-biplot-afternoon-2.jpeg", width = 8, height= 6)
 
 
 ### ok what if I try Po-Ju's new definition of niche and fitness differences
@@ -658,7 +667,7 @@ plot2 <- res_r_EaP2  %>%
 	ylab("Stabilization potential") + xlab("Temperature")
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-r_EaP_new_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-r_EaP_new_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 
@@ -680,7 +689,7 @@ res_r_EaP2 %>%
 	ylab(expression(paste("Fitness difference, log(", f[2], "/", f[1], ")"))) + 
 	ggtitle("(e)") +
 	theme(legend.position = "bottom")
-ggsave(filename = "figures/bayes-parms-r_EaP_new_coexist_zero.jpeg", width = 6, height = 5)
+#ggsave(filename = "figures/bayes-parms-r_EaP_new_coexist_zero.jpeg", width = 6, height = 5)
 
 res_r_EaP2 %>%
 	filter((g1 > 0) & (g2 > 0)) %>%
@@ -701,7 +710,7 @@ res_r_EaP2 %>%
 	ylab(expression(paste("Fitness difference, log(", f[2], "/", f[1], ")"))) + 
 	ggtitle("(e)") +
 	theme(legend.position = "bottom")
-ggsave(filename = "figures/bayes-parms-r_EaP_new_coexist-slope1_zero.jpeg", width = 6, height = 5)
+#ggsave(filename = "figures/bayes-parms-r_EaP_new_coexist-slope1_zero.jpeg", width = 6, height = 5)
 
 
 
@@ -730,7 +739,7 @@ res_r_EaN  <- results_r_EaN  %>%
 	mutate(upper_q50s = quantile(stabil_potential, prob = 0.75))  %>% 
 	mutate(lower_q95s = quantile(stabil_potential, prob = 0.025)) %>% 
 	mutate(upper_q95s = quantile(stabil_potential, prob = 0.975))
-write_csv(res_r_EaN, "data-processed/res_r_EaN_zero.csv")
+#write_csv(res_r_EaN, "data-processed/res_r_EaN_zero.csv")
 
 
 plot1 <- res_r_EaN  %>% 
@@ -749,7 +758,7 @@ plot2 <- res_r_EaN  %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-r_EaN_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-r_EaN_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 ggplot() +
@@ -766,7 +775,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_r_EaN-biplot-afternoon.jpeg", width = 8, height= 6)
+#ggsave("figures/res_r_EaN-biplot-afternoon.jpeg", width = 8, height= 6)
 
 
 
@@ -813,7 +822,7 @@ plot2 <- res_K_EaN %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-K_EaN_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-K_EaN_zero.jpeg", plot = plots, width = 10, height = 5)
 
 ggplot() +
 	geom_point(data = res_K_EaN, aes(x = mean_fit_s, y = mean_fit, color = T), size = 2) +
@@ -829,7 +838,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_K_EaN-biplot-afternoon.jpeg", width = 8, height= 6)
+#ggsave("figures/res_K_EaN-biplot-afternoon.jpeg", width = 8, height= 6)
 
 # K_EaP -------------------------------------------------------------------
 
@@ -872,7 +881,7 @@ plot2 <- res_K_EaP %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-K_EaP_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-K_EaP_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 ggplot() +
@@ -889,7 +898,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_K_EaP-biplot-afternoon.jpeg", width = 8, height= 6)
+#ggsave("figures/res_K_EaP-biplot-afternoon.jpeg", width = 8, height= 6)
 
 
 
@@ -971,7 +980,7 @@ plot2 <- res_c_Ea1P %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-c_Ea1P_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-c_Ea1P_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 res_c_Ea1P %>% 
@@ -995,7 +1004,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_c_Ea1P-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_c_Ea1P-biplot.jpeg", width = 8, height= 6)
 
 
 
@@ -1040,7 +1049,7 @@ plot2 <- res_c_Ea1N %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-c_Ea1N_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-c_Ea1N_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 
@@ -1084,7 +1093,7 @@ plot2 <- res_v_EaN %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-v_EaN_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-v_EaN_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 
@@ -1128,7 +1137,7 @@ plot2 <- res_v_EaP %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-v_EaP_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-v_EaP_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 
@@ -1175,7 +1184,7 @@ plot2 <- res_m_Ea1 %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-m_Ea1_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-m_Ea1_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 
@@ -1193,7 +1202,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_m_Ea1-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_m_Ea1-biplot.jpeg", width = 8, height= 6)
 
 
 # m_Ea2 -------------------------------------------------------------------
@@ -1236,7 +1245,7 @@ plot2 <- res_m_Ea2 %>%
 
 
 plots <- plot1 + plot2
-ggsave(filename = "figures/bayes-parms-m_Ea2_zero.jpeg", plot = plots, width = 10, height = 5)
+#ggsave(filename = "figures/bayes-parms-m_Ea2_zero.jpeg", plot = plots, width = 10, height = 5)
 
 
 ggplot() +
@@ -1253,7 +1262,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_m_Ea2-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_m_Ea2-biplot.jpeg", width = 8, height= 6)
 
 
 
@@ -1301,7 +1310,7 @@ all_results %>%
 	geom_ribbon(aes(x = T, ymin = lower_q95, ymax  = upper_q95), fill = "lightblue", alpha = 0.5) +
 	geom_line(aes(x = T, y = mean_fit), color = "red", alpha = 1) +
 	ylab("Fitness difference") + xlab("Temperature") + facet_wrap( ~ param)
-ggsave(filename = "figures/fitness_diffs_zero.jpeg", width = 20, height = 25)
+#ggsave(filename = "figures/fitness_diffs_zero.jpeg", width = 20, height = 25)
 
 all_results %>% 
 	ggplot() + 
@@ -1309,7 +1318,7 @@ all_results %>%
 	geom_ribbon(aes(x = T, ymin = lower_q95s, ymax  = upper_q95s), fill = "lightblue", alpha = 0.5) +
 	geom_line(aes(x = T, y = mean_fit_s), color = "red", alpha = 1) +
 	ylab("Stabilization potential")  + xlab("Temperature") + facet_wrap( ~ param)
-ggsave(filename = "figures/stabilization_diffs_zero.jpeg", width = 20, height = 25)
+#ggsave(filename = "figures/stabilization_diffs_zero.jpeg", width = 20, height = 25)
 
 
 
@@ -1335,7 +1344,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_r_EaP-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_r_EaP-biplot.jpeg", width = 8, height= 6)
 ### something is weird here!
 
 
@@ -1354,7 +1363,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_K_EaP-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_K_EaP-biplot.jpeg", width = 8, height= 6)
 
 
 
@@ -1372,7 +1381,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_K_EaN-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_K_EaN-biplot.jpeg", width = 8, height= 6)
 
 
 
@@ -1391,7 +1400,7 @@ ggplot() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) +
 	geom_hline(yintercept = 1.5, linetype=5, color = "pink")
-ggsave("figures/res_r_EaN-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_r_EaN-biplot.jpeg", width = 8, height= 6)
 
 
 
@@ -1409,7 +1418,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_c_Ea1N-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_c_Ea1N-biplot.jpeg", width = 8, height= 6)
 
 ggplot() +
 	geom_point(data = res_c_Ea1P, aes(x = mean_fit_s, y = mean_fit, color = T), size = 2) +
@@ -1425,7 +1434,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_c_Ea1P-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_c_Ea1P-biplot.jpeg", width = 8, height= 6)
 
 ggplot() +
 	geom_point(data = res_v_EaN, aes(x = mean_fit_s, y = mean_fit, color = T), size = 2) +
@@ -1441,7 +1450,7 @@ ggplot() +
 	# scale_color_continuous_diverging() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")")))
-ggsave("figures/res_v_EaN-biplot.jpeg", width = 8, height= 6)
+#ggsave("figures/res_v_EaN-biplot.jpeg", width = 8, height= 6)
 
 ggplot() +
 	geom_point(data = res_v_EaP, aes(x = mean_fit_s, y = mean_fit, color = T), size = 2) +
@@ -1458,7 +1467,7 @@ ggplot() +
 	xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
 	ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) +
 	xlim(min(res25c4$stabil_potential)*0.99, max(res25c4$stabil_potential)*1.01)
-ggsave("figures/res_v_EaP-biplot-2.jpeg", width = 8, height= 6)
+#ggsave("figures/res_v_EaP-biplot-2.jpeg", width = 8, height= 6)
 
 
 
@@ -1576,7 +1585,7 @@ ggplot() +
 	scale_color_viridis_c() +
 	theme(axis.text=element_text(size=24),
 		  axis.title=element_text(size=24,face="bold"))
-ggsave("figures/pompom-favourite-1000.png",  width = 12, height = 10) ### December 13 2024 this looks like latest script
+#ggsave("figures/pompom-favourite-1000.png",  width = 12, height = 10) ### December 13 2024 this looks like latest script
 
 
 results_favourite_warm <- results_favourite %>% 
@@ -1624,7 +1633,7 @@ ggplot() +
 	scale_color_viridis_c() +
 	theme(axis.text=element_text(size=24),
 		  axis.title=element_text(size=24,face="bold"))
-ggsave("figures/pompom-favourite-warm-1000-35.png",  width = 12, height = 10)
+#ggsave("figures/pompom-favourite-warm-1000-35.png",  width = 12, height = 10)
 
 ggplot() +
 	geom_path(data = results_favourite_warm, aes(x = stabil_potential, y = fit_ratio, color = T, group = iteration), size = 1) +
@@ -1675,7 +1684,7 @@ ggplot() +
 	scale_color_viridis_c() +
 	theme(axis.text=element_text(size=24),
 		  axis.title=element_text(size=24,face="bold"))
-ggsave("figures/pompom-loser-1000.png",  width = 12, height = 10)
+#ggsave("figures/pompom-loser-1000.png",  width = 12, height = 10)
 
 
 results_loser_warm <- results_loser %>% 
@@ -1704,5 +1713,5 @@ ggplot() +
 	scale_color_viridis_c() +
 	theme(axis.text=element_text(size=24),
 		  axis.title=element_text(size=24,face="bold"))
-ggsave("figures/pompom-loser-warm-1000-50.png",  width = 12, height = 10)
+#ggsave("figures/pompom-loser-warm-1000-50.png",  width = 12, height = 10)
 
