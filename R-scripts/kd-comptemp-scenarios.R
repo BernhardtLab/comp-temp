@@ -121,7 +121,8 @@ ggplot() +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
 
 # QUESTION 1: How many species pairs end up in coexistence vs competitive exclusion after a) 20 degrees cooling, b) 10 degrees cooling, c) 5 degrees warming, d) 10 degrees warming, e) 20 degrees warming ####
-jb_qualres1 <- jb %>% 
+# jb_qualres1 <- 
+  jb %>% 
   mutate(rel_T = T - 25) %>% 
   filter(rel_T %in% c(-20, -10, -5, 5, 10, 20)) %>% 
   group_by(rel_T, coexist) %>% 
@@ -306,7 +307,7 @@ for(f in 1:200){
                       m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
                       c1N_b = 0.2, c1P_b = 0.4, #spec 1 consumes more P
                       c2N_b = 0.4, c2P_b = 0.2, #spec 2 consumes more N
-                      r_N_b = 0.1, r_P_b = 0.05, #growth rate for each resource at ref temp
+                      r_N_b = 0.05, r_P_b = 0.1, #growth rate for each resource at ref temp. Note: setting these equal to each other, rather than with r_N = 1 and r_P = 0.05 moves the starting point from the upper line down to perfectly on the dotted line (fitness diffs == 1)
                       K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp
                       v1N_b = 0.2, v1P_b = 0.4, #sp 1 converts P more efficiently
                       v2N_b = 0.4, v2P_b = 0.2, #sp 2 converts N more efficiently
