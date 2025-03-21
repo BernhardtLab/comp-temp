@@ -57,9 +57,9 @@ temp_dep_mac <- function(T, ref_temp,
   # MCT components
   rho <- sqrt((a12*a21)/(a11*a22)) #niche overlap
   stabil_potential <- 1 - rho #stabilizing potential
-  log_stabil_potential <- log(stabil_potential)
+  new_stabil_potential <- -log(rho)
   fit_ratio <- sqrt((a11*a12)/(a22*a21))  #fitness ratio
-  log_fit_ratio <- log(fit_ratio)
+  new_fit_ratio <- log(fit_ratio)
   coexist <- rho < fit_ratio &  fit_ratio < 1/rho
   
   # report results
@@ -78,7 +78,7 @@ temp_dep_mac <- function(T, ref_temp,
              v2N_b = v2N_b, v2P_b = v2P_b,
              m1_b = m1_b, m2_b = m2_b,
              a11 = a11, a12 = a12, a22 = a22, a21 = a21, g1 = g1, g2 = g2,
-             stabil_potential = stabil_potential, log_stabil_potential = log_stabil_potential, fit_ratio = fit_ratio, log_fit_ratio = log_fit_ratio, rho = rho, coexist = coexist,
+             stabil_potential = stabil_potential, new_stabil_potential = new_stabil_potential, fit_ratio = fit_ratio, new_fit_ratio = new_fit_ratio, rho = rho, coexist = coexist,
              m1 = m1, m2 = m2, rN = rN, rP = rP, KN = KN, KP = KP,
              c1N = c1N,  c1P = c1P,  c2N = c2N, c2P = c2P, beta11 = beta11, beta21 = beta21, beta22 = beta22, beta12 = beta12)}
 
