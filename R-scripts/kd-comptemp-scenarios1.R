@@ -9,7 +9,7 @@
 # "Starting point," or the coordinates at the reference temperature, before any warming or cooling occurs, makes a huge difference in competitive outcomes. As such, we will begin with a set of biological scenarios that impose different starting positions.
 # Then, we will expose all of those to warming, both symmetrical warming, and asymmetrical warming, according to biologicall relevant warming scenarios, and see what effects this has on competitive outcomes. 
 
-#From old script #
+#From old script (kd-comptemp-scenarios.R)#
 #Questions I'd like to answer for each scenario:
 ## 1. How many species pairs end up in coexistence vs competitive exclusion after a) 20 degrees cooling, b) 10 degrees cooling, c) 5 degrees warming, d) 10 degrees warming, e) 20 degrees warming
 ####### In order to answer this I need to calculate the coordinates of these lines? Or can I just set up the inequality and see who satisfies is at these different time points?
@@ -334,7 +334,7 @@ ggplot() +
   geom_point(data = filter(rrc_e, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "turquoise", size = 3, shape = "triangle") + #N grows faster
   geom_point(data = rrc_e_avg, aes(x = mean_stab_pot, y = mean_fit_rat), colour = "black",  size = 4) +
   geom_point(data = rrc_e_avg, aes(x = mean_stab_pot, y = mean_fit_rat, colour = rel_T),  size = 3) +
-  geom_hline(yintercept = 1, linetype=5) + 
+  geom_hline(yintercept = 1, linetype=5) +
   scale_colour_continuous_diverging() +
   labs(colour = "Degrees warming") +
   # coord_cartesian(ylim=c(0.2, 2), xlim = c(0, 0.5)) + 
@@ -847,7 +847,7 @@ ggplot() +
 # rrcn_dist1 <- rrcn_dist %>% 
 #   dplyr::select(-c(dist5, dist10))
 
-hist(rrcn_dist1$dist20) #these are not normally distributed!!! most dists are small, few are large. I guess we knew that from the plots w mean position overlaid on the tassel
+hist(rrcn_dist$dist20) #these are not normally distributed!!! most dists are small, few are large. I guess we knew that from the plots w mean position overlaid on the tassel
 
 #look at diffs between:
 # -- EA c of two species
