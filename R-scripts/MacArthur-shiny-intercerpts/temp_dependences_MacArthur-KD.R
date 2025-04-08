@@ -1,4 +1,4 @@
-temp_dependences_MacArthur <- function(T = 25, ref_temp2 = 1,
+temp_dependences_MacArthur <- function(T = 25, ref_temp2 = 1, #I have no idea what ref_temp2 is and I cannot find it referenced anywhere. It is currently set to 1 which is the same referenece temperature currently set in the arrhenius function
 									   r_EaN = 0.5, r_EaP = 0.5, 
 									   c_Ea1N = 0.8, c_Ea1P = 0.8, 
 									   c_Ea2N = 0.8, c_Ea2P = 0.8, 

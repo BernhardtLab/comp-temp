@@ -10,32 +10,39 @@ library(tidyverse)
 library(patchwork)
 theme_set(theme_cowplot())
 
-source("arrhenius_function.R")
-source("temp_dependences_MacArthur.R")
-source("plot_MacArthur.R")
-source("plot_MacArthur_alpha.R")
+source("R-scripts/MacArthur-shiny-intercerpts/arrhenius_function.R")
+source("R-scripts/MacArthur-shiny-intercerpts/temp_dependences_MacArthur.R")
+source("R-scripts/MacArthur-shiny-intercerpts/plot_MacArthur.R")
+# source("R-scripts/MacArthur-shiny-intercerpts/plot_MacArthur_alpha.R") #not used for now
 
 
 params <- c("rN", "rP", "KN", "KP", "c1N", "c1P", "c2N", "c2P", "m1", "m2")
-# Define UI for application that draws the abundance graph
+
+# Define UI for application that draws the abundance graph ------------------------------------
+#What I would like to do is remove all the bits of this that are temperature dependent, and feed in a new model that does not simulate over temperature, but rather just executes the equation with the selected parameters. 
+
+#When I just comment out the EA sub-columns, that breaks the code. It produces the error "Error in data.frame: arguments imply differing number of rows: 2, 0".
+#I tried trouble shooting this by manually setting all EA parameters in the temp_dependences_macarthur function (in server section) equal to 0, but this broke it in a different way.  "Error in UseMethod: no applicable method for 'gather' applied to an object of class "c('double', 'numeric')" "
+
 ui <- fluidPage(
    
    # Application title
    titlePanel("MacArthur consumer-resource model"),
    fluidRow(column(("Code written by KD (building on JRB & PJK's), any mistakes are made by Kaleigh!"), width = 4)),
   #fluidRow(column(img(src='joeys-macarthur-equations.png'), width = 6)),
-   # fluidRow(column(("Two consumer species (C1, C2) compete for two resources, (N, P). 
-   # 				 We model the temperature dependence of parameters r, K, c, m and v using an Arrhenius function."), width = 6)),
-   		fluidRow(plotOutput("coolplot"), width = 12),
+   fluidRow(column(("Two consumer species (C1, C2) compete for two resources, (N, P)"), width = 6)),
+   		fluidRow(plotOutput("coolplot"), width = 12), #this displays the plots! I couldn't get this to dynamically update in the R app viewer. Had to close out of app and re-launch from the last line of code.
    		fluidRow(
-      	column(h4("For panel a, which parameters to dispay?"), offset = 0.1, 
-      		selectInput('parameter1', 'Parameter 1', params),
+      	column(h4("For panel a, which parameters to dispay?"), offset = 0.1, #h4 gives header. Not sure what offset is about.
+      	       #this next bit gives the drop down options for each parameter
+      	       #the inputId argument is referred to in the server object below, inside the Data.parameter.r object
+      		selectInput(inputId = 'parameter1', label = 'Parameter 1', choices = params),
       		selectInput('parameter2', 'Parameter 2', params, selected = params[[2]]),
       		selectInput('parameter3', 'Parameter 3', params, selected = params[[3]]),
       		selectInput('parameter4', 'Parameter 4', params, selected = params[[4]]), width = 2),
-      	
-      	
-      	column(h4("Temp dependence of resource r & K"), offset = .2, 
+
+
+      	column(h4("Temp dependence of resource r & K"), offset = .2,
          sliderInput("r_EaN",
                      "Ea of N's growth rate (rN)", min = 0, max = 1, value = 0.5, step= 0.05),
          sliderInput("r_EaP",
@@ -43,10 +50,10 @@ ui <- fluidPage(
          sliderInput("K_EaP",
          			"Ea of P's carrying capacity (KP)", min = -1, max = 1, value = -0.3, step= 0.05),
          sliderInput("K_EaN",
-         			"Ea of N's carrying capacity (KN)", min = -1, max = 1, value = -0.3, step= 0.05), 
+         			"Ea of N's carrying capacity (KN)", min = -1, max = 1, value = -0.3, step= 0.05),
          #KD added this in just to see if it would work -- it does
          # sliderInput("v_EaN",
-         #             "Ea of N's conversion efficiency (v)", min = -0.5, max = 0.5, value = 0, step= 0.05), 
+         #             "Ea of N's conversion efficiency (v)", min = -0.5, max = 0.5, value = 0, step= 0.05),
                width = 2),
          column(h4("Baseline consumption rates"), offset = 0.2,
          	   sliderInput("c1N_b",
@@ -67,15 +74,16 @@ ui <- fluidPage(
          sliderInput("c_Ea2N",
          			"Ea of C2's consumption of N (c2N)", min = -1, max = 1, value = 0, step= 0.05),
          sliderInput("c_Ea2P",
-         			"Ea of C1's consumption of P (c2P)", min = -1, max = 1, value = 0, step= 0.05), 
+         			"Ea of C1's consumption of P (c2P)", min = -1, max = 1, value = 0, step= 0.05),
          width = 2),
          column(h4("Temp dependence of consumer mortality"), offset = 0.5,
          	   sliderInput("m_Ea1",
          	   			"Ea of C1's mortality rate (m1)", min = 0, max = 1, value = 0, step= 0.05),
          	   sliderInput("m_Ea2",
-         	   			"Ea of C2's mortality rate (m2)", min = 0, max = 1, value = 0, step= 0.05), 
+         	   			"Ea of C2's mortality rate (m2)", min = 0, max = 1, value = 0, step= 0.05),
          	   width = 2),
-         column(h4("Conversion efficiencies"), offset = 0.5,
+         
+         column(h4("Baseline onversion efficiencies"), offset = 0.5,
          	   sliderInput("v1N_b",
          	   			"Conversion of N into C1", min = 0.1, max = 1, value = 0.2, step= 0.05),
          	   sliderInput("v2N_b",
@@ -117,6 +125,8 @@ server <- function(input, output) {
  	
    	Data.parameter.r = Data.temperature.r[, c("T", input$parameter1, input$parameter2, input$parameter3, input$parameter4)] %>% 
    	  gather(value=value, key=parameter, -T)
+   	
+   	# Plot.r = plot_MacArthur(Data.temperature.r) #this breaks the plotting panel, entirely. You need both data.temperature.r and data.parameter.r in the plot_MacArthur function in order for any plots to show up.
    	
    	Plot.r = plot_MacArthur(Data.parameter.r, Data.temperature.r)
    	

@@ -144,8 +144,7 @@ r_var_e <- r_var %>%
 
 r_var_e %>% 
   # dplyr::select(iteration, r_ta, dist20, shift_fitrat, shift_nichediffs) %>% 
-  pivot_longer(cols = c(dist20, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") %>% 
-  ggplot(aes(x = r_ta, y = value, colour = )) + 
+  ggplot(aes(x = r_ta, y = value)) + 
   geom_point() + 
   facet_wrap(~response_var) + 
   labs(x = "Abs diff in r_Ea", y = "Response variable value") #need to think about this more
@@ -372,6 +371,28 @@ ggplot() +
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #interesting! Only moves points along x axis & only down
 
+# calculate euclidean distances at 20C for each iteration ####
+k_var_e <- k_var %>% 
+  filter(T %in% c(25, 45)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(k_ta = abs(K_EaN - K_EaP),
+         dist20 = sqrt((T45_new_stabil_potential - T25_new_stabil_potential)^2 + (T45_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T45_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T45_new_stabil_potential - T25_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist20, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+k_var_e %>% 
+  # dplyr::select(iteration, r_ta, dist20, shift_fitrat, shift_nichediffs) %>% 
+  ggplot(aes(x = k_ta, y = value)) + 
+  geom_point() + 
+  facet_wrap(~response_var) + 
+  labs(x = "Abs diff in K_Ea", y = "Response variable value") + 
+  coord_cartesian(ylim = c(-0.5, 0.5))
+
 ### vary only one K_Ea ####
 k_var1 <- data.frame()
 for(f in 1:200){ 
@@ -459,6 +480,29 @@ ggplot() +
   # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #interesting! Only moves points along x axis & only down
+
+# calculate euclidean distances at 20C for each iteration ####
+v_var_e <- v_var %>% 
+  filter(T %in% c(25, 45)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(v_ta = abs(v_EaN - v_EaP),
+         dist20 = sqrt((T45_new_stabil_potential - T25_new_stabil_potential)^2 + (T45_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T45_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T45_new_stabil_potential - T25_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist20, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+v_var_e %>% 
+  # dplyr::select(iteration, r_ta, dist20, shift_fitrat, shift_nichediffs) %>% 
+  ggplot(aes(x = v_ta, y = value)) + 
+  geom_point() + 
+  facet_wrap(~response_var) + 
+  labs(x = "Abs diff in v_Ea", y = "Response variable value") + 
+  coord_cartesian(ylim = c(-0.5, 0.5))
+
 
 ### vary v_EaN only ####
 v_var1 <- data.frame()
