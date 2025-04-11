@@ -52,12 +52,12 @@ ui <-
                   sliderInput("m1_b", "m1_b", min = 0, max = 5, value = 0.01, step = 0.01), #0.01, max = 5 for all
                   sliderInput("m2_b", "m2_b", min = 0, max = 5, value = 0.01, step = 0.01), #0.01
                   width = 3)
-  )
+  ),
     
-    # mainPanel(
-      # Output display for results
-      # verbatimTextOutput("result")
-    # )
+    mainPanel(
+    # Output display for results
+    verbatimTextOutput("result")
+    ),
 )
 
 server <- function(input, output) {
@@ -102,9 +102,7 @@ server <- function(input, output) {
 # Render the plot of new_stabil_potential vs new_fit_ratio
   output$mctplot <- renderPlot({
     result <- computed_result()
-    
-  # Check if the necessary data is present
-  if (!is.null(result$new_stabil_potential) & !is.null(result$new_fit_ratio)) {
+  
     # Create a data frame for ggplot
     plot_data <- data.frame(
       new_stabil_potential = result$new_stabil_potential,
@@ -123,17 +121,10 @@ server <- function(input, output) {
                                 fill = "grey", color = "black", alpha = 0.2) +
       geom_hline(yintercept = 1, linetype = 5) +
       coord_cartesian(xlim = c(0,2), ylim = c(-2, 5)) +
-      geom_point(color = "blue", size = 4) +  # Blue points for the scatter plot
-      labs(x = "New Stabilizing Potential", y = "New Fit Ratio",
+      geom_point(color = "blue", size = 6) +  # Blue points for the scatter plot
+      labs(x = "-log(rho)", y = "log(k2/k1)",
            title = "Plot of New Stabilizing Potential vs New Fit Ratio") +
-      theme_minimal()  # Optional: Use minimal theme for cleaner look
-  } else {
-    # If no results are available, display an empty plot with a message
-    ggplot() + 
-      labs(x = "New Fit Ratio", y = "New Stabilizing Potential", 
-           title = "No Results to Plot") +
-      theme_minimal()
-    }
+      theme_minimal() 
   })
 }
 
