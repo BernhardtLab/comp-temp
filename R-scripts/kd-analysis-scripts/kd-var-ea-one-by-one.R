@@ -170,8 +170,48 @@ r_var_plot_e <-
   annotate("text", x = 0, y = 0.45, label = "Resource \ngrowth rate, r", size = 5.5) + 
   theme_cowplot(font_size = 20)
   
+# calculate change in alpha in addition to thermal asymmetry ####
+r_var_alpha <- r_var %>% 
+  filter(T %in% c(25, 40)) %>% 
+  dplyr::select(-c(g1, g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(a11, a22, a12, a21, new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(r_ta = abs(r_EaN - r_EaP),
+         a12_shift_abs = abs(T40_a12 - T25_a12),
+         a21_shift_abs = abs(T40_a21 - T25_a21),
+         a11_shift_abs = abs(T40_a11 - T25_a11),
+         a22_shift_abs = abs(T40_a22 - T25_a22),
+         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
   
- #### vary r_EaN, not r_EaP ####
+r_var_alpha %>% 
+  ggplot(aes(x = r_ta, y = a21_shift_abs, colour = a12_shift_abs)) + 
+  geom_point() + 
+  facet_wrap(~response_var) + 
+  scale_colour_viridis_c(option = "inferno") +
+  labs(x = "Abs change in a21", y = "Response variable value") #need to think about this more
+
+r_var_alpha %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = a21_shift_abs, y = a12_shift_abs, colour = r_ta)) + 
+  geom_point() + 
+  facet_wrap(~response_var) + 
+  scale_colour_viridis_c(option = "inferno") 
+  # coord_cartesian(xlim = c(0, 1.5), ylim = c(0, 0.5)) 
+
+r_var_alpha %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = a11_shift_abs, y = a22_shift_abs, colour = r_ta)) + 
+  geom_point() + 
+  scale_colour_viridis_c(option = "inferno") + 
+  coord_cartesian(xlim = c(0, 1.5), ylim = c(0, 0.5)) 
+
+
+#### vary r_EaN, not r_EaP ####
 r_var1 <- data.frame()
 for(f in 1:200){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
@@ -1104,4 +1144,4 @@ log_pom <- ggplot() +
   coord_cartesian(ylim=c(0, 1.25), xlim = c(0, 0.7)) + 
   theme_cowplot(font_size = 20)
 
-ggsave(plot = log_pom, filename = "figures/kd-figs/log-pom.pdf", width = 12, height = 10)
+# ggsave(plot = log_pom, filename = "figures/kd-figs/log-pom.pdf", width = 12, height = 10)
