@@ -35,7 +35,7 @@ library(colorspace)
 library(purrr)
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/kd-analysis-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in kd_analysis_repro.csv
@@ -334,7 +334,7 @@ ggplot() +
   geom_point(data = filter(rrc_e, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "turquoise", size = 3, shape = "triangle") + #N grows faster
   geom_point(data = rrc_e_avg, aes(x = mean_stab_pot, y = mean_fit_rat), colour = "black",  size = 4) +
   geom_point(data = rrc_e_avg, aes(x = mean_stab_pot, y = mean_fit_rat, colour = rel_T),  size = 3) +
-  geom_hline(yintercept = 1, linetype=5) +
+  # geom_hline(yintercept = 1, linetype=5) +
   scale_colour_continuous_diverging() +
   labs(colour = "Degrees warming") +
   # coord_cartesian(ylim=c(0.2, 2), xlim = c(0, 0.5)) + 

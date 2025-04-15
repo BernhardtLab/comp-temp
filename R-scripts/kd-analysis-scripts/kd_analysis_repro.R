@@ -15,7 +15,7 @@ library(patchwork)
 library(colorspace)
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, exactly as Joey's functions did, but has all parameters flexibly defined in the function for assigning at time of use. Nothing is hard coded in.
+source("R-scripts/kd-analysis-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, exactly as Joey's functions did, but has all parameters flexibly defined in the function for assigning at time of use. Nothing is hard coded in.
 
 #functions: 
 # temp_dep_mac -- my iteration of JB's temp_dependences_MacArthurb equation, with no parameter values hard coded in. Arrhenius parameters, including E and b1 for each dynamic/biological param from Song et al equations and the static/technical parm, ref_temp. Thinking of this like an biological vs technical replicate in experiments.
@@ -53,8 +53,9 @@ mort_ea_plot <- lm_mort %>%
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "black", size = 3, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "pink") +
-  coord_flip()
+  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
+  coord_flip() + 
+  theme_cowplot(font_size = 20)
 
 # resource growth rate ----------------------------------------------------
 
@@ -73,8 +74,9 @@ rgr_plot <- lm_rgr %>%
   geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "black", size = 3, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "pink") +
-  coord_flip()
+  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
+  coord_flip() + 
+  theme_cowplot(font_size = 20)
 
 # conversion efficiency ---------------------------------------------------
 lm_conv_eff <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "conversion efficiency"), burnin = 1000) %>% 
@@ -92,8 +94,9 @@ conv_eff_plot <- lm_conv_eff %>%
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "black", size = 3, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "pink") +
-  coord_flip()
+  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
+  coord_flip() + 
+  theme_cowplot(font_size = 20)
 
 # resource carrying capacity  ---------------------------------------------------
 lm_carrying_capacity <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "resource carrying capacity"), burnin = 1000) %>% 
@@ -111,8 +114,9 @@ carrying_capacity_plot <- lm_carrying_capacity %>%
   geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "black", size = 3, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "pink") +
-  coord_flip()
+  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
+  coord_flip() + 
+  theme_cowplot(font_size = 20)
 
 
 # consumption rate  ---------------------------------------------------
@@ -131,12 +135,14 @@ consumption_rate_plot <- lm_consumption_rate %>%
   geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "black", size = 3, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "pink") +
-  coord_flip()
+  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
+  coord_flip() + 
+  theme_cowplot(font_size = 20)
 
-#### plot all distributions #####
-ea_plots <- mort_ea_plot +  rgr_plot + conv_eff_plot + carrying_capacity_plot + consumption_rate_plot
-# ggsave(filename = "figures/kd-figs/ea-plots.pdf", ea_plots, width = 15, height = 12)
+### plot all distributions #####
+ea_plots <-
+  mort_ea_plot +  rgr_plot + conv_eff_plot + carrying_capacity_plot + consumption_rate_plot
+ggsave(filename = "figures/kd-figs/ea-plots.pdf", ea_plots, width = 15, height = 12)
 
 #stitch all these dfs together for use in other scripts
 # bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>% 
