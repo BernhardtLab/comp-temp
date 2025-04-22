@@ -8,7 +8,7 @@ library(shiny)
 library(ggplot2)
 
 # load macarthur source function
-source("R-scripts/temp-indep-macarthur-KD.R")
+source("R-scripts/kd-analysis-scripts/temp-indep-macarthur-KD.R")
 
 ui <- 
   fluidPage(
@@ -22,6 +22,7 @@ ui <-
   #   }
   # ")),
   
+  # WOULD BE GREAT TO ADD A SLIDER HERE FOR X-Y AXIS LIMITS
   fluidRow(column(h5("Consumption rate intercepts"), #sliders for model inputs (parameters)
                   # sidebarLayout(
                   #   sidebarPanel(
@@ -116,11 +117,11 @@ server <- function(input, output) {
         data = data.frame(x = seq(0, 2, 0.001)),
                                 aes(x = x,
                                     y = NULL,
-                                    ymin = exp(-x),
-                                    ymax = 1/(exp(-x))),
+                                    ymin = -x,
+                                    ymax = x),
                                 fill = "grey", color = "black", alpha = 0.2) +
-      geom_hline(yintercept = 1, linetype = 5) +
-      coord_cartesian(xlim = c(0,2), ylim = c(-2, 5)) +
+      geom_hline(yintercept = 0, linetype = 5) +
+      coord_cartesian(xlim = c(0,1), ylim = c(-2, 2)) +
       geom_point(color = "blue", size = 6) +  # Blue points for the scatter plot
       labs(x = "-log(rho)", y = "log(k2/k1)",
            title = "Plot of New Stabilizing Potential vs New Fit Ratio") +
@@ -131,3 +132,4 @@ server <- function(input, output) {
 
 # Run the application
 shinyApp(ui = ui, server = server)
+
