@@ -49,7 +49,7 @@ temp_dep_mac <- function(T, ref_temp,
   g2 = v2N * c2N * KN + v2P * c2P * KP - m2 ### growth rate of consumer 2
   
   # Relative competition coefficients
-  a11 = beta11 / g1
+  a11 = beta11 / g1 #increased growth rate --> decreased alphq
   a21 = beta21 / g2
   a22 = beta22 / g2
   a12 = beta12 / g1
