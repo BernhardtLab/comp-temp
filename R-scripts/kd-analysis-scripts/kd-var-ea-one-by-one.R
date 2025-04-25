@@ -74,7 +74,7 @@ param_sum1 %>%
 # r_Ea varies --------------------------------------------------------
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 r_var <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
@@ -243,7 +243,7 @@ r_var_alpha %>%
 ### restrict draws of r_EaN relative to that of r_EaP ####
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 r_var_res <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   
   r_EaP_val <- sample_n(rgr_post_dist, size = 1)$intercept
   
@@ -361,7 +361,7 @@ r_var_res_plot_e2 <-
 
 #### vary r_EaN, not r_EaP ####
 r_var1 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
@@ -408,7 +408,7 @@ ggplot() +
 
 ### vary all c_EAs ####
 c_var <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -453,7 +453,7 @@ ggplot() +
 
 ### vary all c_EaPs ####
 c_var1 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -497,7 +497,7 @@ ggplot() +
 
 ### vary c_Eas for just one consumer####
 c_var2 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -607,7 +607,7 @@ c_var_plot_e2 <-
 
 ### vary both K_Eas ####
 k_var <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -714,7 +714,7 @@ k_var_plot_e2 <-
 
 ### restrict so that K_EaN > K_EaP, or vice versa #####
 k_var_res <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   
   #first draw K_EaN
   K_EaP_val <- sample_n(k_post_dist, size = 1)$intercept
@@ -836,7 +836,7 @@ k_var_res_plot_e2 <-
 
 ### vary only one K_Ea ####
 k_var1 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -884,7 +884,7 @@ ggplot() +
 
 ### vary both v_Eas ####
 v_var <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -989,7 +989,7 @@ v_var_plot_e2 <-
 
 ### vary v_EaN only ####
 v_var1 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -1036,7 +1036,7 @@ ggplot() +
 
 ### vary both m_Eas ####
 m_var <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -1142,7 +1142,7 @@ m_var_plot_e2 <-
 
 ### vary m_Ea1 only ####
 m_var1 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 1), 
                       ref_temp = 25,
                       r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -1261,7 +1261,7 @@ param_e_unscaled_plot <- r_var_plot_e2 + c_var_plot_e2 + v_var_plot_e2 + k_var_p
 
 ####### plot start point #####
 start <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
                       ref_temp = 25,
                       r_EaN = 0,
@@ -1369,7 +1369,7 @@ ggplot() +
 ##### POMPOM PLOT FOR MANUSCRIPT -- draw all param EAs at random ##############
 ### rrc equal base rates #####
 rrc <- data.frame()
-for(f in 1:1000){ #was 200
+for(f in 1:500){ #was 200
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), #was by 0.1
                       ref_temp = 25,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
@@ -1386,7 +1386,7 @@ for(f in 1:1000){ #was 200
                       m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
-                      r_N_b = 0.5, r_P_b = 1, #growth rate for each resource at ref temp 0.1, 0.1
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
                       K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
                       v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
@@ -1396,14 +1396,6 @@ for(f in 1:1000){ #was 200
 }
 
 #get average change in position after 5, 10, 20C warming
-# QUESTION. What is the average position of the dot after 5C, 10C, 20C warming? #####
-rrc_avg <- rrc %>% 
-  mutate(rel_T = T-25) %>% 
-  filter(rel_T == 15) %>% 
-  group_by(rel_T) %>% 
-  summarise(mean_stab_pot = mean(stabil_potential),
-            mean_fit_rat = mean(fit_ratio))
-
 rrc_avg_new <- rrc %>% 
   mutate(rel_T = T-25) %>% 
   filter(rel_T == 15) %>% 
@@ -1478,6 +1470,7 @@ rrc_e <- rrc %>%
 
 hist(rrc_e$dist15)
 
+#### misaligned join - needs resolving 4/25/25 ####
 pom_inset <- rrc_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 0.05, colour = "black") + 
@@ -1494,130 +1487,52 @@ rrc_e %>%
   dplyr::select(c(T25_new_stabil_potential:T40_new_fit_ratio, iteration)) %>% 
   filter(is.na(T25_new_stabil_potential) | is.na(T25_new_fit_ratio) | is.na(T40_new_stabil_potential) | is.na(T40_new_fit_ratio)) %>% 
   View()
-
 #These are not real NAs, the data are just misaligned.
 
-
-##### POMPOM W INSET ######
-combined_plot <-
-  log_pom + 
-  inset_element(pom_inset, left = 0.02, bottom = 0.58, right = 0.38, top = 1)
-
-# ggsave(plot = combined_plot, filename = "figures/kd-figs/pom_inset.pdf", width = 12, height = 9)
-
-#run simulation 15 times to see how different the avg movement and histograms look ######
-
-for(i in 1:15){
-
-  rrc <- data.frame()
-  for(f in 1:500){ #was 200
-    hold = temp_dep_mac(T = seq(25, 40, by = 0.1), #was by 0.1
-                        ref_temp = 25,
-                        r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
-                        r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
-                        c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
-                        c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
-                        c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
-                        c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
-                        K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
-                        K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
-                        v_EaN = sample_n(v_post_dist, size = 1)$intercept,
-                        v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
-                        m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
-                        m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
-                        c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
-                        c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
-                        r_N_b = 0.5, r_P_b = 1, #growth rate for each resource at ref temp 0.1, 0.1
-                        K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
-                        v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
-                        v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
-                        m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m 0.1, 0.1
-    hold$iteration <- f
-    rrc <- bind_rows(rrc, hold) 
-  }
-
-  #get average change in position after 5, 10, 20C warming
-  # QUESTION. What is the average position of the dot after 5C, 10C, 20C warming? #####
-  rrc_avg <- rrc %>% 
-    mutate(rel_T = T-25) %>% 
-    filter(rel_T == 15) %>% 
-    group_by(rel_T) %>% 
-    summarise(mean_stab_pot = mean(stabil_potential),
-              mean_fit_rat = mean(fit_ratio))
-  
-  rrc_avg_new <- rrc %>% 
-    mutate(rel_T = T-25) %>% 
-    filter(rel_T == 15) %>% 
-    group_by(rel_T) %>% 
-    summarise(new_mean_stab_pot = mean(new_stabil_potential),
-              new_mean_fit_rat = mean(new_fit_ratio))
-
-#generate plot
-  log_pom <-
-    ggplot() +
-    # sim paths
-    geom_path(data = rrc, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
-    # coexist area
-    geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
-                aes(x = x,
-                    y = NULL,
-                    ymin = -x,
-                    ymax = x),
-                fill = "grey", color = "black", alpha = 0.2) +
-    # position before warming
-    geom_point(data = filter(rrc, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "white", size = 7) +
-    geom_point(data = filter(rrc, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 6) + 
-    # position after 15C warming
-    geom_point(data = rrc_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 8) +
-    geom_point(data = rrc_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
-    geom_hline(yintercept = 0, linetype=5) +
-    #aesthetic customization
-    # scale_colour_viridis_c(option = "inferno") +
-    scale_colour_viridis_c(option = "magma", begin = 0.45, end = 1, direction = -1) + 
-    # scale_color_brewer(palette = "spectral") + #not working
-    # scale_color_scico(palette = "lajolla") + #same as inferno
-    xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-    ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) +
-    labs(colour = "Degrees \nC Warming") +
-    coord_cartesian(ylim=c(-1,1.2), xlim = c(0, 0.7)) + 
-    theme_cowplot(font_size = 20)
-
-#get euclidean distances
-rrc_e <- rrc %>% 
+# plot absolute shift in niche diffs and fitness diffs with warming #
+rrc_p <- rrc %>% 
   filter(T %in% c(25, 40)) %>% 
-  dplyr::select(-c(a11:g2, m1:beta12)) %>%
-  pivot_wider(id_cols = c(ref_temp:m2_b, coexist, iteration),
-              names_from = T,
-              values_from = c(new_stabil_potential, new_fit_ratio),
-              names_glue = "T{T}_{.value}") %>% 
-  mutate(dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential)
-# pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+  mutate(temp = ifelse(T == 25, "Ambient", "+15C Warming"))
 
-  hist(rrc_e$dist15)
+rrc_p_avg <- rrc_p %>% 
+  group_by(temp) %>% 
+  summarise(mean_stabil_potential = mean(new_stabil_potential), 
+            mean_fitrat = mean(new_fit_ratio))
+
+#shift in stabilization potential
+nd_shift <- 
+  ggplot() + 
+  geom_point(data = rrc_p, aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3) +
+  geom_point(data = rrc_p_avg, aes(x = temp, y = mean_stabil_potential), size = 3) +
+  labs(x = "Temperature", y = expression(paste("Stabilization potential (-log(", rho, "))"))) +
+  scale_x_discrete(limits = c("Ambient", "+15C Warming")) + 
+  theme_cowplot(font_size = 16) + 
+  theme(axis.title.x = element_blank()) + 
+  coord_cartesian(ylim = c(0, 0.65))
+
+#shift in fitness ratio
+
+fd_shift <-
+ggplot() + 
+  geom_point(data = rrc_p, aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3) +
+  geom_point(data = rrc_p_avg, aes(x = temp, y = mean_fitrat), size = 3) + 
+  labs(x = "Temperature", y = expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) +
+  scale_x_discrete(limits = c("Ambient", "+15C Warming")) + 
+  theme_cowplot(font_size = 16) + 
+  theme(axis.title.x = element_blank()) + 
+  coord_cartesian(ylim = c(0, 0.65))
   
-  pom_inset <- rrc_e %>% 
-    ggplot(aes(x = dist15)) + 
-    geom_histogram(binwidth = 0.05, colour = "black") + 
-    labs(x = "Euclidean distance with \n15C warming", y = "Count") + 
-    theme_cowplot(font_size = 14)
-  
-  ##### PLOT POMPOM W INSET ######
-  combined_plot <-
-    log_pom + 
-    inset_element(pom_inset, left = 0.02, bottom = 0.58, right = 0.38, top = 1)
-  
-  # Print some diagnostics
-  cat("Iteration:", i, "\n")
-  cat("Saving plot as:", paste0("figures/kd-figs/pom_repeatability/pom_plot", i, ".pdf"), "\n", file = log_file)
-  
-  # Save the plot with a unique filename for each iteration
-  ggsave(plot = combined_plot, filename = paste0("figures/kd-figs/pom_repeatability/pom_plot", i, ".pdf"), width = 12, height = 10)
-  
-  print(combined_plot)
-  
-}
+nd_shift + fd_shift
+#need to figure out how to retrieve the colours at either end of this spectrum and assign those to the dots in the ND and FD plots
+
+##### Pompom with inset ######
+# combined_plot <-
+#   log_pom + 
+#   inset_element(pom_inset, left = 0.02, bottom = 0.58, right = 0.38, top = 1)
+# 
+# # ggsave(plot = combined_plot, filename = "figures/kd-figs/pom_inset.pdf", width = 12, height = 9)
+
+
 
 
 ## Now I want to just save the rrc_avg_new dataset for each iterations and jam it onto the last iteration, so I can plot the start point and the distribution of average endpoints ####
@@ -1800,7 +1715,7 @@ avg_move <- results_list2 %>%
 #just jack up the iterations and plot all the end points ###
 rrc_ep <- data.frame()
 
-for(f in 1:2000){ #was 200
+for(f in 1:5000){ #was 200
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), #was by 0.1
                       ref_temp = 25,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
