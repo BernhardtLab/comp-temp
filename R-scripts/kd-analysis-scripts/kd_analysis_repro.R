@@ -57,7 +57,8 @@ mort_ea_plot <- lm_mort %>%
   labs(y = "Count", x = "Activation Energy") +
   # coord_flip() + 
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 0.75, y = 4500, label = "Consumer \nmortality rate, m", size = 6)
+  # label = expression("Conversion \nefficiency," ~ italic(v))
+  annotate("text", x = 0.75, y = 4500, label = expression("Consumer \nmortality rate," ~italic(m)), size = 6)
 
 # resource growth rate ----------------------------------------------------
 
@@ -80,7 +81,8 @@ rgr_plot <- lm_rgr %>%
   labs(y = "Count", x = "Activation Energy") +
   # coord_flip() + 
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.5, y = 4500, label = "Resource \ngrowth rate, r", size = 6)
+  # label = expression("Conversion \nefficiency," ~ italic(v))
+  annotate("text", x = 1.5, y = 4500, label = expression("Resource \ngrowth rate," ~italic(r)), size = 6)
 
 # conversion efficiency ---------------------------------------------------
 lm_conv_eff <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "conversion efficiency"), burnin = 1000) %>% 
@@ -92,7 +94,7 @@ conv_rates <- mac_means %>%
   filter(simple_parameter == "conversion efficiency") %>% 
   dplyr::select(activation_energy)
 
-conv_eff_plot <- lm_conv_eff %>% 
+conv_eff_plot <- lm_conv_eff %>%
   ggplot(aes(x = intercept)) + geom_histogram(fill = "lightgrey") +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "black", size = 3, shape = 1) +
@@ -102,7 +104,7 @@ conv_eff_plot <- lm_conv_eff %>%
   coord_cartesian(ylim = c(0, 5000)) + 
   labs(y = "Count", x = "Activation Energy") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.2, y = 4500, label = "Conversion \nefficiency, v", size = 6)
+  annotate("text", x = 1.2, y = 4500, label = expression("Conversion \nefficiency," ~italic(v)), size = 6)
 
 # resource carrying capacity  ---------------------------------------------------
 lm_carrying_capacity <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "resource carrying capacity"), burnin = 1000) %>% 
@@ -124,7 +126,7 @@ carrying_capacity_plot <- lm_carrying_capacity %>%
   coord_cartesian(ylim = c(0, 5000)) + 
   labs(y = "Count", x = "Activation Energy") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 0.05, y = 4500, label = "Resource \ncarrying \ncapacity, K", size = 6)
+  annotate("text", x = 0.05, y = 4000, label = expression("Resource \ncarrying \ncapacity," ~italic(K)), size = 6)
 
 
 # consumption rate  ---------------------------------------------------
@@ -147,7 +149,7 @@ consumption_rate_plot <- lm_consumption_rate %>%
   coord_cartesian(ylim = c(0, 5000)) + 
   labs(y = "Count", x = "Activation Energy") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.3, y = 4500, label = "Consumption \nrate, c", size = 6)
+  annotate("text", x = 1.3, y = 4500, label = expression("Consumption \nrate," ~italic(c)), size = 6)
 
 ### plot all distributions #####
 ea_plots <-
