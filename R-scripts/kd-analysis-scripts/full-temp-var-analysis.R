@@ -66,6 +66,143 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
+### NO THERMAL ASYMMETRIES SIM ####
+### no tas  #####
+nota <- data.frame()
+for(f in 1:500){ #was 200
+  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), #was by 0.1
+                      ref_temp = 25,
+                      r_EaN = mean(rgr_post_dist$intercept),
+                      r_EaP = mean(rgr_post_dist$intercept),
+                      # r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = mean(c_post_dist$intercept),
+                      c_Ea1P = mean(c_post_dist$intercept), 
+                      c_Ea2N = mean(c_post_dist$intercept),
+                      c_Ea2P = mean(c_post_dist$intercept), 
+                      K_EaN = mean(k_post_dist$intercept), 
+                      K_EaP = mean(k_post_dist$intercept), 
+                      v_EaN = mean(v_post_dist$intercept),
+                      v_EaP = mean(v_post_dist$intercept), 
+                      m_Ea1 = mean(m_post_dist$intercept), 
+                      m_Ea2 = mean(m_post_dist$intercept),
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.7, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m 0.1, 0.1
+  hold$iteration <- f
+  nota <- bind_rows(nota, hold) 
+}
+
+#get average change in position after 5, 10, 20C warming
+nota_avg_new <- nota %>% 
+  mutate(rel_T = T-25) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio))
+
+#base pompom for comparison
+# log_pom <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = nota, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(nota, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(nota, T==25), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-25), size = 6) +
+  # position after 15C warming
+  geom_point(data = nota_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = nota_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "Degrees \nC Warming") +
+  # coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(0, 0.55)) +
+  # coord_cartesian(ylim = c(-1, 1.5), xlim = c(-0.05, 1)) + 
+  # scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  annotate("text", x = 0.37, y = -0.05, label = "Co-existence", size = 5, fontface = 2) +
+  annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 20)
+
+# get euclidean distances
+nota_e <- nota %>% 
+  filter(T %in% c(25, 125)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist15 = sqrt((T125_new_stabil_potential - T25_new_stabil_potential)^2 + (T125_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T125_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T125_new_stabil_potential - T25_new_stabil_potential) 
+
+hist(nota_e$dist15)
+
+#how many paths cross 0 on the niche differences axis
+nrow(nota_e %>% filter(T125_new_fit_ratio < 0) %>% distinct(iteration, .keep_all = T)) #150!
+
+#histogram plot of euclidean dsistances in the pom pom plot
+pom_hist <- nota_e %>% 
+  ggplot(aes(x = dist15)) + 
+  geom_histogram(binwidth = 0.05, colour = "black") + 
+  labs(x = "Euclidean distance with \n100C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+
+# plot absolute shift in niche diffs and fitness diffs with warming #
+nota_p <- nota %>% 
+  filter(T %in% c(25, 125)) %>% 
+  mutate(temp = ifelse(T == 25, "Ambient", "+100C Warming"))
+
+nota_p_avg <- nota_p %>% 
+  group_by(temp) %>% 
+  summarise(mean_stabil_potential = mean(new_stabil_potential), 
+            mean_fitrat = mean(new_fit_ratio),
+            sd_stabil_potential = sd(new_stabil_potential),
+            sd_fitrat = sd(new_fit_ratio))
+
+#shift in stabilization potential
+nd_shift <-
+  ggplot() + 
+  geom_point(data = nota_p, aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3) +
+  geom_point(data = nota_p_avg, aes(x = temp, y = mean_stabil_potential, fill = temp), size = 5, pch = 21) +
+  labs(x = "Temperature", y = expression(paste("Niche differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+100C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+  coord_cartesian(ylim = c(0, 0.65)) 
+
+#shift in fitness ratio
+fd_shift <-
+  ggplot() + 
+  geom_point(data = nota_p, aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3) +
+  geom_point(data = nota_p_avg, aes(x = temp, y = mean_fitrat, fill = temp), size = 5, pch = 21) + 
+  labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+100C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") + 
+  coord_cartesian(ylim = c(0, 0.65))
+
+nd_shift + fd_shift
+
+
+
 ##### POMPOM PLOT FOR MANUSCRIPT -- draw all param EAs at random ##############
 ### rrc  #####
 rrc <- data.frame()
@@ -86,7 +223,7 @@ for(f in 1:500){ #was 200
                       m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
-                      r_N_b = 0.5, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
                       K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
                       v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
@@ -125,7 +262,7 @@ rrc_avg_new <- rrc %>%
 #   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
 
 #base pompom for comparison
-# log_pom <-
+log_pom <-
   ggplot() +
   # coexist area
   geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
@@ -143,16 +280,19 @@ rrc_avg_new <- rrc %>%
   geom_point(data = rrc_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
   geom_point(data = rrc_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc_avg_new, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) +
-  labs(colour = "Degrees \nC Warming") +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(0, 0.55)) + 
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  # coord_cartesian(ylim = c(-1, 1.5), xlim = c(-0.05, 1)) + 
   scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  annotate("text", x = 0.37, y = -0.05, label = "Co-existence", size = 5, fontface = 2) +
+  annotate("text", x = 0.35, y = -0.08, label = "Co-existence", size = 5, fontface = 2) +
   annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
   annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
   theme_cowplot(font_size = 20)
 
 # ggsave(plot = log_pom, filename = "figures/kd-figs/log-pom1.pdf", width = 12, height = 10)
@@ -171,18 +311,21 @@ rrc_e <- rrc %>%
 
 hist(rrc_e$dist15)
 
+#how many paths cross 0 on the niche differences axis
+nrow(rrc_e %>% filter(T40_new_fit_ratio < 0) %>% distinct(iteration, .keep_all = T)) #2!
+
 #histogram plot of euclidean dsistances in the pom pom plot
 pom_hist <- rrc_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 0.05, colour = "black") + 
-  labs(x = "Euclidean distance with \n15C warming", y = "Count") + 
+  labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
   theme_cowplot(font_size = 14)
 
 
 # plot absolute shift in niche diffs and fitness diffs with warming #
 rrc_p <- rrc %>% 
   filter(T %in% c(25, 40)) %>% 
-  mutate(temp = ifelse(T == 25, "Ambient", "+15C Warming"))
+  mutate(temp = ifelse(T == 25, "Ambient", "+15°C Warming"))
 
 rrc_p_avg <- rrc_p %>% 
   group_by(temp) %>% 
@@ -194,10 +337,10 @@ rrc_p_avg <- rrc_p %>%
 #shift in stabilization potential
 nd_shift <-
   ggplot() + 
-  geom_point(data = rrc_p, aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3) +
+  geom_jitter(data = filter(rrc_p, T>25), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_p_avg, aes(x = temp, y = mean_stabil_potential, fill = temp), size = 5, pch = 21) +
-  labs(x = "Temperature", y = expression(paste("Stabilization potential"))) +
-  scale_x_discrete(limits = c("Ambient", "+15C Warming")) + 
+  labs(x = "Temperature", y = expression(paste("Niche differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
   theme_cowplot(font_size = 14) + 
   theme(axis.title.x = element_blank(),
@@ -207,10 +350,10 @@ nd_shift <-
 #shift in fitness ratio
 fd_shift <-
   ggplot() + 
-  geom_point(data = rrc_p, aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3) +
+  geom_jitter(data = filter(rrc_p, T>25), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_p_avg, aes(x = temp, y = mean_fitrat, fill = temp), size = 5, pch = 21) + 
-  labs(x = "Temperature", y = expression(paste("Fitness difference"))) +
-  scale_x_discrete(limits = c("Ambient", "+15C Warming")) + 
+  labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
   theme_cowplot(font_size = 14) + 
   theme(axis.title.x = element_blank(),
@@ -224,8 +367,11 @@ nd_shift + fd_shift
 bottom_patch <- pom_hist + nd_shift + fd_shift
 
 comb_plot1 <- log_pom / bottom_patch + 
-  plot_layout(heights = c(2.25, 1))
+  plot_layout(heights = c(2.25, 1)) + 
+  plot_annotation(tag_levels = "A")
 # ggsave(plot = comb_plot1, filename = "figures/kd-figs/pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot1, filename = "figures/kd-figs/100C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
+
 
 #try just a set of four equal panels in a square 
 top_patch <- log_pom + pom_hist
@@ -275,6 +421,45 @@ ggplot() +
   facet_wrap(~new_stabil_potential >= 0.4054651) #this is just the start point
 
 #have tried this with all of the temperature sensitive parameters (ta > 0) and some tests that make some intuitive sense to me as sources of categorical differences in outcomes (c_Ea > r_Ea)and there doesn't seem to be any clear patterns emerging.
+
+# how many paths have increased ND after 15C warming? #
+start_pos <- rrc_e %>% 
+  dplyr::select(iteration, T25_new_fit_ratio, T25_new_stabil_potential) %>% 
+  rename(start_fit_rat = T25_new_fit_ratio,
+         start_stab_pot = T25_new_stabil_potential)
+
+diffs_up_down <- rrc %>% 
+  filter(T == 40) %>%
+  dplyr::select(iteration, new_fit_ratio, new_stabil_potential) %>% 
+  left_join(start_pos, .) %>% 
+  mutate(nd_up_down = ifelse(new_stabil_potential > start_stab_pot, "up", "down"),
+         fd_up_down = ifelse(new_fit_ratio > start_fit_rat, "up", "down"),
+         both_up = ifelse(nd_up_down == "up" & fd_up_down == "up", "yes", "no"),
+         both_down = ifelse(nd_up_down == "down" & fd_up_down == "down", "yes", "n"))
+  
+#possible pairs are: 
+# FD UP, ND UP
+# FD UP, ND DOWN
+# FD DOWN, ND UP
+# FD DOWN, ND DOWN
+
+#both up
+nrow(diffs_up_down %>% 
+  filter(nd_up_down == "up" & fd_up_down == "up")) #88
+
+#both down
+nrow(diffs_up_down %>% 
+       filter(nd_up_down == "down" & fd_up_down == "down")) #180
+
+#nd up, fd down
+nrow(diffs_up_down %>% 
+       filter(nd_up_down == "up" & fd_up_down == "down")) #103
+
+#nd down, fd up
+nrow(diffs_up_down %>% 
+       filter(nd_up_down == "down" & fd_up_down == "up")) #129
+
+#these total 500 -- good
 
 # can we get the same results if we just allow r and c to vary with temperature? #####
 ### rrc_rc  #####

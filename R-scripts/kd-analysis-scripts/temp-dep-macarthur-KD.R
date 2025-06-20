@@ -44,12 +44,12 @@ temp_dep_mac <- function(T, ref_temp,
   beta22 = v2N * c2N * (KN/rN) * c2N + v2P * c2P * (KP/rP) * c2P ### intra
   beta21 = v2N * c2N * (KN/rN) * c1N + v2P * c2P * (KP/rP) * c1P ### inter
   
-  
-  g1 = v1N * c1N * KN + v1P * c1P * KP - m1 ### growth rate of the consumer 1
+  #In Song et al 2019, this is r_i
+  g1 = v1N * c1N * KN + v1P * c1P * KP - m1 ### growth rate of consumer 1
   g2 = v2N * c2N * KN + v2P * c2P * KP - m2 ### growth rate of consumer 2
   
   # Relative competition coefficients
-  a11 = beta11 / g1 #increased growth rate --> decreased alphq
+  a11 = beta11 / g1 #increased growth rate --> decreased alpha
   a21 = beta21 / g2
   a22 = beta22 / g2
   a12 = beta12 / g1

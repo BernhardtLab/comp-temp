@@ -118,10 +118,10 @@ r_var_plot <-
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.70)) +
-  xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) +
-  labs(colour = "Degrees C \nWarming") +
-  annotate("text", x = 0.2, y = 0.7, label = expression("Resource \ngrowth rate," ~ italic(r)), size = 6) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C \nWarming") +
+  annotate("text", x = 0.3, y = 0.85, label = expression("Resource growth rate," ~ italic(r)), size = 6) +
   theme_cowplot(font_size = 20) +
   theme(legend.position = "none")
 
@@ -141,8 +141,8 @@ ggplot() +
               fill = "grey", color = "black", alpha = 0.2) +
   geom_point(data = filter(r_var, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
   geom_hline(yintercept = 1, linetype=5) +
-  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #strong effects along fitness differences axis
+  xlab(expression(paste("Niche differences (1-", rho, ")"))) +
+  ylab(expression(paste("Fitness differences (", f[2], "/", f[1], ")"))) #strong effects along fitness differences axis
 
 
 ## calculate euclidean distances at 20C for each iteration #####
@@ -185,9 +185,9 @@ r_var_plot_e2 <-
     # ggplot(aes(x = r_ta, y = value)) +
     ggplot(aes(x = r_ta, y = value, colour = r_EaN < r_EaP)) +
     geom_point(size = 3) + 
-    labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+    labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
     coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-    annotate("text", x = 1.0, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
+    annotate("text", x = 0.88, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
     theme_cowplot(font_size = 20) 
 
 r_var_plot_e3 <-
@@ -594,12 +594,12 @@ c_var_plot <-
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
-  xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") + 
-  annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
+  annotate("text", x = 0.25, y = 0.85, label = expression("Consumption rate," ~ italic(c)), size = 6)
   
 ## calculate euclidean distances at 20C for each iteration #####
 c_var_e <- c_var2 %>% 
@@ -628,7 +628,7 @@ c_var_plot_e <-
   # ggplot(aes(x = scale(c_ta), y = value)) + 
   ggplot(aes(x = scale(c_ta), y = value, colour = c_Ea2N < c_Ea2P)) +
   geom_point(size = 3) + 
-  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance)") + 
   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
   annotate("text", x = 0, y = 0.45, label = "Consumer 1 resource \nconsumption rate", size = 5.5) + 
   theme_cowplot(font_size = 20)
@@ -639,9 +639,9 @@ c_var_plot_e2 <-
   # ggplot(aes(x = c_ta, y = value)) + 
   ggplot(aes(x = c_ta, y = value, colour = c_Ea2N < c_Ea2P)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
   coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-  annotate("text", x = 0.9, y = 0.35, label = "Consumer 1 resource \nconsumption rate", size = 5.5) + 
+  annotate("text", x = 0.70, y = 0.35, label = "Consumer 2 \nconsumption rate, c", size = 5.5) + 
   theme_cowplot(font_size = 20)
 
 c_var_plot_e3 <- c_var_e %>% 
@@ -680,7 +680,7 @@ for(f in 1:500){
   hold$iteration <- f
   k_var <- bind_rows(k_var, hold) 
 }
-
+beep(2)
 
 #plot
 ggplot() +
@@ -712,8 +712,8 @@ k_var_plot <-
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
-  xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
@@ -745,7 +745,7 @@ k_var_plot_e <-
   # ggplot(aes(x = scale(k_ta), y = value)) + 
   ggplot(aes(x = scale(k_ta), y = value, colour = K_EaN < K_EaP)) +
   geom_point(size = 3) + 
-  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance) ") + 
   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
   annotate("text", x = 0.25, y = 0.45, label = "Resource \ncarrying capacity, K", size = 6) + 
   theme_cowplot(font_size = 20)
@@ -756,9 +756,9 @@ k_var_plot_e2 <-
   # ggplot(aes(x = k_ta, y = value)) +
   ggplot(aes(x = k_ta, y = value, colour = K_EaN < K_EaP)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
   coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-  annotate("text", x = 0.95, y = 0.35, label = "Resource \ncarrying capacity, K", size = 6) + 
+  annotate("text", x = 0.7, y = 0.35, label = "Resource \ncarrying capacity, K", size = 6) + 
   theme_cowplot(font_size = 20)
 
 k_var_plot_e3 <- k_var_e %>% 
@@ -997,8 +997,8 @@ v_var_plot <-
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
-  xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") + 
@@ -1041,9 +1041,9 @@ v_var_plot_e2 <-
   # ggplot(aes(x = v_ta, y = value)) +
   ggplot(aes(x = v_ta, y = value, colour = v_EaN < v_EaP)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
   coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-  annotate("text", x = 1.0, y = 0.35, label = "Conversion \nefficiency, v", size = 6) + 
+  annotate("text", x = 0.5, y = 0.35, label = "Conversion \nefficiency, v", size = 6) + 
   theme_cowplot(font_size = 20)
 
 v_var_plot_e3 <- v_var_e %>% 
@@ -1159,8 +1159,8 @@ m_var_plot <-
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
-  xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
@@ -1203,9 +1203,9 @@ m_var_plot_e2 <-
   # ggplot(aes(x = m_ta, y = value)) +
   ggplot(aes(x = m_ta, y = value, colour = m_Ea1 < m_Ea2)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
+  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
   coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-  annotate("text", x = 1.0, y = 0.35, label = "Consumer \nmortality rate, m", size = 6) +
+  annotate("text", x = 0.75, y = 0.35, label = "Consumer \nmortality rate, m", size = 6) +
   theme_cowplot(font_size = 20)
 
 m_var_plot_e3 <- m_var_e %>% 
@@ -1324,15 +1324,16 @@ m_var_tas %>%
 
 # Combining all param_var and euclidean displacement plots -------------------------------------------
 
-param_var_plot <- r_var_plot + c_var_plot + v_var_plot + k_var_plot + m_var_plot + rvar_legend
-ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots.pdf", width = 14, height = 10)
+param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot + rvar_legend + 
+  plot_annotation(tag_levels = "A")
+# ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots.pdf", width = 14, height = 10)
 
 param_e_plot <- r_var_plot_e + c_var_plot_e + v_var_plot_e + k_var_plot_e + m_var_plot_e
 # ggsave(plot = param_e_plot, filename = "figures/kd-figs/param_e_plots.pdf", width = 16, height = 12)
 
-param_e_unscaled_plot <- r_var_plot_e2 + c_var_plot_e2 + v_var_plot_e2 + k_var_plot_e2 + m_var_plot_e2
+param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2
 # ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled.pdf", width = 16, height = 12)
-ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality.pdf", width = 18, height = 12)
+# ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality.pdf", width = 18, height = 12)
 
 param_e_plot3 <- r_var_plot_e3 + c_var_plot_e3 + v_var_plot_e3 + k_var_plot_e3 + m_var_plot_e3
 ggsave(plot = param_e_plot3, filename = "figures/kd-figs/param_e_plots2.pdf", width = 18, height = 12)
