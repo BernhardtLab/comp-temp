@@ -49,14 +49,15 @@ param_sum <- param_vals %>%
         Median = median,
         Q3 = ~quantile(., 0.75),
         Min = min,
-        Max = max
+        Max = max,
+        sd = sd
       ),
       .names = "{.fn}" )
   ) 
 
 #make longform
 param_sum1 <- param_sum %>% 
-  pivot_longer(cols = c(Mean:Max), 
+  pivot_longer(cols = c(Mean:sd), 
                names_to = "summary_stat",
                values_to = "value")
 
@@ -748,6 +749,155 @@ top_patch <- log_pom + pom_hist
 bottom_patch1 <- nd_shift + fd_shift
 
 top_patch/bottom_patch1
+
+##### POMPOM 5°C -- draw all param EAs at random ##############
+### rrc50  #####
+rrc50 <- data.frame()
+for(f in 1:500){ #was 200
+  hold = temp_dep_mac(T = seq(25, 75, by = 0.1), #was by 0.1
+                      ref_temp = 25,
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m 0.1, 0.1
+  hold$iteration <- f
+  rrc50 <- bind_rows(rrc50, hold) 
+}
+
+#get average change in position after 5, 10, 20C warming
+rrc50_avg_new <- rrc50 %>% 
+  mutate(rel_T = T-25) %>% 
+  filter(rel_T == 50) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio))
+
+#base pompom for comparison
+log_pom <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc50, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc50, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc50, T==25), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-25), size = 6) +
+  # position after 50C warming
+  geom_point(data = rrc50_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc50_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc50_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  # coord_cartesian(ylim = c(-0.02, 0.55), xlim = c(0, 0.42)) + #this one is for the 5C warming
+  coord_cartesian(ylim = c(-0.50, 1.2), xlim = c(-0.022, 0.75)) + #this for 50C
+  scale_y_continuous(breaks = c(-0.5, 0, 0.25, 0.5, 0.75, 1.0)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Co-existence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 20)
+
+ggsave(plot = log_pom, filename = "figures/kd-figs/log-pom-50C.pdf", width = 12, height = 10)
+
+# get euclidean distances
+rrc50_e <- rrc50 %>% 
+  filter(T %in% c(25, 30)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist15 = sqrt((T30_new_stabil_potential - T25_new_stabil_potential)^2 + (T30_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T30_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T30_new_stabil_potential - T25_new_stabil_potential) 
+
+hist(rrc50_e$dist15)
+
+#how many paths cross 0 on the niche differences axis
+nrow(rrc50_e %>% filter(T30_new_fit_ratio < 0) %>% distinct(iteration, .keep_all = T)) #2!
+
+#histogram plot of euclidean dsistances in the pom pom plot
+pom_hist <- rrc50_e %>% 
+  ggplot(aes(x = dist15)) + 
+  geom_histogram(binwidth = 0.05, colour = "black") + 
+  labs(x = "Euclidean distance with \n5°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+
+# plot absolute shift in niche diffs and fitness diffs with warming #
+rrc50_p <- rrc50 %>% 
+  filter(T %in% c(25, 30)) %>% 
+  mutate(temp = ifelse(T == 25, "Ambient", "+5°C Warming"))
+
+rrc50_p_avg <- rrc50_p %>% 
+  group_by(temp) %>% 
+  summarise(mean_stabil_potential = mean(new_stabil_potential), 
+            mean_fitrat = mean(new_fit_ratio),
+            sd_stabil_potential = sd(new_stabil_potential),
+            sd_fitrat = sd(new_fit_ratio))
+
+#shift in stabilization potential
+nd_shift <-
+  ggplot() + 
+  geom_jitter(data = filter(rrc50_p, T>25), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
+  geom_point(data = rrc50_p_avg, aes(x = temp, y = mean_stabil_potential, fill = temp), size = 5, pch = 21) +
+  labs(x = "Temperature", y = expression(paste("Niche differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+5°C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+  coord_cartesian(ylim = c(0, 0.65)) 
+
+#shift in fitness ratio
+fd_shift <-
+  ggplot() + 
+  geom_jitter(data = filter(rrc50_p, T>25), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
+  geom_point(data = rrc50_p_avg, aes(x = temp, y = mean_fitrat, fill = temp), size = 5, pch = 21) + 
+  labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+5°C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") + 
+  coord_cartesian(ylim = c(0, 0.65))
+
+nd_shift + fd_shift
+
+##### Pompom with subplots ######
+# big pompom with small panels underneath
+bottom_patch <- pom_hist + nd_shift + fd_shift
+
+comb_plot5 <- log_pom / bottom_patch + 
+  plot_layout(heights = c(2.25, 1)) + 
+  plot_annotation(tag_levels = "A")
+
+# ggsave(plot = comb_plot5, filename = "figures/kd-figs/pom5C_hist_nfd.pdf", width = 12, height = 10)
+
 
 
 ## Now I want to just save the rrc_avg_new dataset for each iterations and jam it onto the last iteration, so I can plot the start point and the distribution of average endpoints ####

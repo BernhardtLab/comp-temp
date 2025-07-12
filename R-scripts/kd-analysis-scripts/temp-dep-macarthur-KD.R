@@ -58,7 +58,7 @@ temp_dep_mac <- function(T, ref_temp,
   rho <- sqrt((a12*a21)/(a11*a22)) #niche overlap
   stabil_potential <- 1 - rho #stabilizing potential
   new_stabil_potential <- -log(rho)
-  fit_ratio <- sqrt((a11*a12)/(a22*a21))  #fitness ratio
+  fit_ratio <- sqrt((a11*a12)/(a22*a21))  #fitness ratio = k2/k1
   new_fit_ratio <- log(fit_ratio)
   coexist <- rho < fit_ratio &  fit_ratio < 1/rho
   
