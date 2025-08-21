@@ -775,6 +775,56 @@ k_var_plot_e3 <- k_var_e %>%
   annotate("text", x = 1.07, y = 0.5, label = "K", size = 7, fontface = "italic") +
   geom_point(size = 3)
 
+### move start point off border and see if trajectory still moves toward neutrality parallel to IGR=0 line ####
+k_off <- data.frame()
+for(f in 1:200){ 
+  hold = temp_dep_mac(T = seq(25, 35, by = 0.1), 
+                      ref_temp = 25,
+                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
+                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      c1N_b = 0.2, c1P_b = 1.5, #spec 1 consumes more P 0.5, 1
+                      c2N_b = 1.5, c2P_b = 0.2, #spec 2 consumes more N 1, 0.5
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 1, 0.5
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.5, 1
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 1, 0.5
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m 0.01, 0.01
+  hold$iteration <- f
+  k_off <- bind_rows(k_off, hold) 
+}
+# beep(2)
+
+#log plot
+ggplot() +
+  geom_path(data = k_off, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(k_off, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  annotate("text", x = 0.25, y = 0.7, label = expression("Resource \ncarrying capacity," ~ italic(K)), size = 6)
+
+
 ### restrict so that K_EaN > K_EaP, or vice versa #####
 k_var_res <- data.frame()
 for(f in 1:500){ 

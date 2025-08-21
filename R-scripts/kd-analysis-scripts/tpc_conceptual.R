@@ -17,7 +17,7 @@ model_data <- seq(from = 0, to = 40, length.out = 200) %>%
 #plot a TPC
 model_data %>% 
   ggplot() + 
-  # geom_line(aes(x = temp, y = y1), colour = "dodgerblue2", linewidth = 1.5) + 
+  # geom_line(aes(x = temp, y = y1), colour = "dodgerblue2", linewidth = 1.5) +
   # geom_line(aes(x = temp, y = y2), colour = "orchid", linewidth = 1.5) +
   geom_line(aes(x = temp, y = log(y2)), linewidth = 1.5) +
   coord_cartesian(xlim = c(0,40), ylim = c(0, 3)) + 
