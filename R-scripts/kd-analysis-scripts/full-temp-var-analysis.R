@@ -290,7 +290,7 @@ log_pom <-
   coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
   # coord_cartesian(ylim = c(-1, 1.5), xlim = c(-0.05, 1)) + 
   scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  annotate("text", x = 0.35, y = -0.08, label = "Co-existence", size = 5, fontface = 2) +
+  annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
   annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
   annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
@@ -370,7 +370,7 @@ bottom_patch <- pom_hist + nd_shift + fd_shift
 comb_plot1 <- log_pom / bottom_patch + 
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
-# ggsave(plot = comb_plot1, filename = "figures/kd-figs/pom_hist_nfd.pdf", width = 12, height = 10)
+ggsave(plot = comb_plot1, filename = "figures/kd-figs/pom_hist_nfd.pdf", width = 12, height = 10)
 # ggsave(plot = comb_plot1, filename = "figures/kd-figs/100C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
 

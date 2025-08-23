@@ -119,7 +119,7 @@ beep(2)
 r_var_plot <-
   ggplot() +
   geom_path(data = r_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
@@ -128,11 +128,16 @@ r_var_plot <-
   geom_point(data = filter(r_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.70)) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.70)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C \nWarming") +
-  annotate("text", x = 0.3, y = 0.85, label = expression("Resource growth rate," ~ italic(r)), size = 6) +
+  annotate("text", x = 0.75, y = 0.05, label = expression("Resource \ngrowth rate,"*italic(r)), size = 6) +
   theme_cowplot(font_size = 20) +
   theme(legend.position = "none")
 
@@ -445,7 +450,7 @@ for(f in 1:500){
 c_var_plot <-
   ggplot() +
   geom_path(data = c_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
@@ -454,13 +459,18 @@ c_var_plot <-
   geom_point(data = filter(c_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
+  annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)), size = 6)
 
 ## calculate euclidean distances at 20C for each iteration #####
 c_var_e <- c_var %>% 
@@ -834,7 +844,7 @@ for(f in 1:500){
 k_var_plot <-
   ggplot() +
   geom_path(data = k_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
@@ -843,13 +853,18 @@ k_var_plot <-
   geom_point(data = filter(k_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.25, y = 0.7, label = expression("Resource \ncarrying capacity," ~ italic(K)), size = 6)
+  annotate("text", x = 0.65, y = 0.05, label = expression("Resource \ncarrying capacity," ~ italic(K)), size = 6)
 
 ## calculate euclidean distances at 20C for each iteration #####
 k_var_e <- k_var %>% 
@@ -1169,7 +1184,7 @@ beep(2)
 v_var_plot <- 
   ggplot() +
   geom_path(data = v_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
@@ -1178,13 +1193,18 @@ v_var_plot <-
   geom_point(data = filter(v_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") + 
-  annotate("text", x = 0.2, y = 0.7, label = expression("Conversion \nefficiency," ~ italic(v)), size = 6, hjust = 0.5)
+  annotate("text", x = 0.7, y = 0.05, label = expression("Conversion \nefficiency," ~ italic(v)), size = 6, hjust = 0.5)
 
 ## calculate euclidean distances at 20C for each iteration #####
 v_var_e <- v_var %>% 
@@ -1331,7 +1351,7 @@ beep(2)
 m_var_plot <- 
   ggplot() +
   geom_path(data = m_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
@@ -1340,13 +1360,18 @@ m_var_plot <-
   geom_point(data = filter(m_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.25, y = 0.7, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
+  annotate("text", x = 0.7, y = 0.05, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
 
 ## calculate euclidean distances at 20C for each iteration #####
 m_var_e <- m_var %>% 
@@ -1450,7 +1475,7 @@ ggplot() +
 ### trying to force conditions where m_EA has an impact ####
 #This seems to only be possible by really increasing the temperature range over which we run the simulation. The lowest where you can see any effect at all is around 75C warming. Better seen around 75C warming.
 m_var2 <- data.frame()
-for(f in 1:200){ 
+for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 200, by = 3), 
                       ref_temp = 25,
                       # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
@@ -1507,6 +1532,26 @@ m_var2_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.25, y = 0.7, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
 
+# get euclidean distances
+m_var_e <- m_var2 %>% 
+  filter(T %in% c(25, 40)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) 
+
+#histogram plot of euclidean dsistances in the pom pom plot
+# m_hist <- 
+  m_var_e %>% 
+  ggplot(aes(x = dist15)) + 
+  geom_histogram(colour = "black") + 
+  labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
 m_var2 %>% 
   filter(iteration == 39) %>% 
   dplyr::select(c(m_Ea1, m_Ea2)) 
@@ -1528,7 +1573,7 @@ m_var_tas %>%
 
 param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot + rvar_legend + 
   plot_annotation(tag_levels = "A")
-ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots_EA0.pdf", width = 14, height = 10)
+# ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots_EA0.pdf", width = 14, height = 10)
 
 # param_e_plot <- r_var_plot_e + c_var_plot_e + v_var_plot_e + k_var_plot_e + m_var_plot_e 
 # # ggsave(plot = param_e_plot, filename = "figures/kd-figs/param_e_plots.pdf", width = 16, height = 12)
@@ -1539,3 +1584,7 @@ ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_u
 
 # param_e_plot3 <- r_var_plot_e3 + c_var_plot_e3 + v_var_plot_e3 + k_var_plot_e3 + m_var_plot_e3
 # ggsave(plot = param_e_plot3, filename = "figures/kd-figs/param_e_plots2.pdf", width = 18, height = 12)
+
+#three panel plots
+threeps <- r3p + c3p + v3p + k3p + m3p
+# ggsave(plot = threeps, filename = "figures/kd-figs/param_three_panels.pdf", width = 16, height = 12)
