@@ -17,3 +17,11 @@ names(df)
 
 df %>% group_by(simple_parameter, general_taxon_grouping_3, heterotroph_or_autotroph) %>% tally() %>% view()
 #most of the data for EA estimates comes from heterotrophs across the board, EXCEPT resource growth rate, which comes largely from algae 
+
+df %>% clean_names() %>%  distinct(reference) %>% nrow()
+
+df %>% 
+  group_by(simple_parameter, heterotroph_or_autotroph) %>% 
+  summarise(mean_EA = mean(activation_energy), 
+            sd_EA = sd(activation_energy),
+            n = n())

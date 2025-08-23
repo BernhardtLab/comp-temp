@@ -53,14 +53,15 @@ param_sum <- param_vals %>%
         Median = median,
         Q3 = ~quantile(., 0.75),
         Min = min,
-        Max = max
+        Max = max,
+        sd = sd
       ),
       .names = "{.fn}" )
   ) 
 
 #make longform
 param_sum1 <- param_sum %>% 
-  pivot_longer(cols = c(Mean:Max), 
+  pivot_longer(cols = c(Mean:sd), 
                names_to = "summary_stat",
                values_to = "value")
 
@@ -83,16 +84,26 @@ for(f in 1:500){
                       # r_EaP = sample_n(k_post_dist, size = 1)$intercept, 
                       # r_EaN = sample_n(v_post_dist, size = 1)$intercept, #testing whether a dist centered on 0 will drive the same pattern -- this is extreme! 
                       # r_EaP = sample_n(v_post_dist, size = 1)$intercept,
-                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
-                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
-                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+                      # m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
+                      # m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
@@ -128,22 +139,6 @@ r_var_plot <-
 #get legend for composite plot -- need to generate r_var_plot WITH the legend first, then add in the legend.position = "none" for the actual composite plot
 # rvar_legend  <- get_legend(r_var_plot)
 
-#regular plot
-ggplot() +
-  geom_path(data = r_var, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = 1-x,
-                  # ymin = log(1 - x),
-                  ymax = 1/(1-x)),
-                  # ymax = log(1/(1-x))),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(r_var, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
-  geom_hline(yintercept = 1, linetype=5) +
-  xlab(expression(paste("Niche differences (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness differences (", f[2], "/", f[1], ")"))) #strong effects along fitness differences axis
-
 
 ## calculate euclidean distances at 20C for each iteration #####
 r_var_e <- r_var %>% 
@@ -153,18 +148,22 @@ r_var_e <- r_var %>%
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
-  mutate(r_ta = abs(r_EaN - r_EaP),
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
          dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
          shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
          shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
+r3p <-
 r_var_e %>% 
-  # ggplot(aes(x = r_ta, y = value)) + 
-  ggplot(aes(x = r_EaN, y = value, colour = r_EaP)) +
+  ggplot(aes(x = r_ta, y = value)) +
+  # ggplot(aes(x = r_EaN, y = value, colour = r_EaP)) +
   geom_point() + 
-  facet_wrap(~response_var) 
-  # labs(x = "Abs diff in r_Ea", y = "Response variable value") #need to think about this more
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND"))) +
+  labs(x = "Magnitude \n of thermal asymmetry", y = "Value") + 
+  ggtitle("Resource growth rate, r_k")
 
 # thermal asymmetry - euclidean distance plot
 # r_var_plot_e <-
@@ -183,12 +182,14 @@ r_var_plot_e2 <-
   r_var_e %>% 
     filter(response_var == "dist15") %>% 
     # ggplot(aes(x = r_ta, y = value)) +
-    ggplot(aes(x = r_ta, y = value, colour = r_EaN < r_EaP)) +
+    ggplot(aes(x = r_ta, y = value)) +
     geom_point(size = 3) + 
-    labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-    coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
+    labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+    coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
     annotate("text", x = 0.88, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
-    theme_cowplot(font_size = 20) 
+    theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[ra] * "- E"[rb]))
 
 r_var_plot_e3 <-
   r_var_e %>% 
@@ -409,18 +410,26 @@ c_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
                       c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
                       c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
                       c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
                       c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
-                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
-                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      # m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
@@ -431,23 +440,6 @@ for(f in 1:500){
   hold$iteration <- f
   c_var <- bind_rows(c_var, hold) 
 }
-
-# #plot
-# ggplot() +
-#   geom_path(data = c_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-#   geom_ribbon(data = data.frame(x = seq(0, 0.7, 0.001)),
-#               aes(x = x,
-#                   y = NULL,
-#                   ymin = exp(-x),
-#                   ymax = 1/(exp(-x))),
-#               fill = "grey", color = "black", alpha = 0.2) +
-#   geom_point(data = filter(c_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 4) +
-#   geom_hline(yintercept = 1, linetype = 5) +
-#   scale_colour_viridis_c(option = "inferno") +
-#   coord_cartesian(ylim=c(0, 1.2), xlim = c(0, 0.7)) +
-#   xlab(expression(paste("Stabilization potential (-log(", rho, "))"))) +
-#   ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
-#   labs(colour = "Degrees C Warming")
 
 #log plot
 c_var_plot <-
@@ -467,25 +459,109 @@ c_var_plot <-
   ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") 
-  # annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
+  theme(legend.position = "none") +
+  annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
+
+## calculate euclidean distances at 20C for each iteration #####
+c_var_e <- c_var %>% 
+  filter(T %in% c(25, 40)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(abs_c_ta = abs(c_Ea2N - c_Ea2P),
+         c_ta1 = c_Ea1N - c_Ea2N,
+         c_ta2 = c_Ea1N - c_Ea2P,
+         c_ta3 = c_Ea1N - c_Ea1P,
+         c_ta4 = c_Ea1P - c_Ea2N,
+         c_ta5 = c_Ea1P - c_Ea2P,
+         c_ta6 = c_Ea2N - c_Ea2P,
+         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
+         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
+         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#effects on euclidean distance and niche and fitness diffs
+c3p <-
+  c_var_e %>% 
+  ggplot() + 
+  geom_point(aes(x = c_ta1, y = value)) +
+  geom_point(aes(x = c_ta2, y = value)) +
+  geom_point(aes(x = c_ta3, y = value)) +
+  geom_point(aes(x = c_ta4, y = value)) +
+  geom_point(aes(x = c_ta5, y = value)) +
+  geom_point(aes(x = c_ta6, y = value)) +
+  facet_wrap(~response_var) + 
+  labs(x = "Manitude of thermal asymmetries (aggregated)", y = "Response variable value") +
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND")))+ 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
+  ggtitle("Consumption rate, c_i")
+
+c_var_plot_e <-
+  c_var_e %>% 
+  filter(response_var == "dist15") %>% 
+  # ggplot(aes(x = scale(c_ta), y = value)) + 
+  ggplot(aes(x = scale(c_ta), y = value, colour = c_Ea2N < c_Ea2P)) +
+  geom_point(size = 3) + 
+  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
+  annotate("text", x = 0, y = 0.45, label = "Consumer 1 resource \nconsumption rate", size = 5.5) + 
+  theme_cowplot(font_size = 20)
+
+c_var_plot_e2 <-
+  c_var_e %>% 
+  filter(response_var == "dist15") %>% 
+  # ggplot(aes(x = c_ta, y = value)) + 
+  ggplot() +
+  geom_point(aes(x = c_ta1, y = value), size = 3) + 
+  geom_point(aes(x = c_ta2, y = value), size = 3) + 
+  geom_point(aes(x = c_ta3, y = value), size = 3) + 
+  geom_point(aes(x = c_ta4, y = value), size = 3) + 
+  geom_point(aes(x = c_ta5, y = value), size = 3) + 
+  geom_point(aes(x = c_ta5, y = value), size = 3) + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+  # annotate("text", x = 0.70, y = 0.35, label = "Consumer 2 \nconsumption rate, c", size = 5.5) + 
+  annotate("text", x = 0.20, y = 0.35, label = "Consumption rate, c", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[cik] * "- E"[cik]*"*"))
+
+c_var_plot_e3 <- c_var_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = c_Ea1N, y = c_Ea1P, colour = value)) + 
+  geom_point(size = 3) +
+  labs(x = "Temperature dependence \nof consumer 1 consumption rate \non resource 1", y = "Temperature dependence \nof consumer 1 consumption rate \non resource 2", colour = "ED") + 
+  annotate("text", x = 1.07, y = 0.5, label = "c", size = 7, fontface = "italic")
 
 ### vary all c_EaPs ####
 c_var1 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # r_EaN = 0,
+                      # r_EaP = 0,
+                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1N = 0,
                       c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
                       c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
                       c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2N = 0,
                       c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # K_EaN = 0,
+                      # K_EaP = 0,
+                      # v_EaN = 0,
+                      # v_EaP = 0,
+                      # m_Ea1 = 0,
+                      # m_Ea2 = 0,
+                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
                       v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
-                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
+                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
@@ -497,22 +573,6 @@ for(f in 1:500){
   hold$iteration <- f
   c_var1 <- bind_rows(c_var1, hold) 
 }
-
-# #plot
-# ggplot() +
-#   geom_path(data = c_var1, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-#   geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
-#               aes(x = x,
-#                   y = NULL,
-#                   ymin = 1-x,
-#                   ymax = 1/(1-x)),
-#               fill = "grey", color = "black", alpha = 0.2) +
-#   geom_point(data = filter(c_var1, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
-#   geom_hline(yintercept = 1, linetype=5) + 
-#   # scale_colour_continuous_diverging() +
-#   # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
-#   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-#   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #same pattern, shrunk in a bit.
 
 #log plot
 c_var1_plot <-
@@ -535,22 +595,152 @@ c_var1_plot <-
   theme(legend.position = "none") 
   # annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
 
-### vary c_Eas for just one consumer - this is the one for the MS -- COME BACK TO THIS! ####
+### vary all c_EaNs  ####
+c_var5 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
+                      ref_temp = 25,
+                      # r_EaN = 0,
+                      # r_EaP = 0,
+                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1P =  0,
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = 0,
+                      # K_EaN = 0,
+                      # K_EaP = 0,
+                      # v_EaN = 0,
+                      # v_EaP = 0,
+                      # m_Ea1 = 0,
+                      # m_Ea2 = 0,
+                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01)
+  hold$iteration <- f
+  c_var5 <- bind_rows(c_var5, hold) 
+}
+
+#log plot
+c_var5_plot <-
+ggplot() +
+  geom_path(data = c_var5, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(c_var5, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
+  
+  
+### vary c_EAs for each species' preferred resource ####
+c_var4 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
+                      ref_temp = 25,
+                      # r_EaN = 0,
+                      # r_EaP = 0,
+                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1N = 0,
+                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = 0,
+                      # K_EaN = 0,
+                      # K_EaP = 0,
+                      # v_EaN = 0,
+                      # v_EaP = 0,
+                      # m_Ea1 = 0,
+                      # m_Ea2 = 0,
+                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01)
+  hold$iteration <- f
+  c_var4 <- bind_rows(c_var4, hold) 
+}
+
+
+#log plot
+c_var4_plot <-
+  ggplot() +
+  geom_path(data = c_var4, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(c_var4, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") 
+# annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
+
+### vary c_Eas for just one consumer ####
 c_var2 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # r_EaN = 0,
+                      # r_EaP = 0,
+                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
                       c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
                       c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
                       c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1N = 0,
+                      # c_Ea1P = 0,
+                      # K_EaN = 0,
+                      # K_EaP = 0,
+                      # v_EaN = 0,
+                      # v_EaP = 0,
+                      # m_Ea1 = 0,
+                      # m_Ea2 = 0,
+                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
+                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
                       v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
-                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
+                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
@@ -564,21 +754,6 @@ for(f in 1:500){
 }
 beep(2)
 
-#reg plot
-# ggplot() +
-#   geom_path(data = c_var2, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-#   geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
-#               aes(x = x,
-#                   y = NULL,
-#                   ymin = 1-x,
-#                   ymax = 1/(1-x)),
-#               fill = "grey", color = "black", alpha = 0.2) +
-#   geom_point(data = filter(c_var2, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
-#   geom_hline(yintercept = 1, linetype=5) + 
-#   # scale_colour_continuous_diverging() +
-#   # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
-#   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-#   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #same pattern, shrunk in a bit.
 
 #log plot
 c_var2_plot <-
@@ -602,61 +777,17 @@ c_var2_plot <-
   annotate("text", x = 0.25, y = 0.85, label = expression("Consumption rate," ~ italic(c)), size = 6)
   
 #three types of consumption rate simulations
-c_three <- c_var2_plot + c_var1_plot + c_var_plot + plot_annotation(tag_levels = "A")
+c_five <- c_var4_plot + c_var5_plot + c_var1_plot + c_var2_plot  + c_var_plot + plot_annotation(tag_levels = "A")
 
 #save
-ggsave(plot = c_three, filename = "figures/kd-figs/c_drawtypes.pdf", width = 16, height = 10)
+ggsave(plot = c_five, filename = "figures/kd-figs/c_drawtypes_meanEAs.pdf", width = 16, height = 10)
+#in order, these have focal params: consumption rate of preferred resource only, consumption rate of N only, consumption rate of P only, consumption rates of consumer 1 N & P, all four consumption rates
 
+#non-focal EAs set to 0
+c_0 <- c_var4_plot + c_var5_plot + c_var1_plot + c_var2_plot  + c_var_plot + plot_annotation(tag_levels = "A")
 
-## calculate euclidean distances at 20C for each iteration #####
-c_var_e <- c_var2 %>% 
-  filter(T %in% c(25, 40)) %>% 
-  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
-  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
-              names_from = T,
-              values_from = c(new_stabil_potential, new_fit_ratio),
-              names_glue = "T{T}_{.value}") %>% 
-  mutate(c_ta = abs(c_Ea2N - c_Ea2P),
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
-  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
-
-#effects on euclidean distance and niche and fitness diffs
-c_var_e %>% 
-  ggplot(aes(x = c_ta, y = value)) + 
-  geom_point() + 
-  facet_wrap(~response_var) + 
-  labs(x = "Abs diff in r_Ea", y = "Response variable value") #need to think about this more
-
-c_var_plot_e <-
-  c_var_e %>% 
-  filter(response_var == "dist15") %>% 
-  # ggplot(aes(x = scale(c_ta), y = value)) + 
-  ggplot(aes(x = scale(c_ta), y = value, colour = c_Ea2N < c_Ea2P)) +
-  geom_point(size = 3) + 
-  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance)") + 
-  coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-  annotate("text", x = 0, y = 0.45, label = "Consumer 1 resource \nconsumption rate", size = 5.5) + 
-  theme_cowplot(font_size = 20)
-
-c_var_plot_e2 <-
-  c_var_e %>% 
-  filter(response_var == "dist15") %>% 
-  # ggplot(aes(x = c_ta, y = value)) + 
-  ggplot(aes(x = c_ta, y = value, colour = c_Ea2N < c_Ea2P)) +
-  geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-  annotate("text", x = 0.70, y = 0.35, label = "Consumer 2 \nconsumption rate, c", size = 5.5) + 
-  theme_cowplot(font_size = 20)
-
-c_var_plot_e3 <- c_var_e %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = c_Ea1N, y = c_Ea1P, colour = value)) + 
-  geom_point(size = 3) +
-  labs(x = "Temperature dependence \nof consumer 1 consumption rate \non resource 1", y = "Temperature dependence \nof consumer 1 consumption rate \non resource 2", colour = "ED") + 
-  annotate("text", x = 1.07, y = 0.5, label = "c", size = 7, fontface = "italic")
+ggsave(plot = c_0, filename = "figures/kd-figs/c_drawtypes_EAs0.pdf", width = 16, height = 10)
+#in order, these have focal params: consumption rate of preferred resource only, consumption rate of N only, consumption rate of P only, consumption rates of consumer 1 N & P, all four consumption rates
 
 # K_Eas vary --------------------------------------------------------------
 
@@ -665,21 +796,31 @@ k_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
                       K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
                       K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
-                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
-                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
-                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      # m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
-                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 1, 0.5
                       K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
                       v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
@@ -687,26 +828,10 @@ for(f in 1:500){
   hold$iteration <- f
   k_var <- bind_rows(k_var, hold) 
 }
-beep(2)
-
-#plot
-ggplot() +
-  geom_path(data = k_var, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = 1-x,
-                  ymax = 1/(1-x)),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(k_var, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
-  geom_hline(yintercept = 1, linetype=5) + 
-  # scale_colour_continuous_diverging() +
-  # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
-  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
+# beep(2)
 
 #log plot
-k_var_plot <- 
+k_var_plot <-
   ggplot() +
   geom_path(data = k_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
@@ -734,17 +859,21 @@ k_var_e <- k_var %>%
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
-  mutate(k_ta = abs(K_EaN - K_EaP),
+  mutate(k_ta = K_EaN - K_EaP,
+         abs_k_ta = abs(K_EaN - K_EaP),
          dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
          shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
          shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
-k_var_e %>% 
-  ggplot(aes(x = k_ta, y = value, colour = K_EaN > K_EaP)) + 
+k3p <- 
+  k_var_e %>% 
+  ggplot(aes(x = k_ta, y = value)) + 
   geom_point() + 
-  facet_wrap(~response_var) + 
-  labs(x = "Abs diff in K_Ea", y = "Response variable value") #need to think about this more
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND"))) +
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
+  ggtitle("Resource carrying capacity, K_k")
 
 k_var_plot_e <-
   k_var_e %>% 
@@ -761,12 +890,14 @@ k_var_plot_e2 <-
   k_var_e %>% 
   filter(response_var == "dist15") %>% 
   # ggplot(aes(x = k_ta, y = value)) +
-  ggplot(aes(x = k_ta, y = value, colour = K_EaN < K_EaP)) +
+  ggplot(aes(x = k_ta, y = value)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.7, y = 0.35, label = "Resource \ncarrying capacity, K", size = 6) + 
-  theme_cowplot(font_size = 20)
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[Ka] * "- E"[Kb]))
 
 k_var_plot_e3 <- k_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -1000,18 +1131,28 @@ v_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
                       v_EaN = sample_n(v_post_dist, size = 1)$intercept,
                       v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
-                      m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
-                      m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      # m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
+                      # m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
@@ -1024,22 +1165,6 @@ for(f in 1:500){
 }
 beep(2)
 
-
-#plot
-ggplot() +
-  geom_path(data = v_var, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = 1-x,
-                  ymax = 1/(1-x)),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(v_var, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
-  geom_hline(yintercept = 1, linetype=5) + 
-  # scale_colour_continuous_diverging() +
-  # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
-  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
 
 v_var_plot <- 
   ggplot() +
@@ -1069,17 +1194,21 @@ v_var_e <- v_var %>%
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
-  mutate(v_ta = abs(v_EaN - v_EaP),
+  mutate(v_ta = v_EaN - v_EaP,
+         abs_v_ta = abs(v_EaN - v_EaP),
          dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
          shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
          shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
-v_var_e %>% 
-  ggplot(aes(x = v_ta, y = value, colour = v_EaN > v_EaP)) + 
+v3p <- 
+  v_var_e %>% 
+  ggplot(aes(x = v_ta, y = value)) + 
   geom_point() + 
-  facet_wrap(~response_var) + 
-  labs(x = "Abs diff in v_Ea", y = "Response variable value") #need to think about this more
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND"))) +
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
+  ggtitle("Conversion efficiency, v_k")
 
 v_var_plot_e <-
   v_var_e %>% 
@@ -1096,12 +1225,14 @@ v_var_plot_e2 <-
   v_var_e %>% 
   filter(response_var == "dist15") %>% 
   # ggplot(aes(x = v_ta, y = value)) +
-  ggplot(aes(x = v_ta, y = value, colour = v_EaN < v_EaP)) +
+  ggplot(aes(x = v_ta, y = value)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.5, y = 0.35, label = "Conversion \nefficiency, v", size = 6) + 
-  theme_cowplot(font_size = 20)
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[va] * "- E"[vb]))
 
 v_var_plot_e3 <- v_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -1162,16 +1293,26 @@ m_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
                       m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
                       m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
@@ -1185,22 +1326,6 @@ for(f in 1:500){
   m_var <- bind_rows(m_var, hold) 
 }
 beep(2)
-
-#plot
-ggplot() +
-  geom_path(data = m_var, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = 1-x,
-                  ymax = 1/(1-x)),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(m_var, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
-  geom_hline(yintercept = 1, linetype=5) + 
-  # scale_colour_continuous_diverging() +
-  # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
-  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #pretty much does not move the point
 
 #log plot
 m_var_plot <- 
@@ -1231,17 +1356,21 @@ m_var_e <- m_var %>%
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
-  mutate(m_ta = abs(m_Ea1 - m_Ea2),
+  mutate(m_ta = m_Ea1 - m_Ea2,
+         abs_m_ta = abs(m_Ea1 - m_Ea2),
          dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
          shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
          shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
-m_var_e %>% 
+m3p <-
+  m_var_e %>% 
   ggplot(aes(x = m_ta, y = value)) + 
   geom_point() + 
-  facet_wrap(~response_var) + 
-  labs(x = "Abs diff in m_Ea", y = "Response variable value") #need to think about this more
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND"))) +
+  labs(x = "Magnitude of thermal asymmetry", y = "Value") + 
+  ggtitle("mortality, m_i")
 
 m_var_plot_e <-
   m_var_e %>% 
@@ -1258,12 +1387,14 @@ m_var_plot_e2 <-
   m_var_e %>% 
   filter(response_var == "dist15") %>% 
   # ggplot(aes(x = m_ta, y = value)) +
-  ggplot(aes(x = m_ta, y = value, colour = m_Ea1 < m_Ea2)) +
+  ggplot(aes(x = m_ta, y = value)) +
   geom_point(size = 3) + 
-  labs(x = "Absolute value \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.75, y = 0.35, label = "Consumer \nmortality rate, m", size = 6) +
-  theme_cowplot(font_size = 20)
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[m1] * "- E"[m2]))
 
 m_var_plot_e3 <- m_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -1319,48 +1450,62 @@ ggplot() +
 ### trying to force conditions where m_EA has an impact ####
 #This seems to only be possible by really increasing the temperature range over which we run the simulation. The lowest where you can see any effect at all is around 75C warming. Better seen around 75C warming.
 m_var2 <- data.frame()
-for(f in 1:40){ 
-  hold = temp_dep_mac(T = seq(25, 125, by = 1), 
+for(f in 1:200){ 
+  hold = temp_dep_mac(T = seq(25, 200, by = 3), 
                       ref_temp = 25,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
+                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
+                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
                       m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
                       m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
-                      c1N_b = 0.2, c1P_b = 0.4, #spec 1 consumes more P
-                      c2N_b = 0.4, c2P_b = 0.2, #spec 2 consumes more N
-                      r_N_b = 0.1, r_P_b = 0.1, #growth rate for each resource at ref temp
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp
                       K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp
-                      v1N_b = 0.2, v1P_b = 0.4, #sp 1 converts P more efficiently
-                      v2N_b = 0.4, v2P_b = 0.2, #sp 2 converts N more efficiently
-                      m1_b = 0.10, m2_b = 0.10) #same for both species; model v insensitive to changes in m
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m
   hold$iteration <- f
   m_var2 <- bind_rows(m_var2, hold) 
 }
 
-#plot
-ggplot() +
-  geom_path(data = m_var2, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2) +
-  geom_ribbon(data = data.frame(x = seq(0, 0.5, 0.001)),
+#log plot
+m_var2_plot <-
+  ggplot() +
+  geom_path(data = m_var2, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
               aes(x = x,
                   y = NULL,
-                  ymin = 1-x,
-                  ymax = 1/(1-x)),
+                  ymin = -x,
+                  ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(m_var2, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 1) +
-  geom_hline(yintercept = 1, linetype=5) + 
-  # scale_colour_continuous_diverging() +
-  # coord_cartesian(ylim=c(-0.5, 2.5), xlim = c(0, 0.5)) + 
-  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
-  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) +
-  facet_wrap(~iteration) #only moves up and down -- still just a couple scenarios that have this effect
+  geom_point(data = filter(m_var2, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  annotate("text", x = 0.25, y = 0.7, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
 
 m_var2 %>% 
   filter(iteration == 39) %>% 
@@ -1383,14 +1528,14 @@ m_var_tas %>%
 
 param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot + rvar_legend + 
   plot_annotation(tag_levels = "A")
-# ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots.pdf", width = 14, height = 10)
+ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots_EA0.pdf", width = 14, height = 10)
 
-param_e_plot <- r_var_plot_e + c_var_plot_e + v_var_plot_e + k_var_plot_e + m_var_plot_e
-# ggsave(plot = param_e_plot, filename = "figures/kd-figs/param_e_plots.pdf", width = 16, height = 12)
+# param_e_plot <- r_var_plot_e + c_var_plot_e + v_var_plot_e + k_var_plot_e + m_var_plot_e 
+# # ggsave(plot = param_e_plot, filename = "figures/kd-figs/param_e_plots.pdf", width = 16, height = 12)
 
-param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2
+param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + plot_annotation(tag_levels = "A")
 # ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled.pdf", width = 16, height = 12)
-# ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality.pdf", width = 18, height = 12)
+ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
 
-param_e_plot3 <- r_var_plot_e3 + c_var_plot_e3 + v_var_plot_e3 + k_var_plot_e3 + m_var_plot_e3
-ggsave(plot = param_e_plot3, filename = "figures/kd-figs/param_e_plots2.pdf", width = 18, height = 12)
+# param_e_plot3 <- r_var_plot_e3 + c_var_plot_e3 + v_var_plot_e3 + k_var_plot_e3 + m_var_plot_e3
+# ggsave(plot = param_e_plot3, filename = "figures/kd-figs/param_e_plots2.pdf", width = 18, height = 12)
