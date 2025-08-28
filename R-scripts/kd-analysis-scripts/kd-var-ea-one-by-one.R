@@ -76,8 +76,8 @@ param_sum1 %>%
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 r_var <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
-                      ref_temp = 25,
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept,
                       # r_EaN = sample_n(k_post_dist, size = 1)$intercept, #testing whether a dist centered on a negative value will drive the same pattern -- it does
@@ -118,14 +118,14 @@ beep(2)
 
 r_var_plot <-
   ggplot() +
-  geom_path(data = r_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_path(data = r_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(r_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_point(data = filter(r_var, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.70)) +
@@ -137,7 +137,7 @@ r_var_plot <-
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C \nWarming") +
-  annotate("text", x = 0.75, y = 0.05, label = expression("Resource \ngrowth rate,"*italic(r)), size = 6) +
+  annotate("text", x = 0.75, y = 0.05, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6) +
   theme_cowplot(font_size = 20) +
   theme(legend.position = "none")
 
@@ -147,7 +147,7 @@ r_var_plot <-
 
 ## calculate euclidean distances at 20C for each iteration #####
 r_var_e <- r_var %>% 
-  filter(T %in% c(25, 40)) %>% 
+  filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
@@ -155,9 +155,9 @@ r_var_e <- r_var %>%
               names_glue = "T{T}_{.value}") %>% 
   mutate(abs_r_ta = abs(r_EaN - r_EaP),
          r_ta = r_EaN - r_EaP,
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
 r3p <-
@@ -182,7 +182,7 @@ r_var_e %>%
 #   annotate("text", x = 0, y = 0.45, label = "Resource \ngrowth rate, r", size = 5.5) + 
 #   theme_cowplot(font_size = 20)
   
-#unscales TA - euclidean distance plot
+#unscaled TA - euclidean distance plot
 r_var_plot_e2 <-
   r_var_e %>% 
     filter(response_var == "dist15") %>% 
@@ -243,6 +243,112 @@ r_var_alpha %>%
   geom_point() + 
   scale_colour_viridis_c(option = "inferno") + 
   coord_cartesian(xlim = c(0, 1.5), ylim = c(0, 0.5)) 
+
+### no TA in r ####
+# basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
+r_var_nota <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
+                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m 0.1, 0.1
+  hold$iteration <- f
+  r_var_nota <- bind_rows(r_var_nota, hold) 
+}
+beep(2)
+
+r_var_nota_plot <-
+  ggplot() +
+  geom_path(data = r_var_nota, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(r_var_nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.70)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C \nWarming") +
+  annotate("text", x = 0.75, y = 0.05, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6) +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none")
+
+#get legend for composite plot -- need to generate r_var_nota_plot WITH the legend first, then add in the legend.position = "none" for the actual composite plot
+# rvar_legend_nota  <- get_legend(r_var_nota_plot)
+
+
+## calculate euclidean distances at 20C for each iteration #####
+r_var_nota_e <- r_var_nota %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+r3p_nota <-
+  r_var_nota_e %>% 
+  ggplot(aes(x = r_ta, y = value)) +
+  # ggplot(aes(x = r_EaN, y = value, colour = r_EaP)) +
+  geom_point() + 
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND"))) +
+  labs(x = "Magnitude \n of thermal asymmetry", y = "Value") + 
+  ggtitle("Resource growth rate, r_k")
+
+#unscaled TA - euclidean distance plot
+r_var_nota_plot_e2 <-
+  r_var_nota_e %>% 
+  filter(response_var == "dist15") %>% 
+  # ggplot(aes(x = r_ta, y = value)) +
+  ggplot(aes(x = r_ta, y = value)) +
+  geom_point(size = 3) + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+  annotate("text", x = 0.88, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[ra] * "- E"[rb]))
+
+r_var_nota_plot_e3 <-
+  r_var_nota_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = r_EaN, y = r_EaP, colour = value)) + 
+  labs(x = "Temperature dependence \nof resource 1 growth rate", y = "Temperature dependence \nof resource 2 growth rate", colour = "ED") + 
+  geom_point(size = 3) + 
+  annotate("text", x = 1.07, y = 0.5, label = "r", size = 7, fontface = "italic")
 
 ### restrict draws of r_EaN relative to that of r_EaP ####
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
@@ -413,12 +519,10 @@ ggplot() +
 ### vary all c_EAs ####
 c_var <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
-                      ref_temp = 25,
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
                       r_EaN = 0,
                       r_EaP = 0,
-                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
-                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
                       c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
                       c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
                       c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
@@ -429,12 +533,6 @@ for(f in 1:500){
                       v_EaP = 0,
                       m_Ea1 = 0,
                       m_Ea2 = 0,
-                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
-                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
-                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      # m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
-                      # m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
@@ -449,14 +547,14 @@ for(f in 1:500){
 #log plot
 c_var_plot <-
   ggplot() +
-  geom_path(data = c_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_path(data = c_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(c_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_point(data = filter(c_var, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
@@ -470,11 +568,11 @@ c_var_plot <-
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)), size = 6)
+  annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
 
 ## calculate euclidean distances at 20C for each iteration #####
 c_var_e <- c_var %>% 
-  filter(T %in% c(25, 40)) %>% 
+  filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
@@ -487,9 +585,9 @@ c_var_e <- c_var %>%
          c_ta4 = c_Ea1P - c_Ea2N,
          c_ta5 = c_Ea1P - c_Ea2P,
          c_ta6 = c_Ea2N - c_Ea2P,
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
 #effects on euclidean distance and niche and fitness diffs
@@ -507,7 +605,7 @@ c3p <-
   facet_wrap(~response_var,
              labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND")))+ 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
-  ggtitle("Consumption rate, c_i")
+  ggtitle("Consumption rate, c_ik")
 
 c_var_plot_e <-
   c_var_e %>% 
@@ -540,6 +638,134 @@ c_var_plot_e2 <-
   ggtitle(expression("E"[cik] * "- E"[cik]*"*"))
 
 c_var_plot_e3 <- c_var_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = c_Ea1N, y = c_Ea1P, colour = value)) + 
+  geom_point(size = 3) +
+  labs(x = "Temperature dependence \nof consumer 1 consumption rate \non resource 1", y = "Temperature dependence \nof consumer 1 consumption rate \non resource 2", colour = "ED") + 
+  annotate("text", x = 1.07, y = 0.5, label = "c", size = 7, fontface = "italic")
+
+#### no TAs #####
+c_var_nota <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01)
+  hold$iteration <- f
+  c_var_nota <- bind_rows(c_var_nota, hold) 
+}
+
+#log plot
+c_var_nota_plot <-
+  ggplot() +
+  geom_path(data = c_var_nota, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(c_var_nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  #dims from full pompom plot figure
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
+  #back to this plot code
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
+
+## calculate euclidean distances at 20C for each iteration #####
+c_var_nota_e <- c_var_nota %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(abs_c_ta = abs(c_Ea2N - c_Ea2P),
+         c_ta1 = c_Ea1N - c_Ea2N,
+         c_ta2 = c_Ea1N - c_Ea2P,
+         c_ta3 = c_Ea1N - c_Ea1P,
+         c_ta4 = c_Ea1P - c_Ea2N,
+         c_ta5 = c_Ea1P - c_Ea2P,
+         c_ta6 = c_Ea2N - c_Ea2P,
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#effects on euclidean distance and niche and fitness diffs
+c3p <-
+  c_var_nota_e %>% 
+  ggplot() + 
+  geom_point(aes(x = c_ta1, y = value)) +
+  geom_point(aes(x = c_ta2, y = value)) +
+  geom_point(aes(x = c_ta3, y = value)) +
+  geom_point(aes(x = c_ta4, y = value)) +
+  geom_point(aes(x = c_ta5, y = value)) +
+  geom_point(aes(x = c_ta6, y = value)) +
+  facet_wrap(~response_var) + 
+  labs(x = "Manitude of thermal asymmetries (aggregated)", y = "Response variable value") +
+  facet_wrap(~response_var,
+             labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND")))+ 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
+  ggtitle("Consumption rate, c_ik")
+
+c_var_nota_plot_e <-
+  c_var_nota_e %>% 
+  filter(response_var == "dist15") %>% 
+  # ggplot(aes(x = scale(c_ta), y = value)) + 
+  ggplot(aes(x = scale(c_ta), y = value, colour = c_Ea2N < c_Ea2P)) +
+  geom_point(size = 3) + 
+  labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
+  annotate("text", x = 0, y = 0.45, label = "Consumer 1 resource \nconsumption rate", size = 5.5) + 
+  theme_cowplot(font_size = 20)
+
+c_var_nota_plot_e2 <-
+  c_var_nota_e %>% 
+  filter(response_var == "dist15") %>% 
+  # ggplot(aes(x = c_ta, y = value)) + 
+  ggplot() +
+  geom_point(aes(x = c_ta1, y = value), size = 3) + 
+  geom_point(aes(x = c_ta2, y = value), size = 3) + 
+  geom_point(aes(x = c_ta3, y = value), size = 3) + 
+  geom_point(aes(x = c_ta4, y = value), size = 3) + 
+  geom_point(aes(x = c_ta5, y = value), size = 3) + 
+  geom_point(aes(x = c_ta5, y = value), size = 3) + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+  # annotate("text", x = 0.70, y = 0.35, label = "Consumer 2 \nconsumption rate, c", size = 5.5) + 
+  annotate("text", x = 0.20, y = 0.35, label = "Consumption rate, c", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("E"[cik] * "- E"[cik]*"*"))
+
+c_var_nota_plot_e3 <- c_var_nota_e %>% 
   filter(response_var == "dist15") %>% 
   ggplot(aes(x = c_Ea1N, y = c_Ea1P, colour = value)) + 
   geom_point(size = 3) +
@@ -804,8 +1030,8 @@ ggsave(plot = c_0, filename = "figures/kd-figs/c_drawtypes_EAs0.pdf", width = 16
 ### vary both K_Eas ####
 k_var <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
-                      ref_temp = 25,
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
                       # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
                       # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
                       # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
@@ -843,14 +1069,14 @@ for(f in 1:500){
 #log plot
 k_var_plot <-
   ggplot() +
-  geom_path(data = k_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_path(data = k_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(k_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_point(data = filter(k_var, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
@@ -864,11 +1090,11 @@ k_var_plot <-
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.65, y = 0.05, label = expression("Resource \ncarrying capacity," ~ italic(K)), size = 6)
+  annotate("text", x = 0.65, y = 0.05, label = expression("Resource \ncarrying capacity," ~ italic(K)[italic(k)]), size = 6)
 
 ## calculate euclidean distances at 20C for each iteration #####
 k_var_e <- k_var %>% 
-  filter(T %in% c(25, 40)) %>% 
+  filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
@@ -876,9 +1102,9 @@ k_var_e <- k_var %>%
               names_glue = "T{T}_{.value}") %>% 
   mutate(k_ta = K_EaN - K_EaP,
          abs_k_ta = abs(K_EaN - K_EaP),
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
 k3p <- 
@@ -898,7 +1124,7 @@ k_var_plot_e <-
   geom_point(size = 3) + 
   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance) ") + 
   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-  annotate("text", x = 0.25, y = 0.45, label = "Resource \ncarrying capacity, K", size = 6) + 
+  annotate("text", x = 0.10, y = 0.45, label = "Resource \ncarrying capacity, K", size = 6) + 
   theme_cowplot(font_size = 20)
 
 k_var_plot_e2 <-
@@ -1144,16 +1370,8 @@ ggplot() +
 ### vary both v_Eas ####
 v_var <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
-                      ref_temp = 25,
-                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
                       r_EaN = 0,
                       r_EaP = 0,
                       c_Ea1N = 0,
@@ -1166,8 +1384,6 @@ for(f in 1:500){
                       v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
                       m_Ea1 = 0,
                       m_Ea2 = 0,
-                      # m_Ea1 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)), 
-                      # m_Ea2 = unlist(dplyr::select(filter(param_sum1, parameter == "mortality_rate" & summary_stat == "Mean"), value)),
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
@@ -1183,14 +1399,14 @@ beep(2)
 
 v_var_plot <- 
   ggplot() +
-  geom_path(data = v_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_path(data = v_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(v_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_point(data = filter(v_var, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
@@ -1204,11 +1420,11 @@ v_var_plot <-
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") + 
-  annotate("text", x = 0.7, y = 0.05, label = expression("Conversion \nefficiency," ~ italic(v)), size = 6, hjust = 0.5)
+  annotate("text", x = 0.7, y = 0.05, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 6, hjust = 0.5)
 
 ## calculate euclidean distances at 20C for each iteration #####
 v_var_e <- v_var %>% 
-  filter(T %in% c(25, 40)) %>% 
+  filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
@@ -1216,9 +1432,9 @@ v_var_e <- v_var %>%
               names_glue = "T{T}_{.value}") %>% 
   mutate(v_ta = v_EaN - v_EaP,
          abs_v_ta = abs(v_EaN - v_EaP),
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
 v3p <- 
@@ -1311,18 +1527,8 @@ ggplot() +
 ### vary both m_Eas ####
 m_var <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
-                      ref_temp = 25,
-                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
                       r_EaN = 0,
                       r_EaP = 0,
                       c_Ea1N = 0,
@@ -1350,14 +1556,14 @@ beep(2)
 #log plot
 m_var_plot <- 
   ggplot() +
-  geom_path(data = m_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_path(data = m_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(m_var, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_point(data = filter(m_var, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
@@ -1371,11 +1577,11 @@ m_var_plot <-
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.7, y = 0.05, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
+  annotate("text", x = 0.7, y = 0.05, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
 
 ## calculate euclidean distances at 20C for each iteration #####
 m_var_e <- m_var %>% 
-  filter(T %in% c(25, 40)) %>% 
+  filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
@@ -1383,9 +1589,9 @@ m_var_e <- m_var %>%
               names_glue = "T{T}_{.value}") %>% 
   mutate(m_ta = m_Ea1 - m_Ea2,
          abs_m_ta = abs(m_Ea1 - m_Ea2),
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
 m3p <-
@@ -1405,7 +1611,7 @@ m_var_plot_e <-
   geom_point(size = 3) + 
   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-  annotate("text", x = 0.25, y = 0.45, label = "Consumer \nmortality rate, m", size = 6) +
+  annotate("text", x = 0.10, y = 0.45, label = "Consumer \nmortality rate, m", size = 6) +
   theme_cowplot(font_size = 20)
 
 m_var_plot_e2 <-
@@ -1476,18 +1682,8 @@ ggplot() +
 #This seems to only be possible by really increasing the temperature range over which we run the simulation. The lowest where you can see any effect at all is around 75C warming. Better seen around 75C warming.
 m_var2 <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(25, 200, by = 3), 
-                      ref_temp = 25,
-                      # r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      # r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)), 
-                      # c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      # c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      # c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      # c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)), 
-                      # K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      # K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)), 
-                      # v_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)),
-                      # v_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "conversion_efficiency" & summary_stat == "Mean"), value)), 
+  hold = temp_dep_mac(T = seq(10, 110, by = 1), 
+                      ref_temp = 10,
                       r_EaN = 0,
                       r_EaP = 0,
                       c_Ea1N = 0,
@@ -1514,47 +1710,43 @@ for(f in 1:500){
 #log plot
 m_var2_plot <-
   ggplot() +
-  geom_path(data = m_var2, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-25, group = iteration), linewidth = 3) +
+  geom_path(data = m_var2, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 2) +
   geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(m_var2, T==25), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
+  geom_point(data = filter(m_var2, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 3) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
+  coord_cartesian(ylim=c(0.3,0.5), xlim = c(0, 0.5)) +
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.25, y = 0.7, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
+  annotate("text", x = 0.1, y = 0.45, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
 
 # get euclidean distances
 m_var_e <- m_var2 %>% 
-  filter(T %in% c(25, 40)) %>%
+  filter(T %in% c(10, 110)) %>%
   dplyr::select(-c(a11:g2, m1:beta12)) %>% 
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
-  mutate(dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) 
+  mutate(dist15 = sqrt((T110_new_stabil_potential - T10_new_stabil_potential)^2 + (T110_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T110_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T110_new_stabil_potential - T10_new_stabil_potential) 
 
 #histogram plot of euclidean dsistances in the pom pom plot
-# m_hist <- 
+m_hist2 <-
   m_var_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(colour = "black") + 
-  labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
+  labs(x = "Euclidean distance with \n100°C warming", y = "Count") + 
   theme_cowplot(font_size = 14)
-
-m_var2 %>% 
-  filter(iteration == 39) %>% 
-  dplyr::select(c(m_Ea1, m_Ea2)) 
 
 m_var_tas <- m_var2 %>% 
   group_by(iteration) %>% 
@@ -1565,8 +1757,221 @@ m_var_tas %>%
   ungroup() %>% 
   mutate(iteration = as.factor(iteration)) %>% 
   mutate(iteration = fct_reorder(iteration, m_ta)) %>%
-  ggplot(aes(x = iteration, y = m_ta)) + 
-  geom_point() #cross-checking this against the facet plot above confirms that it is only when temps can go very high and thermal asymmetries are very large that we see m_EA affect niche/fitness differences
+  # ggplot(aes(x = iteration, y = m_ta)) + 
+  ggplot(aes(x = m_ta, y = new_fit_ratio)) + 
+  geom_point()
+
+#repeat m forcing with a different start point ####
+m_var3 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 110, by = 1), 
+                      ref_temp = 10,
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N
+                      r_N_b = 0.5, r_P_b = 0.5, #growth rate for each resource at ref temp
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m
+  hold$iteration <- f
+  m_var3 <- bind_rows(m_var3, hold) 
+}
+
+#log plot
+m_var3_plot <-
+  ggplot() +
+  geom_path(data = m_var3, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 2) +
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(m_var3, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 3) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  coord_cartesian(ylim=c(-0.1,0.1), xlim = c(0, 0.5)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") 
+  # annotate("text", x = 0.1, y = 0.45, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
+
+# get euclidean distances
+m_var3_e <- m_var3 %>% 
+  filter(T %in% c(10, 110)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist15 = sqrt((T110_new_stabil_potential - T10_new_stabil_potential)^2 + (T110_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T110_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T110_new_stabil_potential - T10_new_stabil_potential) 
+
+#histogram plot of euclidean dsistances in the pom pom plot
+m_hist3 <-
+  m_var3_e %>% 
+  ggplot(aes(x = dist15)) + 
+  geom_histogram(colour = "black") + 
+  labs(x = "Euclidean distance with \n100°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+#repeat m forcing with a third start point ####
+m_var4 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 110, by = 1), 
+                      ref_temp = 10,
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.2, c1P_b = 1.8, #spec 1 consumes more P
+                      c2N_b = 0.6, c2P_b = 0.4, #spec 2 consumes more N
+                      r_N_b = 0.5, r_P_b = 0.5, #growth rate for each resource at ref temp
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp
+                      v1N_b = 0.2, v1P_b = 1.8, #sp 1 converts P more efficiently
+                      v2N_b = 0.6, v2P_b = 0.4, #sp 2 converts N more efficiently
+                      m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m
+  hold$iteration <- f
+  m_var4 <- bind_rows(m_var4, hold) 
+}
+
+#log plot
+m_var4_plot <-
+  ggplot() +
+  geom_path(data = m_var4, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 2) +
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(m_var4, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 3) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  coord_cartesian(ylim=c(0.2,0.4), xlim = c(0, 0.65)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") 
+  # annotate("text", x = 0.1, y = 0.45, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
+
+# get euclidean distances
+m_var4_e <- m_var4 %>% 
+  filter(T %in% c(10, 110)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist15 = sqrt((T110_new_stabil_potential - T10_new_stabil_potential)^2 + (T110_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T110_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T110_new_stabil_potential - T10_new_stabil_potential) 
+
+#histogram plot of euclidean dsistances in the pom pom plot
+m_hist4 <-
+  m_var4_e %>% 
+  ggplot(aes(x = dist15)) + 
+  geom_histogram(colour = "black") + 
+  labs(x = "Euclidean distance with \n100°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+#repeat m forcing with a fourth start point - cannot get this outside coexistence zone####
+m_var5 <- data.frame()
+for(f in 1:2){ 
+  hold = temp_dep_mac(T = seq(10, 110, by = 1), 
+                      ref_temp = 10,
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = 0,
+                      c_Ea1P = 0,
+                      c_Ea2N = 0,
+                      c_Ea2P = 0,
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.1, c1P_b = 1.8, #spec 1 consumes more P
+                      c2N_b = 0.6, c2P_b = 0, #spec 2 consumes more N
+                      r_N_b = 0.1, r_P_b = 1, #growth rate for each resource at ref temp
+                      K_N_b= 2000, K_P_b = 5000, #carrying capacity for each resource at ref temp
+                      v1N_b = 0.1, v1P_b = 1.8, #sp 1 converts P more efficiently
+                      v2N_b = 0.6, v2P_b = 0, #sp 2 converts N more efficiently
+                      m1_b = 0.01, m2_b = 0.1) #same for both species; model v insensitive to changes in m
+  hold$iteration <- f
+  m_var5 <- bind_rows(m_var5, hold) 
+}
+
+#log plot
+# m_var5_plot <-
+  ggplot() +
+  geom_path(data = m_var5, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 2) +
+  geom_ribbon(data = data.frame(x = seq(0, 4, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(m_var5, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 3) +
+  geom_hline(yintercept = 0, linetype = 5) +
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  # coord_cartesian(ylim=c(0.2,0.4), xlim = c(0, 0.65)) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  # labs(colour = "Degrees C \nWarming") +
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") 
+# annotate("text", x = 0.1, y = 0.45, label = expression("Consumer \nmortality rate," ~ italic(m)), size = 6)
+
+# get euclidean distances
+m_var5_e <- m_var5 %>% 
+  filter(T %in% c(10, 110)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist15 = sqrt((T110_new_stabil_potential - T10_new_stabil_potential)^2 + (T110_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T110_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T110_new_stabil_potential - T10_new_stabil_potential) 
+
+#histogram plot of euclidean dsistances in the pom pom plot
+m_hist4 <-
+  m_var5_e %>% 
+  ggplot(aes(x = dist15)) + 
+  geom_histogram(colour = "black") + 
+  labs(x = "Euclidean distance with \n100°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+
+#combine the two 100C warming plots for m
+m_var2_plot + m_hist2 + mvar3_plot + m_hist3 + mvar4_plot + m_hist4 + plot_annotation(tag_levels = "A")
+ggsave(plot = param_var_plot, filename = "figures/kd-figs/forcing_m.pdf", width = 14, height = 10)
 
 
 # Combining all param_var and euclidean displacement plots -------------------------------------------
@@ -1580,7 +1985,7 @@ param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot
 
 param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + plot_annotation(tag_levels = "A")
 # ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled.pdf", width = 16, height = 12)
-ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
+# ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
 
 # param_e_plot3 <- r_var_plot_e3 + c_var_plot_e3 + v_var_plot_e3 + k_var_plot_e3 + m_var_plot_e3
 # ggsave(plot = param_e_plot3, filename = "figures/kd-figs/param_e_plots2.pdf", width = 18, height = 12)
