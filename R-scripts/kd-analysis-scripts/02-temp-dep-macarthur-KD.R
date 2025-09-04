@@ -1,4 +1,7 @@
-#here is my version of JB's temp_dependences_macarthur script, where all parameters appear in the top list
+#macarthur consumer-resource function, where all parameters are assignable at the function deploying stage
+
+#script author: Kaleigh Davis, UoG postdoc
+
 temp_dep_mac <- function(T, ref_temp, 
                          r_EaN, r_EaP, #activation energy growth rate N and P
                          c_Ea1N, c_Ea1P, #activation energy consumption rate N and P, species 1
@@ -24,14 +27,14 @@ temp_dep_mac <- function(T, ref_temp,
   
   # cij = per capita consumption of comsumer i on resource j
   c1N = arrhenius_function(Temp = T, E = c_Ea1N, b1 = c1N_b, ref_temp = ref_temp)
-  c1P = arrhenius_function(Temp = T, E = c_Ea1P, b1 = c1P_b, ref_temp = ref_temp) ## species 1 consumes more P than N
-  c2N = arrhenius_function(Temp = T, E = c_Ea2N, b1 = c2N_b, ref_temp = ref_temp) ## species 2 consumes more N than P
+  c1P = arrhenius_function(Temp = T, E = c_Ea1P, b1 = c1P_b, ref_temp = ref_temp)
+  c2N = arrhenius_function(Temp = T, E = c_Ea2N, b1 = c2N_b, ref_temp = ref_temp) 
   c2P = arrhenius_function(Temp = T, E = c_Ea2P, b1 = c2P_b, ref_temp = ref_temp)
   
   # vij = conversion factor that converts resource j into biomass of consumer i
   v1N = arrhenius_function(Temp = T, E = v_EaN, b1 = v1N_b, ref_temp = ref_temp)
-  v2N = arrhenius_function(Temp = T, E = v_EaN, b1 = v2N_b, ref_temp = ref_temp) ## species 2 converts N more efficiently
-  v1P = arrhenius_function(Temp = T, E = v_EaP, b1 = v1P_b, ref_temp = ref_temp) ## species 1 converts P more efficiently
+  v2N = arrhenius_function(Temp = T, E = v_EaN, b1 = v2N_b, ref_temp = ref_temp) 
+  v1P = arrhenius_function(Temp = T, E = v_EaP, b1 = v1P_b, ref_temp = ref_temp)
   v2P = arrhenius_function(Temp = T, E = v_EaP, b1 = v2P_b, ref_temp = ref_temp)
   
   # mortality rates

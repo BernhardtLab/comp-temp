@@ -19,12 +19,11 @@ library(beepr)
 library(furrr) #for running large simulations in parallel
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/kd-analysis-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/kd-analysis-scripts/02-temp-dep-macarthur-KD.R") 
+#this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
 
 #load in distributions for parameter values.
-# these are continuous distributions generated from empirical data using MCMC regression, in kd_analysis_repro.csv
-### @Kaleigh - I don't see this file "kd_analysis_repro.csv"?
-
+# these are continuous distributions generated from empirical data using MCMC regression, in /kd-analysis-scripts/01-param-dists.R
 
 param_vals <- read_csv(file = "data/processed-data/param_post_dists.csv")
 
@@ -48,7 +47,7 @@ param_sum <- param_vals %>%
       intercept,
       list(
         Mean = mean,
-        Q1 = ~quantile(., 0.25), #do this with 0.975, 0.025
+        Q1 = ~quantile(., 0.25), #do this with 0.975, 0.025 to get 95% credible intervals
         Median = median,
         Q3 = ~quantile(., 0.75),
         Min = min,
@@ -70,7 +69,7 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-### NO THERMAL ASYMMETRIES SIM ####
+## SKIP THIS SECTION -- NO THERMAL ASYMMETRIES SIM ####
 nota <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
@@ -202,7 +201,7 @@ fd_shift_nota <-
 
 nd_shift_nota + fd_shift_nota
 
-##### NO TA Pompom with subplots ######
+##### SKIP --  NO TA Pompom with subplots ######
 # big pompom with small panels underneath
 bottom_patch_nota <- pom_hist_nota + nd_shift_nota + fd_shift_nota
 
@@ -211,8 +210,7 @@ comb_plot_nota <- log_pom_nota / bottom_patch_nota +
   plot_annotation(tag_levels = "A")
 ggsave(plot = comb_plot_nota, filename = "figures/kd-figs/NOTA_pom_hist_nfd.pdf", width = 12, height = 10)
 
-##### POMPOM PLOT FOR MANUSCRIPT -- draw all param EAs at random ##############
-### rrc  #####
+##### RUN -- POMPOM PLOT FOR MANUSCRIPT -- draw all param EAs at random (rrc) ##############
 rrc <- data.frame()
 for(f in 1:500){ #was 200
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
@@ -281,9 +279,7 @@ log_pom <-
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
   theme_cowplot(font_size = 20)
 
-# ggsave(plot = log_pom, filename = "figures/kd-figs/log-pom1.pdf", width = 12, height = 10)
-
-# get euclidean distances
+# get euclidean distances for each species pair
 rrc_e <- rrc %>% 
   filter(T %in% c(10, 25)) %>%
   dplyr::select(-c(a11:g2, m1:beta12)) %>% 
@@ -297,7 +293,7 @@ rrc_e <- rrc %>%
 
 hist(rrc_e$dist15)
 
-#histogram plot of euclidean dsistances in the pom pom plot
+#histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 0.05, colour = "black") + 
@@ -344,17 +340,17 @@ fd_shift <-
 
 nd_shift + fd_shift
 
-##### Pompom with subplots ######
+##### RUN -- Pompom with subplots (Figure 5) ######
 # big pompom with small panels underneath
 bottom_patch <- pom_hist + nd_shift + fd_shift
 
 comb_plot1 <- log_pom / bottom_patch + 
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
-ggsave(plot = comb_plot1, filename = "figures/kd-figs/pom_hist_nfd.pdf", width = 12, height = 10)
 
-# Repeat analysis with 100C warming #####
-### rrc  #####
+# ggsave(plot = comb_plot1, filename = "figures/kd-figs/pom_hist_nfd.pdf", width = 12, height = 10)
+
+# SKIP -- Repeat analysis with 50C warming (rrc) #####
 rrc50 <- data.frame()
 for(f in 1:500){ #was 200
   hold = temp_dep_mac(T = seq(10, 60, by = 0.5), #was by 0.1
@@ -486,7 +482,7 @@ fd_shift50 <-
 
 nd_shift50 + fd_shift50
 
-##### Pompom with subplots ######
+##### SKIP -- Pompom with subplots ######
 # big pompom with small panels underneath
 bottom_patch50 <- pom_hist50 + nd_shift50 + fd_shift50
 
@@ -496,7 +492,7 @@ comb_plot50 <- log_pom50 / bottom_patch50 +
 
 # ggsave(plot = comb_plot50, filename = "figures/kd-figs/50C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
-# Repeat analysis with 5C warming ####
+# SKIP -- Repeat analysis with 5C warming (rrc) ####
 rrc5 <- data.frame()
 for(f in 1:500){ #was 200
   hold = temp_dep_mac(T = seq(10, 15, by = 0.1), #was by 0.1
@@ -626,7 +622,7 @@ fd_shift5 <-
 
 nd_shift5 + fd_shift5
 
-##### Pompom with subplots ######
+##### SKIP -- Pompom with subplots ######
 # big pompom with small panels underneath
 bottom_patch5 <- pom_hist5 + nd_shift5 + fd_shift5
 
@@ -636,7 +632,7 @@ comb_plot5 <- log_pom5 / bottom_patch5 +
 
 ggsave(plot = comb_plot5, filename = "figures/kd-figs/5C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
-### BELOW HERE, EXPLORATORY ####
+### SKIP -- BELOW HERE, EXPLORATORY ####
 #use pompom plot to test for drivers of increase in ND #####
 # get TAs for each parameter, at each iteration
 rrc_parm_draws <- rrc %>% 

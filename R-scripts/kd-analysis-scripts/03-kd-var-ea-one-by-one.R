@@ -3,9 +3,6 @@
 #script DOB: April 1, 2025
 #author: Kaleigh Davis, University of Guelph postdoc
 
-# Objective 1: plot out effects of temp dep on each parameter while each other is held at mean -- look at total effects and relative effects on niche and fitness differences -- DONE 4/1/2025
-# Objective 2: Using the logged definitions of niche and fitness differences, calculate euclidean distances to 20C warming point and see how TAs affect this. 
-
 #### packages and referencing #####
 #load necessary pkgs
 library(tidyverse)
@@ -23,7 +20,7 @@ library(beepr)
 library(furrr) #for running large simulations in parallel
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/kd-analysis-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/kd-analysis-scripts/02-temp-dep-macarthur-KD.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in kd_analysis_repro.csv
@@ -71,8 +68,7 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-
-# r_Ea varies --------------------------------------------------------
+# RUN -- r_Ea varies --------------------------------------------------------
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 r_var <- data.frame()
 for(f in 1:500){ 
@@ -145,7 +141,7 @@ r_var_plot <-
 # rvar_legend  <- get_legend(r_var_plot)
 
 
-## calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 20C for each iteration #####
 r_var_e <- r_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -218,7 +214,7 @@ r_var_plot_e3 <-
   geom_point(size = 3) + 
   annotate("text", x = 1.07, y = 0.5, label = "r", size = 7, fontface = "italic")
   
-# calculate change in alpha in addition to thermal asymmetry ####
+# SKIP -- calculate change in alpha in addition to thermal asymmetry ####
 r_var_alpha <- r_var %>% 
   filter(T %in% c(25, 40)) %>% 
   dplyr::select(-c(g1, g2, coexist:beta12)) %>%
@@ -258,7 +254,7 @@ r_var_alpha %>%
   scale_colour_viridis_c(option = "inferno") + 
   coord_cartesian(xlim = c(0, 1.5), ylim = c(0, 0.5)) 
 
-### no TA in r ####
+### SKIP -- no TA in r ####
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 r_var_nota <- data.frame()
 for(f in 1:500){ 
@@ -317,7 +313,7 @@ r_var_nota_plot <-
 # rvar_legend_nota  <- get_legend(r_var_nota_plot)
 
 
-## calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 20C for each iteration #####
 r_var_nota_e <- r_var_nota %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -364,7 +360,7 @@ r_var_nota_plot_e3 <-
   geom_point(size = 3) + 
   annotate("text", x = 1.07, y = 0.5, label = "r", size = 7, fontface = "italic")
 
-### restrict draws of r_EaN relative to that of r_EaP ####
+### SKIP -- restrict draws of r_EaN relative to that of r_EaP ####
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 r_var_res <- data.frame()
 for(f in 1:500){ 
@@ -439,7 +435,7 @@ for(f in 1:500){
 #   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #strong effects along fitness differences axis
 
 
-## calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 20C for each iteration #####
 r_var_res_e <- r_var_res %>% 
   filter(T %in% c(25, 40)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -483,7 +479,7 @@ r_var_res_plot_e2 <-
   annotate("text", x = 1.0, y = 0.05, label = "Resource \ngrowth rate, r", size = 5.5) + 
   theme_cowplot(font_size = 20) 
 
-#### vary r_EaN, not r_EaP ####
+#### SKIP -- vary r_EaN, not r_EaP ####
 r_var1 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
@@ -528,9 +524,9 @@ ggplot() +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #same trend in effect as both drawn from dist, but smaller range of effects, supporting that thermal asymmetries generate those
 
 
-# c_Ea varies -------------------------------------------------------------
+############### c_Ea varies ##################### -------------------------------------------------------------
 
-### vary all c_EAs ####
+### RUN -- vary all c_EAs ####
 c_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -584,7 +580,7 @@ c_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
 
-## calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 20C for each iteration #####
 c_var_e <- c_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -669,7 +665,7 @@ c_var_plot_e3 <- c_var_e %>%
   labs(x = "Temperature dependence \nof consumer 1 consumption rate \non resource 1", y = "Temperature dependence \nof consumer 1 consumption rate \non resource 2", colour = "ED") + 
   annotate("text", x = 1.07, y = 0.5, label = "c", size = 7, fontface = "italic")
 
-#### no TAs #####
+#### SKIP -- no TAs #####
 c_var_nota <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -723,7 +719,7 @@ c_var_nota_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
 
-## calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 20C for each iteration #####
 c_var_nota_e <- c_var_nota %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -797,7 +793,7 @@ c_var_nota_plot_e3 <- c_var_nota_e %>%
   labs(x = "Temperature dependence \nof consumer 1 consumption rate \non resource 1", y = "Temperature dependence \nof consumer 1 consumption rate \non resource 2", colour = "ED") + 
   annotate("text", x = 1.07, y = 0.5, label = "c", size = 7, fontface = "italic")
 
-### vary all c_EaPs ####
+### SKIP -- vary all c_EaPs ####
 c_var1 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
@@ -856,7 +852,7 @@ c_var1_plot <-
   theme(legend.position = "none") 
   # annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
 
-### vary all c_EaNs  ####
+### SKIP -- vary all c_EaNs  ####
 c_var5 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
@@ -916,7 +912,7 @@ ggplot() +
   annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
   
   
-### vary c_EAs for each species' preferred resource ####
+### SKIP -- vary c_EAs for each species' preferred resource ####
 c_var4 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
@@ -976,7 +972,7 @@ c_var4_plot <-
   theme(legend.position = "none") 
 # annotate("text", x = 0.25, y = 0.7, label = expression("Consumption rate," ~ italic(c)), size = 6)
 
-### vary c_Eas for just one consumer ####
+### SKIP -- vary c_Eas for just one consumer ####
 c_var2 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 40, by = 0.1), 
@@ -1050,9 +1046,9 @@ c_0 <- c_var4_plot + c_var5_plot + c_var1_plot + c_var2_plot  + c_var_plot + plo
 ggsave(plot = c_0, filename = "figures/kd-figs/c_drawtypes_EAs0.pdf", width = 16, height = 10)
 #in order, these have focal params: consumption rate of preferred resource only, consumption rate of N only, consumption rate of P only, consumption rates of consumer 1 N & P, all four consumption rates
 
-# K_Eas vary --------------------------------------------------------------
+############## K_Eas vary ###################### --------------------------------------------------------------
 
-### vary both K_Eas ####
+### RUN -- vary both K_Eas ####
 k_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -1111,7 +1107,7 @@ k_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.65, y = 0.05, label = expression("Resource \ncarrying capacity," ~ italic(K)[italic(k)]), size = 6)
 
-## calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 20C for each iteration #####
 k_var_e <- k_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1177,7 +1173,7 @@ k_var_plot_e3 <- k_var_e %>%
   annotate("text", x = 1.07, y = 0.5, label = "K", size = 7, fontface = "italic") +
   geom_point(size = 3)
 
-### no TA in k ####
+### SKIP -- no TA in k ####
 k_var_nota <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -1231,7 +1227,7 @@ k_var_nota_plot <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none")
 
-## calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 20C for each iteration #####
 k_var_nota_e <- k_var_nota %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1278,7 +1274,7 @@ k_var_nota_plot_e3 <-
   geom_point(size = 3) + 
   annotate("text", x = 1.07, y = 0.5, label = "r", size = 7, fontface = "italic")
 
-### move start point off border and see if trajectory still moves toward neutrality parallel to IGR=0 line ####
+### SKIP --  move start point off border and see if trajectory still moves toward neutrality parallel to IGR=0 line ####
 k_off <- data.frame()
 for(f in 1:200){ 
   hold = temp_dep_mac(T = seq(25, 35, by = 0.1), 
@@ -1328,7 +1324,7 @@ ggplot() +
   annotate("text", x = 0.25, y = 0.7, label = expression("Resource \ncarrying capacity," ~ italic(K)), size = 6)
 
 
-### restrict so that K_EaN > K_EaP, or vice versa #####
+### SKIP -- restrict so that K_EaN > K_EaP, or vice versa #####
 k_var_res <- data.frame()
 for(f in 1:500){ 
   
@@ -1408,7 +1404,7 @@ ggplot() +
   theme(legend.position = "none") +
   annotate("text", x = 0.25, y = 0.7, label = "Resource \ncarrying capacity, K", size = 6)
 
-## calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 20C for each iteration #####
 k_var_res_e <- k_var_res %>% 
   filter(T %in% c(25, 40)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1450,7 +1446,7 @@ k_var_res_plot_e2 <-
   theme_cowplot(font_size = 20)
 
 
-### vary only one K_Ea ####
+### SKIP -- vary only one K_Ea ####
 k_var1 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
@@ -1496,9 +1492,9 @@ ggplot() +
 
 
 
-# v_Eas vary --------------------------------------------------------------
+################ v_Eas vary #################--------------------------------------------------------------
 
-### vary both v_Eas ####
+### RUN -- vary both v_Eas ####
 v_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -1553,7 +1549,7 @@ v_var_plot <-
   theme(legend.position = "none") + 
   annotate("text", x = 0.7, y = 0.05, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 6, hjust = 0.5)
 
-## calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 20C for each iteration #####
 v_var_e <- v_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1619,7 +1615,7 @@ v_var_plot_e3 <- v_var_e %>%
   annotate("text", x = 1.07, y = 0.5, label = "v", size = 7, fontface = "italic") +
   geom_point(size = 3)
 
-### vary v_EaN only ####
+### SKIP --  vary v_EaN only ####
 v_var1 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 0.1), 
@@ -1664,9 +1660,9 @@ ggplot() +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #interesting! Only moves points along x axis & only down
 
 
-# m_Eas vary --------------------------------------------------------------
+################### m_Eas vary ####################### --------------------------------------------------------------
 
-### vary both m_Eas ####
+### RUN -- vary both m_Eas ####
 m_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -1721,7 +1717,7 @@ m_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.7, y = 0.05, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
 
-## calculate euclidean distances at 20C for each iteration #####
+## RUN --  calculate euclidean distances at 20C for each iteration #####
 m_var_e <- m_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1787,7 +1783,7 @@ m_var_plot_e3 <- m_var_e %>%
   annotate("text", x = 1.07, y = 0.5, label = "m", size = 7, fontface = "italic") + 
   geom_point(size = 3)
 
-### vary m_Ea1 only ####
+### SKIP -- vary m_Ea1 only ####
 m_var1 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(25, 50, by = 1), 
@@ -1831,7 +1827,7 @@ ggplot() +
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #pretty much does not move the point
 
-### trying to force conditions where m_EA has an impact ####
+### SKIP -- trying to force conditions where m_EA has an impact ####
 #This seems to only be possible by really increasing the temperature range over which we run the simulation. The lowest where you can see any effect at all is around 75C warming. Better seen around 75C warming.
 m_var2 <- data.frame()
 for(f in 1:500){ 
@@ -1914,7 +1910,7 @@ m_var_tas %>%
   ggplot(aes(x = m_ta, y = new_fit_ratio)) + 
   geom_point()
 
-#repeat m forcing with a different start point ####
+# SKIP -- repeat m forcing with a different start point ####
 m_var3 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 110, by = 1), 
@@ -1983,7 +1979,7 @@ m_hist3 <-
   labs(x = "Euclidean distance with \n100°C warming", y = "Count") + 
   theme_cowplot(font_size = 24)
 
-#repeat m forcing with a third start point ####
+# SKIP -- repeat m forcing with a third start point ####
 m_var4 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 110, by = 1), 
@@ -2052,7 +2048,7 @@ m_hist4 <-
   labs(x = "Euclidean distance with \n100°C warming", y = "Count") + 
   theme_cowplot(font_size = 24)
 
-#repeat m forcing with a fourth start point - cannot get this outside coexistence zone####
+# SKIP -- repeat m forcing with a fourth start point - cannot get this outside coexistence zone####
 m_var5 <- data.frame()
 for(f in 1:200){ 
   hold = temp_dep_mac(T = seq(10, 110, by = 1), 
@@ -2126,8 +2122,9 @@ m_force <-
 ggsave(plot = m_force, filename = "figures/kd-figs/forcing_m.pdf", width = 16, height = 24)
 
 
-# Combining all param_var and euclidean displacement plots -------------------------------------------
+# RUN -- Combining all param_var and euclidean displacement plots -------------------------------------------
 
+# RUN -- Figure 3 --------------------------------------
 param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot + rvar_legend + 
   plot_annotation(tag_levels = "A")
 # ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots_EA0.pdf", width = 14, height = 10)
@@ -2135,13 +2132,17 @@ param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot
 # param_e_plot <- r_var_plot_e + c_var_plot_e + v_var_plot_e + k_var_plot_e + m_var_plot_e 
 # # ggsave(plot = param_e_plot, filename = "figures/kd-figs/param_e_plots.pdf", width = 16, height = 12)
 
+# Run -- Figure 4 --------------------------------------
 param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + who_wins_legend + plot_annotation(tag_levels = "A")
 # ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
 
-ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0_w_winners.pdf", width = 18, height = 12)
+# SKIP BELOW ----------------------------
+
+# ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0_w_winners.pdf", width = 18, height = 12)
 
 # param_e_plot3 <- r_var_plot_e3 + c_var_plot_e3 + v_var_plot_e3 + k_var_plot_e3 + m_var_plot_e3
 # ggsave(plot = param_e_plot3, filename = "figures/kd-figs/param_e_plots2.pdf", width = 18, height = 12)
+
 
 #three panel plots
 threeps <- r3p + c3p + v3p + k3p + m3p
