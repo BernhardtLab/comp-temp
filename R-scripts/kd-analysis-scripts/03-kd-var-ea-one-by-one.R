@@ -68,8 +68,9 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-# RUN -- r_Ea varies --------------------------------------------------------
+####################### r_Ea varies ################################ ----------------------
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
+# RUN -- vary both r Ea s ----------------------
 r_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -1492,7 +1493,7 @@ ggplot() +
 
 
 
-################ v_Eas vary #################--------------------------------------------------------------
+# v_Eas vary ################--------------------------------------------------
 
 ### RUN -- vary both v_Eas ####
 v_var <- data.frame()
