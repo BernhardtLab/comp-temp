@@ -23,6 +23,9 @@ source("R-scripts/kd-analysis-scripts/temp-dep-macarthur-KD.R") #this contains t
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in kd_analysis_repro.csv
+### @Kaleigh - I don't see this file "kd_analysis_repro.csv"?
+
+
 param_vals <- read_csv(file = "data/processed-data/param_post_dists.csv")
 
 #split these into dfs for each parameter
