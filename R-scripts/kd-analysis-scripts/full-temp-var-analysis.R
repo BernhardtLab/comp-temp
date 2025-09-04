@@ -48,7 +48,7 @@ param_sum <- param_vals %>%
       intercept,
       list(
         Mean = mean,
-        Q1 = ~quantile(., 0.25),
+        Q1 = ~quantile(., 0.25), #do this with 0.975, 0.025
         Median = median,
         Q3 = ~quantile(., 0.75),
         Min = min,
