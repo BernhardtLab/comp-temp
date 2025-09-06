@@ -24,7 +24,7 @@ library(colorspace)
 library(purrr)
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/temp-dep-macarthur-KD.R") #this contains the macarthur translation function, exactly as Joey's functions did, but has all parameters flexibly defined in the function for assigning at time of use. Nothing is hard coded in.
+source("R-scripts/kd-analysis-scripts/02-temp-dep-macarthur-KD.R") #this contains the macarthur translation function, exactly as Joey's functions did, but has all parameters flexibly defined in the function for assigning at time of use. Nothing is hard coded in.
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in kd_analysis_repro.csv
@@ -591,6 +591,31 @@ ggplot() +
   xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
 
+# QUESTION. What is the average position of the dot after 5C, 10C, 20C warming? #####
+gs1_avg <- gs1 %>% 
+  mutate(rel_T = T-25) %>% 
+  filter(rel_T %in% c(5, 10, 20)) %>% 
+  group_by(rel_T) %>% 
+  summarise(mean_stab_pot = mean(stabil_potential),
+            mean_fit_rat = mean(fit_ratio))
+
+#plot em over the pompom
+ggplot() +
+  geom_path(data = gs1, aes(x = stabil_potential, y = fit_ratio, color = T-25, group = iteration), linewidth = 2, alpha = 0.5) +
+  geom_ribbon(data = data.frame(x = seq(min(gs1$stabil_potential)*0.99, max(gs1$stabil_potential)*1.01, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = 1-x,
+                  ymax = 1/(1-x)),
+              fill = "grey", color = "black", alpha = 0.2) +
+  geom_point(data = filter(gs1, T==25), aes(x = stabil_potential, y = fit_ratio), colour = "black", size = 4) +
+  geom_point(data = gs1_avg, aes(x = mean_stab_pot, y = mean_fit_rat), colour = "black",  size = 4) +
+  geom_point(data = gs1_avg, aes(x = mean_stab_pot, y = mean_fit_rat, colour = rel_T), size = 3) + 
+  geom_hline(yintercept = 1, linetype=5) + 
+  scale_colour_continuous_diverging() +
+  xlab(expression(paste("Stabilization potential (1-", rho, ")"))) +
+  ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) 
+
 #make consumption rates temp dep ####
 gs2 <- data.frame()
 for(f in 1:200){
@@ -598,8 +623,8 @@ for(f in 1:200){
                       ref_temp = 25,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
-                      c_Ea1N = 0.586, #bottom quartile
-                      c_Ea1P = 0.544, #top quartile
+                      c_Ea1N = 0.544, #bottom quartile ## I HAD THESE SWITCHED BEFORE! 9/5/25
+                      c_Ea1P = 0.586, #top quartile
                       c_Ea2N = 0.565, #mean
                       c_Ea2P = 0.565, #mean
                       K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
