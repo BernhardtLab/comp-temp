@@ -77,80 +77,108 @@ consumption_rate <- mac_means %>%
 # bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>% 
 # write_csv(., "data/processed-data/param_post_dists.csv")
 
-### plot all distributions from saved distributions #####
+### get summary stats for each parameter #####
 data <- read_csv("data/processed-data/param_post_dists.csv")
 
+param_sum <- data %>%
+  group_by(parameter) %>% 
+  summarize(
+    across(
+      intercept,
+      list(
+        Mean = mean,
+        ci_low = ~quantile(., 0.025),
+        ci_up = ~quantile(., 0.975),
+        Q1 = ~quantile(., 0.25),
+        Median = median,
+        Q3 = ~quantile(., 0.75),
+        Min = min,
+        Max = max,
+        sd = sd
+      ),
+      .names = "{.fn}" )
+  ) 
+
+### plot all distributions from saved distributions #####
 #plot distribution over original data 
-mort_ea_plot <- data %>% 
+mort_ea_plot <-
+  data %>% 
   filter(parameter == "mortality_rate") %>% 
-  ggplot(aes(x = intercept)) + geom_histogram(fill = "lightgrey") +
+  ggplot(aes(x = intercept)) + 
+  geom_density(fill = "lightgrey") + 
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "black", size = 3, shape = 1) +
-  # geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
-  coord_cartesian(ylim = c(0, 5000)) + 
-  labs(y = "Count", x = "Temperature Sensitivity (eV)") +
-  # coord_flip() + 
+  geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
+  coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
+  scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
+  labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  # label = expression("Conversion \nefficiency," ~ italic(v))
-  annotate("text", x = 0.75, y = 4500, label = expression("Consumer \nmortality rate," ~italic(m)), size = 6)
+  annotate("text", x = -0.65, y = 9, label = expression("Consumer \nmortality rate," ~italic(m)), size = 6)
 
 rgr_plot <- data %>% 
   filter(parameter == "resource_growth_rate") %>% 
-  ggplot(aes(x = intercept)) + geom_histogram(fill = "lightgrey") +
+  ggplot(aes(x = intercept)) + 
+  geom_density(fill = "lightgrey") + 
   geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "black", size = 3, shape = 1) +
-  # geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
-  coord_cartesian(ylim = c(0, 5000)) + 
-  labs(y = "Count", x = "Temperature Sensitivity (eV)") +
-  # coord_flip() + 
+  geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
+  coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
+  scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
+  labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
   # label = expression("Conversion \nefficiency," ~ italic(v))
-  annotate("text", x = 1.5, y = 4500, label = expression("Resource \ngrowth rate," ~italic(r)), size = 6)
+  annotate("text", x = -0.75, y = 9, label = expression("Resource \ngrowth rate," ~italic(r)), size = 6)
 
 conv_eff_plot <- data %>% 
   filter(parameter == "conversion_efficiency") %>% 
-  ggplot(aes(x = intercept)) + geom_histogram(fill = "lightgrey") +
+  ggplot(aes(x = intercept)) + 
+  geom_density(fill = "lightgrey") +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "black", size = 3, shape = 1) +
-  # geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
-  # coord_flip() + 
-  coord_cartesian(ylim = c(0, 5000)) + 
-  labs(y = "Count", x = "Temperature Sensitivity (eV)") +
+  geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
+  coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
+  scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
+  labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.2, y = 4500, label = expression("Conversion \nefficiency," ~italic(v)), size = 6)
+  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency," ~italic(v)), size = 6)
 
 carrying_capacity_plot <- data %>% 
   filter(parameter == "carrying_capacity") %>% 
-  ggplot(aes(x = intercept)) + geom_histogram(fill = "lightgrey") +
+  ggplot(aes(x = intercept)) + 
+  geom_density(fill = "lightgrey") +
   geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "black", size = 3, shape = 1) +
-  # geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
-  # coord_flip() + 
-  coord_cartesian(ylim = c(0, 5000)) + 
-  labs(y = "Count", x = "Temperature Sensitivity (eV)") +
+  geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
+  coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
+  scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
+  labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 0.05, y = 4000, label = expression("Resource \ncarrying \ncapacity," ~italic(K)), size = 6)
+  annotate("text", x = 1, y = 9, label = expression("Resource \ncarrying \ncapacity," ~italic(K)), size = 6)
 
 consumption_rate_plot <- data %>% 
   filter(parameter == "consumption rate") %>% 
-  ggplot(aes(x = intercept)) + geom_histogram(fill = "lightgrey") +
+  ggplot(aes(x = intercept)) + 
+  geom_density(fill = "lightgrey") +
   geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "orange", size = 3) +
   geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "black", size = 3, shape = 1) +
-  # geom_vline(aes(xintercept = mean(intercept))) +
-  geom_vline(aes(xintercept = median(intercept)), color = "darkred") +
-  # coord_flip() + 
-  coord_cartesian(ylim = c(0, 5000)) + 
-  labs(y = "Count", x = "Temperature Sensitivity (eV)") +
+  geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
+  coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
+  scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
+  labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.3, y = 4500, label = expression("Consumption \nrate," ~italic(c)), size = 6)
+  annotate("text", x = -0.65, y = 9, label = expression("Consumption \nrate," ~italic(c)), size = 6)
 
+#plot with points for each estimate and CI bars
+param_sum %>% 
+  ggplot() + 
+  geom_point(aes(x = parameter, y = Mean), size = 3) + 
+  geom_errorbar(aes(x = parameter, ymin = ci_low, ymax = ci_up), width = 0.2) + 
+  theme_cowplot(font_size = 20)
 
+### save multipanel - FIGURE 2 #######
 ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot +
   plot_annotation(tag_levels = "A")
 
-# ggsave(filename = "figures/kd-figs/ea-plots1.pdf", ea_plots, width = 15, height = 12)
+ggsave(filename = "figures/kd-figs/ea-plots1.pdf", ea_plots, width = 16, height = 12)
+
