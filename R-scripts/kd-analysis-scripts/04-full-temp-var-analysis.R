@@ -244,7 +244,9 @@ rrc_avg_new <- rrc %>%
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
-            new_mean_fit_rat = mean(new_fit_ratio))
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
 
 #pompom
 log_pom <-
@@ -262,8 +264,8 @@ log_pom <-
   geom_point(data = filter(rrc, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
   geom_point(data = filter(rrc, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = rrc_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = rrc_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = rrc_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
   geom_point(data = rrc_avg_new, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
@@ -309,6 +311,8 @@ rrc_p_avg <- rrc_p %>%
   group_by(temp) %>% 
   summarise(mean_stabil_potential = mean(new_stabil_potential), 
             mean_fitrat = mean(new_fit_ratio),
+            med_stabil_potential = median(new_stabil_potential),
+            med_fitrat = median(new_fit_ratio),
             sd_stabil_potential = sd(new_stabil_potential),
             sd_fitrat = sd(new_fit_ratio))
 
@@ -316,27 +320,27 @@ rrc_p_avg <- rrc_p %>%
 nd_shift <-
   ggplot() + 
   geom_jitter(data = filter(rrc_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
-  geom_point(data = rrc_p_avg, aes(x = temp, y = mean_stabil_potential, fill = temp), size = 5, pch = 21) +
+  geom_point(data = rrc_p_avg, aes(x = temp, y = med_stabil_potential, fill = temp), size = 5, pch = 21) +
   labs(x = "Temperature", y = expression(paste("Niche differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
   theme_cowplot(font_size = 14) + 
   theme(axis.title.x = element_blank(),
         legend.position = "none") +
-  coord_cartesian(ylim = c(0, 0.65)) 
+  coord_cartesian(ylim = c(0, 0.75)) 
 
 #shift in fitness ratio
 fd_shift <-
   ggplot() + 
   geom_jitter(data = filter(rrc_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
-  geom_point(data = rrc_p_avg, aes(x = temp, y = mean_fitrat, fill = temp), size = 5, pch = 21) + 
+  geom_point(data = rrc_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
   labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
   theme_cowplot(font_size = 14) + 
   theme(axis.title.x = element_blank(),
-        legend.position = "none") + 
-  coord_cartesian(ylim = c(0, 0.65))
+        legend.position = "none")  +
+  coord_cartesian(ylim = c(0, 0.75))
 
 nd_shift + fd_shift
 

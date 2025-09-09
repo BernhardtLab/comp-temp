@@ -378,7 +378,9 @@ rrce_all_avg_new <- rrce_all %>%
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
-            new_mean_fit_rat = mean(new_fit_ratio))
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
 
 #pompom
 log_pom_rrce_all <-
@@ -396,8 +398,8 @@ log_pom_rrce_all <-
   geom_point(data = filter(rrce_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
   geom_point(data = filter(rrce_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = rrce_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = rrce_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = rrce_all_avg_new, aes(x = new_median_stab_pot, y = new_median_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrce_all_avg_new, aes(x = new_median_stab_pot, y = new_median_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
   geom_point(data = rrce_all, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
@@ -561,10 +563,9 @@ k_var1col <- k_var1 %>%
                              ifelse(K_EaN < K_EaP, "N more negative", "other")))
 
 #log plot
-# k_var1_plot <- 
+k_var1_plot <-
   ggplot() +
-  # geom_path(data = k_var1, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
-  geom_path(data = k_var1col, aes(x = new_stabil_potential, y = new_fit_ratio, colour = inequality, group = iteration), linewidth = 3) +
+  geom_path(data = k_var1, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
               aes(x = x,
                   y = NULL,
@@ -697,7 +698,7 @@ m_var1_plot <-
 
 # uneven reciprocal, equal base growth plot ###
 urrce_plots <- c_var1_plot + r_var1_plot + k_var1_plot + v_var1_plot + m_var1_plot
-ggsave(plot = urrce_plots, filename = "figures/kd-figs/param_var1_startpoint2.pdf", width = 14, height = 10)
+# ggsave(plot = urrce_plots, filename = "figures/kd-figs/param_var1_startpoint2.pdf", width = 14, height = 10)
 
 #### POMPOM; uneven reciprocal preference, equal growth rates ####
 urrce_all <- data.frame()
@@ -716,7 +717,7 @@ for(f in 1:500){ #was 200
                       v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
                       m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
                       m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
-                      c1N_b = 0.2, c1P_b = 1.8, 
+                      c1N_b = 0.1, c1P_b = 0.9, 
                       c2N_b = 0.6, c2P_b = 0.4, 
                       r_N_b = 0.5, r_P_b = 0.5, 
                       K_N_b= 2000, K_P_b = 2000, 
@@ -733,7 +734,9 @@ urrce_all_avg_new <- urrce_all %>%
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
-            new_mean_fit_rat = mean(new_fit_ratio))
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
 
 #pompom
 log_pom_urrce_all <-
@@ -751,8 +754,8 @@ log_pom_urrce_all <-
   geom_point(data = filter(urrce_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
   geom_point(data = filter(urrce_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = urrce_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = urrce_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = urrce_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
   geom_point(data = urrce_all, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
@@ -1049,7 +1052,7 @@ m_var2_plot <-
 gs_plots <- c_var2_plot + r_var2_plot + k_var2_plot + v_var2_plot + m_var2_plot
 ggsave(plot = gs_plots, filename = "figures/kd-figs/param_var2_startpoint3.pdf", width = 14, height = 10)
 
-#### POMPOM; rrc, equal growth rates ####
+#### POMPOM; gs - strong ####
 gs_all <- data.frame()
 for(f in 1:500){ #was 200
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
@@ -1081,9 +1084,20 @@ for(f in 1:500){ #was 200
 gs_all_avg_new <- gs_all %>% 
   mutate(rel_T = T-10) %>% 
   filter(rel_T == 15) %>% 
-  group_by(rel_T) %>% 
+  group_by(rel_T) %>%
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
-            new_mean_fit_rat = mean(new_fit_ratio))
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+  
+
+gs_all %>% 
+  mutate(rel_T = T-10) %>% 
+  filter(rel_T == 15) %>% 
+  ggplot() + 
+  geom_histogram(aes(x = new_fit_ratio)) + 
+  geom_vline(aes(xintercept = mean(new_fit_ratio))) +
+  geom_vline(data = gs_all_avg_new, aes(xintercept = new_mean_fit_rat),colour = "red")
 
 #pompom
 log_pom_gs_all <-
@@ -1101,8 +1115,8 @@ log_pom_gs_all <-
   geom_point(data = filter(gs_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
   geom_point(data = filter(gs_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = gs_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = gs_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = gs_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 4) +
+  geom_point(data = gs_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 2) +
   geom_hline(yintercept = 0, linetype=5) +
   geom_point(data = gs_all, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
@@ -1399,7 +1413,7 @@ m_var3_plot <-
 gsm_plots <- c_var3_plot + r_var3_plot + k_var3_plot + v_var3_plot + m_var3_plot
 # ggsave(plot = gs_plots, filename = "figures/kd-figs/param_var3_startpoint3.pdf", width = 14, height = 10)
 
-#### POMPOM; rrc, equal growth rates ####
+#### POMPOM; gs-mild ####
 gsm_all <- data.frame()
 for(f in 1:500){ #was 200
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -1433,7 +1447,9 @@ gsm_all_avg_new <- gsm_all %>%
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
-            new_mean_fit_rat = mean(new_fit_ratio))
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
 
 #pompom
 log_pom_gsm_all <-
@@ -1451,8 +1467,8 @@ log_pom_gsm_all <-
   geom_point(data = filter(gsm_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
   geom_point(data = filter(gsm_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = gsm_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = gsm_all_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = gsm_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = gsm_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
   geom_point(data = gsm_all, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
