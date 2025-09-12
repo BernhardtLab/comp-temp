@@ -139,10 +139,10 @@ r_var_plot <-
   theme(legend.position = "none")
 
 #get legend for composite plot -- need to generate r_var_plot WITH the legend first, then add in the legend.position = "none" for the actual composite plot
-# rvar_legend  <- get_legend(r_var_plot)
+rvar_legend  <- get_legend(r_var_plot)
 
 
-## RUN -- calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 25C for each iteration #####
 r_var_e <- r_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -160,53 +160,32 @@ r_var_e <- r_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(r_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-#create column to indicate who wins
-r_var_e1 <- r_var_e %>% 
-  mutate(who_wins = ifelse(T25_new_fit_ratio > T25_new_stabil_potential & T25_new_fit_ratio > 0, "Species 2 Wins", 
-                           ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Species 1 Wins",
-                                  ifelse(T25_new_fit_ratio > 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Coexist", 
-                                         ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio > T25_new_stabil_potential, "Coexist", NA)))))
-
-
+#plot effect of thermal asymmetry on distance and NFD
 r3p <-
 r_var_e %>% 
-  ggplot(aes(x = r_ta, y = value)) +
-  # ggplot(aes(x = r_EaN, y = value, colour = r_EaP)) +
+  ggplot(aes(x = r_ta, y = value, colour = r_EaP>r_EaN)) +
   geom_point() + 
   facet_wrap(~response_var,
              labeller = labeller(response_var = c("dist15" = "Eucl Dist", "shift_fitrat" = "Change FD", "shift_nichediffs" = "Change ND"))) +
   labs(x = "Magnitude \n of thermal asymmetry", y = "Value") + 
-  ggtitle("Resource growth rate, r_k")
+  ggtitle("Resource growth rate, r_k") + 
+  theme(legend.position = "none")
 
-# thermal asymmetry - euclidean distance plot
-# r_var_plot_e <-
-#   r_var_e %>%
-#   filter(response_var == "dist15") %>% 
-#   ggplot(aes(x = scale(r_ta), y = value)) +
-#   # ggplot(aes(x = scale(r_ta), y = value, colour = r_EaN < r_EaP)) +
-#   geom_point(size = 3) + 
-#   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
-#   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-#   annotate("text", x = 0, y = 0.45, label = "Resource \ngrowth rate, r", size = 5.5) + 
-#   theme_cowplot(font_size = 20)
-  
 #unscaled TA - euclidean distance plot
 r_var_plot_e2 <-
-  r_var_e1 %>% 
+  r_var_e %>% 
     filter(response_var == "dist15") %>% 
     # ggplot(aes(x = r_ta, y = value)) +
-    ggplot(aes(x = r_ta, y = value, colour = who_wins)) +
+    ggplot(aes(x = abs_r_ta, y = value, colour = r_EaP > r_EaN)) +
     geom_point(size = 3) + 
     labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-    coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+    coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
     annotate("text", x = 0.88, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
     theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  ggtitle(expression("E"[ra] * "- E"[rb]))
+  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
 
-#run above with legend, save legend, then overwrite without legend
-who_wins_legend <- get_legend(r_var_plot_e2)
-
+#investigate distributions of EAs
 r_var_plot_e3 <-
   r_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -214,46 +193,6 @@ r_var_plot_e3 <-
   labs(x = "Temperature dependence \nof resource 1 growth rate", y = "Temperature dependence \nof resource 2 growth rate", colour = "ED") + 
   geom_point(size = 3) + 
   annotate("text", x = 1.07, y = 0.5, label = "r", size = 7, fontface = "italic")
-  
-# SKIP -- calculate change in alpha in addition to thermal asymmetry ####
-r_var_alpha <- r_var %>% 
-  filter(T %in% c(25, 40)) %>% 
-  dplyr::select(-c(g1, g2, coexist:beta12)) %>%
-  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
-              names_from = T,
-              values_from = c(a11, a22, a12, a21, new_stabil_potential, new_fit_ratio),
-              names_glue = "T{T}_{.value}") %>% 
-  mutate(r_ta = abs(r_EaN - r_EaP),
-         a12_shift_abs = abs(T40_a12 - T25_a12),
-         a21_shift_abs = abs(T40_a21 - T25_a21),
-         a11_shift_abs = abs(T40_a11 - T25_a11),
-         a22_shift_abs = abs(T40_a22 - T25_a22),
-         dist15 = sqrt((T40_new_stabil_potential - T25_new_stabil_potential)^2 + (T40_new_fit_ratio - T25_new_fit_ratio)^2),
-         shift_fitrat = T40_new_fit_ratio - T25_new_fit_ratio,
-         shift_nichediffs = T40_new_stabil_potential - T25_new_stabil_potential) %>% 
-  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
-  
-r_var_alpha %>% 
-  ggplot(aes(x = r_ta, y = a21_shift_abs, colour = a12_shift_abs)) + 
-  geom_point() + 
-  facet_wrap(~response_var) + 
-  scale_colour_viridis_c(option = "inferno") +
-  labs(x = "Abs change in a21", y = "Response variable value") #need to think about this more
-
-r_var_alpha %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = a21_shift_abs, y = a12_shift_abs, colour = r_ta)) + 
-  geom_point() + 
-  facet_wrap(~response_var) + 
-  scale_colour_viridis_c(option = "inferno") 
-  # coord_cartesian(xlim = c(0, 1.5), ylim = c(0, 0.5)) 
-
-r_var_alpha %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = a11_shift_abs, y = a22_shift_abs, colour = r_ta)) + 
-  geom_point() + 
-  scale_colour_viridis_c(option = "inferno") + 
-  coord_cartesian(xlim = c(0, 1.5), ylim = c(0, 0.5)) 
 
 ### SKIP -- no TA in r ####
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
@@ -314,7 +253,7 @@ r_var_nota_plot <-
 # rvar_legend_nota  <- get_legend(r_var_nota_plot)
 
 
-## SKIP -- calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 25C for each iteration #####
 r_var_nota_e <- r_var_nota %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -436,7 +375,7 @@ for(f in 1:500){
 #   ylab(expression(paste("Fitness difference (", f[2], "/", f[1], ")"))) #strong effects along fitness differences axis
 
 
-## SKIP -- calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 25C for each iteration #####
 r_var_res_e <- r_var_res %>% 
   filter(T %in% c(25, 40)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -581,47 +520,56 @@ c_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
 
-## RUN -- calculate euclidean distances at 20C for each iteration #####
-c_var_e <- c_var %>% 
+### re-run simulation with just one pair of consumption rates varying for the consumption rate thermal asymmetry plot #####
+c_var_ta <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
+                      ref_temp = 10,
+                      r_EaN = 0,
+                      r_EaP = 0,
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = 0,
+                      c_Ea2P = 0, 
+                      K_EaN = 0,
+                      K_EaP = 0,
+                      v_EaN = 0,
+                      v_EaP = 0,
+                      m_Ea1 = 0,
+                      m_Ea2 = 0,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 0.1, 0.1
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
+                      m1_b = 0.01, m2_b = 0.01)
+  hold$iteration <- f
+  c_var_ta <- bind_rows(c_var_ta, hold) 
+}
+
+## RUN -- calculate euclidean distances at 25C for each iteration #####
+c_var_e <- c_var_ta %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
-  mutate(abs_c_ta = abs(c_Ea2N - c_Ea2P),
-         c_ta1 = c_Ea1N - c_Ea2N,
-         c_ta2 = c_Ea1N - c_Ea2P,
-         c_ta3 = c_Ea1N - c_Ea1P,
-         c_ta4 = c_Ea1P - c_Ea2N,
-         c_ta5 = c_Ea1P - c_Ea2P,
-         c_ta6 = c_Ea2N - c_Ea2P,
+  mutate(abs_c_ta = abs(c_Ea1P - c_Ea1N),
          dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
          shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
          shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
-
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(c_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
-
-#create column to indicate who wins
-c_var_e1 <- c_var_e %>% 
-  mutate(who_wins = ifelse(T25_new_fit_ratio > T25_new_stabil_potential & T25_new_fit_ratio > 0, "Species 2 Wins", 
-                           ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Species 1 Wins",
-                                  ifelse(T25_new_fit_ratio > 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Coexist", 
-                                         ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio > T25_new_stabil_potential, "Coexist", NA)))))
 
 #effects on euclidean distance and niche and fitness diffs
 c3p <-
   c_var_e %>% 
   ggplot() + 
-  geom_point(aes(x = c_ta1, y = value)) +
-  geom_point(aes(x = c_ta2, y = value)) +
-  geom_point(aes(x = c_ta3, y = value)) +
-  geom_point(aes(x = c_ta4, y = value)) +
-  geom_point(aes(x = c_ta5, y = value)) +
-  geom_point(aes(x = c_ta6, y = value)) +
+  geom_point(aes(x = abs_c_ta, y = value)) + 
   facet_wrap(~response_var) + 
   labs(x = "Manitude of thermal asymmetries (aggregated)", y = "Response variable value") +
   facet_wrap(~response_var,
@@ -629,35 +577,17 @@ c3p <-
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
   ggtitle("Consumption rate, c_ik")
 
-# c_var_plot_e <-
-#   c_var_e %>% 
-#   filter(response_var == "dist15") %>% 
-#   # ggplot(aes(x = scale(c_ta), y = value)) + 
-#   ggplot(aes(x = scale(c_ta), y = value, colour = c_Ea2N < c_Ea2P)) +
-#   geom_point(size = 3) + 
-#   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance)") + 
-#   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-#   annotate("text", x = 0, y = 0.45, label = "Consumer 1 resource \nconsumption rate", size = 5.5) + 
-#   theme_cowplot(font_size = 20)
-
 c_var_plot_e2 <-
-  c_var_e1 %>% 
+  c_var_e %>% 
   filter(response_var == "dist15") %>% 
-  # ggplot(aes(x = c_ta, y = value)) + 
-  ggplot() +
-  geom_point(aes(x = c_ta1, y = value, colour = who_wins), size = 3) + 
-  geom_point(aes(x = c_ta2, y = value, colour = who_wins), size = 3) + 
-  geom_point(aes(x = c_ta3, y = value, colour = who_wins), size = 3) + 
-  geom_point(aes(x = c_ta4, y = value, colour = who_wins), size = 3) + 
-  geom_point(aes(x = c_ta5, y = value, colour = who_wins), size = 3) + 
-  geom_point(aes(x = c_ta5, y = value, colour = who_wins), size = 3) + 
+  ggplot(aes(x = abs_c_ta, y = value)) +
+  geom_point(aes(colour = c_Ea1P > c_Ea1N)) + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
-  # annotate("text", x = 0.70, y = 0.35, label = "Consumer 2 \nconsumption rate, c", size = 5.5) + 
-  annotate("text", x = 0.20, y = 0.35, label = "Consumption rate, c", size = 5.5) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
+  annotate("text", x = 0.4, y = 0.35, label = "Consumption rate, c", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  ggtitle(expression("E"[cik] * "- E"[cik]*"*"))
+  ggtitle(expression("|E"[c1a] * "- E"[c1b]*"|"))
 
 c_var_plot_e3 <- c_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -720,7 +650,7 @@ c_var_nota_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
 
-## SKIP -- calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 25C for each iteration #####
 c_var_nota_e <- c_var_nota %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1073,7 +1003,7 @@ for(f in 1:500){
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 0.2, 0.4
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 0.4, 0.2
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 1, 0.5
-                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
+                      K_N_b = 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 2000, 2000
                       v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 0.2, 0.4
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 0.4, 0.2
                       m1_b = 0.01, m2_b = 0.01) #same for both species; model v insensitive to changes in m 0.1, 0.1
@@ -1108,7 +1038,7 @@ k_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.65, y = 0.05, label = expression("Resource \ncarrying capacity," ~ italic(K)[italic(k)]), size = 6)
 
-## RUN -- calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 25C for each iteration #####
 k_var_e <- k_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1127,13 +1057,6 @@ k_var_e <- k_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(k_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-#create column to indicate who wins
-k_var_e1 <- k_var_e %>% 
-  mutate(who_wins = ifelse(T25_new_fit_ratio > T25_new_stabil_potential & T25_new_fit_ratio > 0, "Species 2 Wins", 
-                           ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Species 1 Wins",
-                                  ifelse(T25_new_fit_ratio > 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Coexist", 
-                                         ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio > T25_new_stabil_potential, "Coexist", NA)))))
-
 k3p <- 
   k_var_e %>% 
   ggplot(aes(x = k_ta, y = value)) + 
@@ -1143,29 +1066,17 @@ k3p <-
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
   ggtitle("Resource carrying capacity, K_k")
 
-# k_var_plot_e <-
-#   k_var_e %>% 
-#   filter(response_var == "dist15") %>% 
-#   # ggplot(aes(x = scale(k_ta), y = value)) + 
-#   ggplot(aes(x = scale(k_ta), y = value, colour = K_EaN < K_EaP)) +
-#   geom_point(size = 3) + 
-#   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \nafter 15°C warming \n(Euclidean distance) ") + 
-#   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-#   annotate("text", x = 0.10, y = 0.45, label = "Resource \ncarrying capacity, K", size = 6) + 
-#   theme_cowplot(font_size = 20)
-
 k_var_plot_e2 <-
-  k_var_e1 %>% 
+  k_var_e %>% 
   filter(response_var == "dist15") %>% 
-  # ggplot(aes(x = k_ta, y = value)) +
-  ggplot(aes(x = k_ta, y = value, colour = who_wins)) +
+  ggplot(aes(x = abs_k_ta, y = value, colour = K_EaP > K_EaN)) +
   geom_point(size = 3) + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.7, y = 0.35, label = "Resource \ncarrying capacity, K", size = 6) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  ggtitle(expression("E"[Ka] * "- E"[Kb]))
+  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
 
 k_var_plot_e3 <- k_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -1228,7 +1139,7 @@ k_var_nota_plot <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none")
 
-## SKIP -- calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 25C for each iteration #####
 k_var_nota_e <- k_var_nota %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1405,7 +1316,7 @@ ggplot() +
   theme(legend.position = "none") +
   annotate("text", x = 0.25, y = 0.7, label = "Resource \ncarrying capacity, K", size = 6)
 
-## SKIP -- calculate euclidean distances at 20C for each iteration #####
+## SKIP -- calculate euclidean distances at 25C for each iteration #####
 k_var_res_e <- k_var_res %>% 
   filter(T %in% c(25, 40)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1524,7 +1435,6 @@ for(f in 1:500){
 }
 beep(2)
 
-
 v_var_plot <- 
   ggplot() +
   geom_path(data = v_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
@@ -1550,7 +1460,7 @@ v_var_plot <-
   theme(legend.position = "none") + 
   annotate("text", x = 0.7, y = 0.05, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 6, hjust = 0.5)
 
-## RUN -- calculate euclidean distances at 20C for each iteration #####
+## RUN -- calculate euclidean distances at 25C for each iteration #####
 v_var_e <- v_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1569,13 +1479,6 @@ v_var_e <- v_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(v_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-#create column to indicate who wins
-v_var_e1 <- v_var_e %>% 
-  mutate(who_wins = ifelse(T25_new_fit_ratio > T25_new_stabil_potential & T25_new_fit_ratio > 0, "Species 2 Wins", 
-                           ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Species 1 Wins",
-                                  ifelse(T25_new_fit_ratio > 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Coexist", 
-                                         ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio > T25_new_stabil_potential, "Coexist", NA)))))
-
 v3p <- 
   v_var_e %>% 
   ggplot(aes(x = v_ta, y = value)) + 
@@ -1585,29 +1488,17 @@ v3p <-
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
   ggtitle("Conversion efficiency, v_k")
 
-# v_var_plot_e <-
-#   v_var_e %>% 
-#   filter(response_var == "dist15") %>% 
-#   # ggplot(aes(x = scale(v_ta), y = value)) + 
-#   ggplot(aes(x = scale(v_ta), y = value, colour = v_EaN < v_EaP)) +
-#   geom_point(size = 3) +
-#   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
-#   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-#   annotate("text", x = 0, y = 0.45, label = "Conversion \nefficiency, v", size = 6) + 
-#   theme_cowplot(font_size = 20)
-
 v_var_plot_e2 <-
-  v_var_e1 %>% 
+  v_var_e %>% 
   filter(response_var == "dist15") %>% 
-  # ggplot(aes(x = v_ta, y = value)) +
-  ggplot(aes(x = v_ta, y = value, colour = who_wins)) +
+  ggplot(aes(x = abs_v_ta, y = value, colour = v_EaP > v_EaN)) +
   geom_point(size = 3) + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.5, y = 0.35, label = "Conversion \nefficiency, v", size = 6) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  ggtitle(expression("E"[va] * "- E"[vb]))
+  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
 
 v_var_plot_e3 <- v_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -1718,7 +1609,7 @@ m_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.7, y = 0.05, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
 
-## RUN --  calculate euclidean distances at 20C for each iteration #####
+## RUN --  calculate euclidean distances at 25C for each iteration #####
 m_var_e <- m_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -1737,13 +1628,6 @@ m_var_e <- m_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(m_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-#create column to indicate who wins
-m_var_e1 <- m_var_e %>% 
-  mutate(who_wins = ifelse(T25_new_fit_ratio > T25_new_stabil_potential & T25_new_fit_ratio > 0, "Species 2 Wins", 
-                           ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Species 1 Wins",
-                                  ifelse(T25_new_fit_ratio > 0 & T25_new_fit_ratio < T25_new_stabil_potential, "Coexist", 
-                                         ifelse(T25_new_fit_ratio < 0 & T25_new_fit_ratio > T25_new_stabil_potential, "Coexist", NA)))))
-
 m3p <-
   m_var_e %>% 
   ggplot(aes(x = m_ta, y = value)) + 
@@ -1753,29 +1637,17 @@ m3p <-
   labs(x = "Magnitude of thermal asymmetry", y = "Value") + 
   ggtitle("mortality, m_i")
 
-# m_var_plot_e <-
-#   m_var_e %>% 
-#   filter(response_var == "dist15") %>% 
-#   # ggplot(aes(x = scale(m_ta), y = value)) + 
-#   ggplot(aes(x = scale(m_ta), y = value, colour = m_Ea1 < r_Ea2)) +
-#   geom_point(size = 3) + 
-#   labs(x = "Scaled absolute value \nof thermal asymmetry", y = "Displacement of species pair \n(Euclidean distance) after 15C warming") + 
-#   coord_cartesian(xlim = c(-1.5, 3.5), ylim = c(0, 0.5)) + 
-#   annotate("text", x = 0.10, y = 0.45, label = "Consumer \nmortality rate, m", size = 6) +
-#   theme_cowplot(font_size = 20)
-
 m_var_plot_e2 <-
-  m_var_e1 %>% 
+  m_var_e %>% 
   filter(response_var == "dist15") %>% 
-  # ggplot(aes(x = m_ta, y = value)) +
-  ggplot(aes(x = m_ta, y = value, colour = who_wins)) +
+  ggplot(aes(x = abs_m_ta, y = value, colour = m_Ea2 > m_Ea1)) +
   geom_point(size = 3) + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(-1.3, 1.3), ylim = c(0, 0.45)) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.75, y = 0.35, label = "Consumer \nmortality rate, m", size = 6) +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  ggtitle(expression("E"[m1] * "- E"[m2]))
+  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
 
 m_var_plot_e3 <- m_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -2130,11 +2002,9 @@ param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot
   plot_annotation(tag_levels = "A")
 # ggsave(plot = param_var_plot, filename = "figures/kd-figs/param_var_plots_EA0.pdf", width = 14, height = 10)
 
-# param_e_plot <- r_var_plot_e + c_var_plot_e + v_var_plot_e + k_var_plot_e + m_var_plot_e 
-# # ggsave(plot = param_e_plot, filename = "figures/kd-figs/param_e_plots.pdf", width = 16, height = 12)
-
 # Run -- Figure 4 --------------------------------------
-param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + who_wins_legend + plot_annotation(tag_levels = "A")
+param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + plot_annotation(tag_levels = "A")
+
 # ggsave(plot = param_e_unscaled_plot, filename = "figures/kd-figs/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
 
 # SKIP BELOW ----------------------------
