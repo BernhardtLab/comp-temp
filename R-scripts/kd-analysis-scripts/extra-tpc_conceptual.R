@@ -61,18 +61,15 @@ model_data %>%
   labs(x = "Temperature (°C)",
        y = "ln(Rate)") 
 
-ggsave(plot = last_plot(), file = "figures/kd-figs/intra-process.png", bg = "transparent", height = 5, width = 5, units = "in")
+# ggsave(plot = last_plot(), file = "figures/kd-figs/intra-process.png", bg = "transparent", height = 5, width = 5, units = "in")
 
-
-
-
-### plotting thermal asymmetries in distibutions ####
+### plotting thermal asymmetries in distributions ####
 #data
 # simulate some data
-mydata <- data.frame(x = rnorm(100000, mean = 0.01, sd = 0.22),
+data <- data.frame(x = rnorm(100000, mean = 0.01, sd = 0.22),
                      x1 = rnorm(100000, mean = 0.5, sd = 0.12))
 
-ggplot(mydata) + 
+ggplot(data) + 
   geom_density(aes(x = x1), bw = 0.1, alpha = 0.5, colour = "goldenrod" , linewidth = 1.5) +
   geom_density(aes(x = x), bw = 0.1, alpha = 0.5, colour = "dodgerblue4", linewidth = 1.5) + 
   theme_cowplot() + 
@@ -80,10 +77,9 @@ ggplot(mydata) +
         axis.text.y = element_blank(),
         axis.ticks = element_blank()) + 
   labs(x = "Temperature dependence", y = "Frequency")
-ggsave(plot = last_plot(), file = "figures/kd-figs/dummy.png", bg = "transparent")
 # ggsave(plot = last_plot(), file = "figures/kd-figs/inter_gaussian.png", bg = "transparent", height = 5, width = 5, units = "in")
 
-ggplot(mydata) + 
+ggplot(data) + 
   geom_density(aes(x = x1), bw = 0.1, fill = NA, colour = alpha("goldenrod", 0) , linewidth = 1.5) +
   geom_density(aes(x = x), bw = 0.1, alpha = 0.5, colour = "dodgerblue4", linewidth = 1.5) +
   theme_cowplot() + 
@@ -93,3 +89,39 @@ ggplot(mydata) +
   labs(x = "Temperature dependence", y = "Frequency")
 
 # ggsave(plot = last_plot(), file = "figures/kd-figs/intra_gaussian.png", bg = "transparent", height = 5, width = 5, units = "in")
+
+### resource use preference conceptual #####
+# simulate some data
+pref_data <- data.frame(x = rnorm(100000, mean = 0.5, sd = 0.7),
+                   x1 = rnorm(100000, mean = 1.5, sd = 0.7))
+
+ggplot(pref_data) + 
+  geom_density(aes(x = x1), bw = 0.1, alpha = 0.5, colour = "black" , linewidth = 2.5) +
+  geom_density(aes(x = x), bw = 0.1, alpha = 0.5, colour = "darkgrey", linewidth = 2.5) + 
+  theme_cowplot() + 
+  coord_cartesian(ylim = c(0, 1), xlim = c(-0.75, 2.75)) +
+  labs(x = "Resource use", y = "Consumption rate") + 
+  theme_cowplot(font_size = 30) +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank()) 
+ggsave(plot = last_plot(), file = "figures/kd-figs/rru-concept.png", bg = "white", height = 5, width = 8, units = "in")
+
+### uneven preference conceptual ####
+pref_data <- pref_data %>% 
+  mutate(x2 = rnorm(100000, mean = 0.7, sd = 0.7), #weak preference species - N2
+         x3 = rnorm(100000, mean = 1.9, sd = 0.3)) #strong preference species - N1
+
+ggplot(pref_data) + 
+  geom_density(aes(x = x2), bw = 0.1, alpha = 0.5, colour = "darkgrey" , linewidth = 2.5) +
+  geom_density(aes(x = x3), bw = 0.1, alpha = 0.5, colour = "black", linewidth = 2.5) + 
+  theme_cowplot() + 
+  coord_cartesian(ylim = c(0, 1.5), xlim = c(-0.75, 2.75)) +
+  labs(x = "Resource use", y = "Consumption rate") + 
+  theme_cowplot(font_size = 30) +
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank())
+
+ggsave(plot = last_plot(), file = "figures/kd-figs/uru-concept.png", bg = "white", height = 5, width = 8, units = "in")
+
