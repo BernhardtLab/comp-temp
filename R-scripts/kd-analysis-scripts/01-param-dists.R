@@ -113,7 +113,7 @@ mort_ea_plot <-
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = -0.65, y = 9, label = expression("Consumer \nmortality rate," ~italic(m)), size = 6)
+  annotate("text", x = -0.65, y = 9, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
 
 rgr_plot <- data %>% 
   filter(parameter == "resource_growth_rate") %>% 
@@ -127,7 +127,7 @@ rgr_plot <- data %>%
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
   # label = expression("Conversion \nefficiency," ~ italic(v))
-  annotate("text", x = -0.75, y = 9, label = expression("Resource \ngrowth rate," ~italic(r)), size = 6)
+  annotate("text", x = -0.75, y = 9, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6)
 
 conv_eff_plot <- data %>% 
   filter(parameter == "conversion_efficiency") %>% 
@@ -140,7 +140,7 @@ conv_eff_plot <- data %>%
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency," ~italic(v)), size = 6)
+  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 6)
 
 carrying_capacity_plot <- data %>% 
   filter(parameter == "carrying_capacity") %>% 
@@ -153,7 +153,7 @@ carrying_capacity_plot <- data %>%
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1, y = 9, label = expression("Resource \ncarrying \ncapacity," ~italic(K)), size = 6)
+  annotate("text", x = 1, y = 9, label = expression("Resource \ncarrying capacity," ~ italic(K)[italic(k)]), size = 6)
 
 consumption_rate_plot <- data %>% 
   filter(parameter == "consumption rate") %>% 
@@ -166,19 +166,36 @@ consumption_rate_plot <- data %>%
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = -0.65, y = 9, label = expression("Consumption \nrate," ~italic(c)), size = 6)
+  annotate("text", x = -0.55, y = 9, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
 
 #plot with points for each estimate and CI bars
-param_sum %>% 
+interTAs <-
+  param_sum %>% 
+  clean_names() %>% 
+  mutate(parameter1 = str_replace_all(parameter, "_", " "),
+         parameter1 = str_to_title(parameter1, local = "en"),
+         parameter1 = str_replace(parameter1, "Mortality Rate", "Consumer Mortality Rate"),
+         parameter1 = str_replace(parameter1, "Carrying", "Resource Carrying"),
+         parameter1 = fct_reorder(parameter1, mean)) %>% 
   ggplot() + 
-  geom_point(aes(x = parameter, y = Mean), size = 3) + 
-  geom_errorbar(aes(x = parameter, ymin = ci_low, ymax = ci_up), width = 0.2) + 
-  theme_cowplot(font_size = 20)
+  geom_point(aes(x = parameter1, y = mean), size = 3) + 
+  geom_errorbar(aes(x = parameter1, ymin = ci_low, ymax = ci_up), width = 0.2) + 
+  # geom_hline(yintercept = 0.65) + 
+  theme_cowplot(font_size = 20) + 
+  scale_x_discrete(
+      labels = c(expression(italic(K)[italic(k)]),
+                 expression(italic(v)[italic(ik)]),
+                 expression(italic(m)[italic(i)]),
+                 expression(italic(c)[italic(ik)]),
+                 expression(italic(r)[italic(k)])
+                 )) +
+  # theme(axis.text.x = element_text(angle = 30, hjust=1, size = 14)) +
+    labs(x = "Parameter", y = "Mean Temperature Senstivitity \n(eV)")
 
 ### save multipanel - FIGURE 2 #######
 ea_plots <-
-  consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot +
+  consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A")
 
-ggsave(filename = "figures/kd-figs/ea-plots1.pdf", ea_plots, width = 16, height = 12)
+# ggsave(filename = "figures/kd-figs/ea-plots1.pdf", ea_plots, width = 16, height = 12)
 
