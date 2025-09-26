@@ -1,4 +1,4 @@
-# This script is to generate distributions of activation energy for each MacArthur parameter based on empirical data collected by Grace Wells
+# This script is to generate distributions of activation energy for each MacArthur parameter based on empirical data
 
 # author: Kaleigh Davis, Postdoc with Joey Bernhardt at U of Guelph
 # script DOB: 2/12/2025
@@ -15,7 +15,7 @@ library(patchwork)
 library(colorspace)
 
 # get data for published parameter estimates of relevant traits
-mac_means <- read_csv("data/mac-means.csv") %>% 
+mac_means <- read_csv("data/param-eas.csv") %>% 
   clean_names()
 
 # get data demographic details 
