@@ -105,7 +105,6 @@ ggplot(pref_data) +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank()) 
-ggsave(plot = last_plot(), file = "figures/kd-figs/rru-concept.png", bg = "white", height = 5, width = 8, units = "in")
 
 ### uneven preference conceptual ####
 pref_data <- pref_data %>% 
@@ -122,6 +121,4 @@ ggplot(pref_data) +
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
         axis.ticks = element_blank())
-
-ggsave(plot = last_plot(), file = "figures/kd-figs/uru-concept.png", bg = "white", height = 5, width = 8, units = "in")
 

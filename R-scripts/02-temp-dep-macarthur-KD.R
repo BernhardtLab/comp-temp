@@ -1,6 +1,6 @@
 #macarthur consumer-resource function, where all parameters are assignable at the function deploying stage
 
-#script author: Kaleigh Davis, UoG postdoc
+#script author: Kaleigh Davis, UoG postdoc with Joey Bernhardt
 
 temp_dep_mac <- function(T, ref_temp, 
                          r_EaN, r_EaP, #activation energy growth rate N and P
