@@ -14,7 +14,7 @@ library(viridis)
 library(beepr)
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/02-temp-dep-macarthur-KD.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/02-temp-dep-macarthur.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in 01-param-dists.R
@@ -68,7 +68,7 @@ param_sum1 %>%
 
 # basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
 
-####################### r_Ea varies ################################ ----------------------
+####################### r_Ea varies ----------------------
 r_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -163,7 +163,7 @@ r_var_plot_e2 <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
 
-############### c_Ea varies ##################### -------------------------------------------------------------
+############### c_Ea varies -------------------------------------------------------------
 #vary all four
 c_var <- data.frame()
 for(f in 1:500){ 
@@ -304,7 +304,7 @@ c_var_plot_e2 <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[c1a] * "- E"[c1b]*"|"))
 
-############## K_Eas vary ###################### --------------------------------------------------------------
+############## K_Eas vary  --------------------------------------------------------------
 k_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -354,7 +354,7 @@ k_var_plot <-
   theme(legend.position = "none") +
   annotate("text", x = 0.65, y = 0.05, label = expression("Resource \ncarrying capacity," ~ italic(K)[italic(k)]), size = 6)
 
-# calculate euclidean distances at 25C for each iteration #####
+# calculate euclidean distances at 25C for each iteration 
 k_var_e <- k_var %>% 
   filter(T %in% c(10, 25)) %>% 
   dplyr::select(-c(a11:g2, coexist:beta12)) %>%
@@ -393,7 +393,7 @@ k_var_plot_e2 <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
 
-# v_Eas vary ################--------------------------------------------------
+# v_Eas vary --------------------------------------------------
 v_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -483,7 +483,7 @@ v_var_plot_e2 <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
 
-################### m_Eas vary ####################### --------------------------------------------------------------
+# m_Eas vary  --------------------------------------------------------------
 m_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -595,6 +595,7 @@ threeps <- r3p + c3p + v3p + k3p + m3p
 #############################################################################
 ############################# SUPPLEMENTAL ANALYSES #########################
 #############################################################################
+
 # vary different combinations of consumption rates - Figure S2----------------------------
 
 #####  vary all c_EaPs ####

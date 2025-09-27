@@ -14,7 +14,7 @@ library(viridis)
 library(beepr)
 
 # get referencing set up for macarthur temp dependence function
-source("R-scripts/02-temp-dep-macarthur-KD.R") 
+source("R-scripts/02-temp-dep-macarthur.R") 
 #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
 
 #load in distributions for parameter values.
@@ -492,7 +492,7 @@ comb_plot5 <- log_pom5 / bottom_patch5 +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-ggsave(plot = comb_plot5, filename = "figures/5C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot5, filename = "figures/5C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
 # No thermal asymmetries -- Figure S7 ####
 nota <- data.frame()

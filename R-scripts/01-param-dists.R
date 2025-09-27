@@ -201,5 +201,5 @@ ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A")
 
-# ggsave(filename = "figures/kd-figs/ea-plots1.pdf", ea_plots, width = 16, height = 12)
+# ggsave(filename = "figures/ea-plots1.pdf", ea_plots, width = 16, height = 12)
 
