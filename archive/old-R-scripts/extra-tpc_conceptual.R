@@ -122,3 +122,38 @@ ggplot(pref_data) +
         axis.text.y = element_blank(),
         axis.ticks = element_blank())
 
+# resource preference axes
+prefs1 <- data.frame(resource = c("A", "B")) %>% 
+  mutate(N1 = ifelse(resource == "A", 0.5, 1),
+         N2 = ifelse(resource == "B", 0.5, 1),
+         N3 = ifelse(resource == "A", 0.1, 0.9),
+         N4 = ifelse(resource == "A", 0.6, 0.4)) %>% 
+  pivot_longer(cols = N1:N4, names_to = "species", values_to = "consumption_rate") %>% 
+  mutate(scenario = ifelse(species %in% c("N1", "N2"), "even", "uneven")) %>% 
+  mutate(species = ifelse(scenario == "uneven" & species == "N3", "N1",
+                          ifelse(scenario == "uneven" & species == "N4", "N2", species)))
+
+
+prefs1 %>% 
+  filter(scenario == "even") %>% 
+  ggplot() + 
+  geom_point(aes(x = resource, y = consumption_rate, colour = species), size = 6) + 
+  geom_line(aes(x = resource, y = consumption_rate, colour = species, group = species), linewidth = 1.5) +
+  coord_cartesian(ylim = c(0, 1.5)) +
+  theme_cowplot(font_size = 20) + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+  labs(y = "Consumption rate", x = "Resource", colour = "Species")
+  
+ggsave(plot = last_plot(), file = "figures/conceptual/errce.png", width = 4.5, height = 3)
+
+prefs1 %>% 
+  filter(scenario == "uneven") %>% 
+  ggplot() + 
+  geom_point(aes(x = resource, y = consumption_rate, colour = species), size = 6) + 
+  geom_line(aes(x = resource, y = consumption_rate, colour = species, group = species), linewidth = 1.5) +
+  coord_cartesian(ylim = c(0, 1)) +
+  theme_cowplot(font_size = 20) + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+  labs(y = "Consumption rate", x = "Resource", colour = "Species")
+
+ggsave(plot = last_plot(), file = "figures/conceptual/urrce.png", width = 4.5, height = 3)
