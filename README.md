@@ -18,7 +18,8 @@ repository's data/ folder. The workflow for the analysis includes 5
 scripts, meant to be run in order. Scripts are located in the
 repository's
 [R-scripts/](https://github.com/BernhardtLab/comp-temp/tree/main/R-scripts)
-folder and figures produced by each script are stored in the figures/
+folder and figures produced by each script are stored in the
+[figures/](https://github.com/BernhardtLab/comp-temp/tree/main/figures)
 folder.
 
 **01-param-scripts.R**: This script processes synthesized published
