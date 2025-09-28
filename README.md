@@ -6,8 +6,8 @@ editor_options:
 
 # Data and code for Davis et al., General predictions for the effects of warming on competition
 
-Decription: In this study, we incorporated temperature sensitivity into
-a Macarthur consumer-resource model with two consumers and two
+Description: In this study, we incorporated temperature sensitivity into
+a MacArthur consumer-resource model with two consumers and two
 resources. We incorporated temperature sensitivity using Arrhenius-style
 temperature effects, and then we added empirically-derived
 temperature-sensitivity estimates for each mechanistic process in the
