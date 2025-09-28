@@ -19,10 +19,10 @@ mac_means <- read_csv("data/param-eas.csv") %>%
   clean_names()
 
 # get data demographic details 
-#how many studies?
+# how many studies?
 mac_means %>% distinct(reference) %>% nrow() #58
 
-#how many species?
+# how many species?
 mac_means %>% distinct(species) %>% nrow() #79
 
 ## Generate EA distributions for each parameter ######
@@ -105,7 +105,7 @@ param_sum <- data %>%
   ) 
 
 ### plot all distributions  #####
-#plot distribution over original data 
+# plot distribution over original data 
 mort_ea_plot <-
   data %>% 
   filter(parameter == "mortality_rate") %>% 
@@ -131,7 +131,6 @@ rgr_plot <- data %>%
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  # label = expression("Conversion \nefficiency," ~ italic(v))
   annotate("text", x = -0.75, y = 9, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6)
 
 conv_eff_plot <- data %>% 
@@ -200,6 +199,7 @@ interTAs <-
 ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A")
+# ggsave(filename = "temporary/ea-plots1.pdf", ea_plots, width = 16, height = 12)
 
 # ggsave(filename = "figures/ea-plots1.pdf", ea_plots, width = 16, height = 12)
 
