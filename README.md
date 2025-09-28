@@ -12,11 +12,12 @@ resources. We incorporated temperature sensitivity using Arrhenius-style
 temperature effects, and then we added empirically-derived
 temperature-sensitivity estimates for each mechanistic process in the
 consumer-resource model. We then simulated warming on species with
-randomly drawn thermal traits to investigate the effects of warming on
-competition. Raw temperature sensitivity data are located in the
-repository's data/ folder. The workflow for the analysis includes 5
-scripts, meant to be run in order. Scripts are located in the
-repository's
+randomly drawn thermal traits (temperature sensitivities) to investigate
+the effects of warming on competition. Raw temperature sensitivity data
+are located in the repository's
+[data/](https://github.com/BernhardtLab/comp-temp/tree/main/data)
+folder. The workflow for the analysis includes 5 scripts, meant to be
+run in order. Scripts are located in the repository's
 [R-scripts/](https://github.com/BernhardtLab/comp-temp/tree/main/R-scripts)
 folder and figures produced by each script are stored in the
 [figures/](https://github.com/BernhardtLab/comp-temp/tree/main/figures)
@@ -27,8 +28,9 @@ estimates of temperature sensitivities for the processes underling
 competition in the MacArthur consumer-resource model. The script
 requires param-eas.csv as an input and then generates posterior
 distributions for each parameter and generates the output
-param_post_dists.csv, stored in the data/processed-data/ folder. This
-script also generates main text figure 2.
+param_post_dists.csv, stored in the
+[data/processed-data/](https://github.com/BernhardtLab/comp-temp/tree/main/data/processed-data)
+folder. This script also generates main text figure 2.
 
 **02-temp-dep-macarthur.R**: This script provides the function that
 incorporates temperature sensitivity into the MacArthur consumer
