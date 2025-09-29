@@ -1,4 +1,4 @@
-# This script is to explore the effects of temperature dependence of different MacArthur consumer-resource parameters on changes in niche and fitness differences
+# This script is to explore the effects of temperature dependence of different MacArthur consumer-resource parameters on changes in niche and fitness differences. In this script, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures. The script simulates the effects of warming when each parameter is given a temperature dependence, while all other parameters of the model are assigned a temperature sensitivity of 0. Script 04-full-temp-var-analysis simulates warming when all parameters have temperature sensitivies drawn from their empirical distributions simultaneously.
 
 # script DOB: April 1, 2025
 # author: Kaleigh Davis, University of Guelph postdoc
