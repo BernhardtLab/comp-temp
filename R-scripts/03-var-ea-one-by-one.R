@@ -1,10 +1,10 @@
-#this script is to explore the effects of temperature dependence of different parameters on changes in niche and fitness differences
+# This script is to explore the effects of temperature dependence of different MacArthur consumer-resource parameters on changes in niche and fitness differences
 
-#script DOB: April 1, 2025
-#author: Kaleigh Davis, University of Guelph postdoc
+# script DOB: April 1, 2025
+# author: Kaleigh Davis, University of Guelph postdoc
 
 #### packages and referencing #####
-#load necessary pkgs
+# load necessary pkgs
 library(tidyverse)
 library(janitor)
 library(cowplot)
@@ -13,14 +13,14 @@ library(patchwork)
 library(viridis)
 library(beepr)
 
-# get referencing set up for macarthur temp dependence function
+# get referencing set up for MacArthur temp dependence function
 source("R-scripts/02-temp-dep-macarthur.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
 
-#load in distributions for parameter values.
+# load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in 01-param-dists.R
 param_vals <- read_csv(file = "data/processed-data/param_post_dists.csv")
 
-#split these into dfs for each parameter
+# split these into dfs for each parameter
 param_vals %>%
   mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
          parameter = str_replace(parameter, "carrying_capacity", "k"),
@@ -32,7 +32,7 @@ param_vals %>%
   set_names(unique(param_vals$parameter)) %>% 
   walk(~ assign(paste0(.x$parameter[1], "_post_dist"), .x, envir = .GlobalEnv))
 
-#get summary stats for all parameters ########
+# get summary stats for all parameters ########
 param_sum <- param_vals %>%
   group_by(parameter) %>% 
   summarize(
@@ -66,7 +66,7 @@ param_sum1 %>%
 ##########################    MAIN ANALYSIS   ##################################
 ################################################################################
 
-# basic simulation setup -- here all param EAs are drawn from distribution, consumers have reciprocal resource use, and N grows faster than P at ref temp
+# basic simulation setup -- here all param EAs are drawn from their estimated empirical distribution, consumers have reciprocal resource use, and resource N grows faster than resource P at ref temp
 
 ####################### r_Ea varies ----------------------
 r_var <- data.frame()
@@ -88,7 +88,7 @@ for(f in 1:500){
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
-                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      K_N_b = 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
                       v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently
                       m1_b = 0.01, m2_b = 0.01) #same for both species
@@ -118,7 +118,7 @@ r_var_plot <-
   theme_cowplot(font_size = 20) +
   theme(legend.position = "none")
 
-#get legend for composite plot -- need to generate r_var_plot WITH the legend first, then add in the legend.position = "none" for the actual composite plot
+# get legend for composite plot -- need to generate r_var_plot WITH the legend first, then add in the legend.position = "none" for the actual composite plot
 rvar_legend  <- get_legend(r_var_plot)
 
 # calculate euclidean distances at 25C for each iteration
@@ -128,7 +128,7 @@ r_var_e <- r_var %>%
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
-              names_glue = "T{T}_{.value}") %>% 
+              names_glue = "T{T}_{.value}") %>%
   mutate(abs_r_ta = abs(r_EaN - r_EaP),
          r_ta = r_EaN - r_EaP,
          dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
