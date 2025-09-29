@@ -298,7 +298,7 @@ rrc50_e <- rrc50 %>%
 hist(rrc50_e$dist15)
 
 #histogram plot of euclidean dsistances in the pom pom plot
-pom_hist50<- rrc50_e %>% 
+pom_hist50 <- rrc50_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 0.05, colour = "black") + 
   labs(x = "Euclidean distance with \n50°C warming", y = "Count") + 
@@ -485,7 +485,7 @@ fd_shift5 <-
 
 nd_shift5 + fd_shift5
 
-# ompom with subplots
+# pompom with subplots
 bottom_patch5 <- pom_hist5 + nd_shift5 + fd_shift5
 
 comb_plot5 <- log_pom5 / bottom_patch5 + 
@@ -497,7 +497,7 @@ comb_plot5 <- log_pom5 / bottom_patch5 +
 # No thermal asymmetries -- Figure S7 ####
 nota <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), # was by 0.1
                       ref_temp = 10,
                       r_EaN = mean(rgr_post_dist$intercept),
                       r_EaP = mean(rgr_post_dist$intercept),
@@ -574,7 +574,7 @@ nota_e <- nota %>%
 
 hist(nota_e$dist15)
 
-#histogram plot of euclidean dsistances in the pom pom plot
+#histogram plot of euclidean distances in the pom pom plot
 pom_hist_nota <- nota_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 1e-16, colour = "black") + 
