@@ -14,7 +14,7 @@ library(viridis)
 library(beepr)
 
 # get referencing set up for MacArthur temp dependence function
-source("R-scripts/02-temp-dep-macarthur.R") #this contains the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/02-temp-dep-macarthur.R") #this contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the Arrhenius function.
 
 # load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in 01-param-dists.R
@@ -66,7 +66,7 @@ param_sum1 %>%
 ##########################    MAIN ANALYSIS   ##################################
 ################################################################################
 
-# basic simulation setup -- here all param EAs are drawn from their estimated empirical distribution, consumers have reciprocal resource use, and resource N grows faster than resource P at ref temp
+# Simulation setup for the analysis in the main text -- here all param EAs (temperature sensitivities) are drawn from their estimated empirical distributions, consumers have reciprocal resource use, and resource N grows faster than resource P at the ambient temperature (ref temp), and the species pair starts on the boundary of coexistence.
 
 ####################### r_Ea varies ----------------------
 r_var <- data.frame()
