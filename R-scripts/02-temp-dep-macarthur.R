@@ -1,13 +1,13 @@
-#macarthur consumer-resource function, where all parameters are assignable at the function deploying stage
+#MacArthur consumer-resource function, where all parameters are assignable at the function deploying stage
 
 #script author: Kaleigh Davis, UoG postdoc with Joey Bernhardt
 
 temp_dep_mac <- function(T, ref_temp, 
-                         r_EaN, r_EaP, #activation energy growth rate N and P
-                         c_Ea1N, c_Ea1P, #activation energy consumption rate N and P, species 1
+                         r_EaN, r_EaP, #activation energy for resource growth rate N and P
+                         c_Ea1N, c_Ea1P, #activation energy for the consumption rate N and P, species 1
                          c_Ea2N, c_Ea2P, #activation energy consumption rate N and P, species 2
                          K_EaN, K_EaP, #activation energy carrying capacity N and P
-                         v_EaN, v_EaP, #activation energy conversion efficiency N & P (same for both species)
+                         v_EaN, v_EaP, #activation energy conversion efficiency N & P (same for both consumer species)
                          m_Ea1, m_Ea2, #activation energy mortality rate, species 1 and 2
                          c1N_b, c1P_b, #consumption rate of N and P at ref temp for species 1
                          c2N_b, c2P_b, #consumption rate of N and P at ref temp for species 2
@@ -25,7 +25,7 @@ temp_dep_mac <- function(T, ref_temp,
   KN = arrhenius_function(Temp = T, E = K_EaN, b1 = K_N_b, ref_temp = ref_temp)
   KP = arrhenius_function(Temp = T, E = K_EaP, b1 = K_P_b, ref_temp = ref_temp)
   
-  # cij = per capita consumption of comsumer i on resource j
+  # cij = per capita consumption of consumer i on resource j
   c1N = arrhenius_function(Temp = T, E = c_Ea1N, b1 = c1N_b, ref_temp = ref_temp)
   c1P = arrhenius_function(Temp = T, E = c_Ea1P, b1 = c1P_b, ref_temp = ref_temp)
   c2N = arrhenius_function(Temp = T, E = c_Ea2N, b1 = c2N_b, ref_temp = ref_temp) 
