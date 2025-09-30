@@ -1,4 +1,4 @@
-# This script is to explore the effects of temperature dependence of different MacArthur consumer-resource parameters on changes in niche and fitness differences. In this script, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures. The script simulates the effects of warming when each parameter is given a temperature dependence, while all other parameters of the model are assigned a temperature sensitivity of 0. Script 04-full-temp-var-analysis simulates warming when all parameters have temperature sensitivies drawn from their empirical distributions simultaneously.
+# This script is to explore the effects of temperature sensitivity of different MacArthur consumer-resource parameters on changes in niche and fitness differences. In this script, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{shorthand-parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{shorthand-parameter_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), while all other parameters of the model are assigned a temperature sensitivity of 0. Script 04-full-temp-var-analysis simulates warming when all parameters have temperature sensitivities drawn from their empirical distributions simultaneously. 
 
 # script DOB: April 1, 2025
 # author: Kaleigh Davis, University of Guelph postdoc
@@ -13,11 +13,11 @@ library(patchwork)
 library(viridis)
 library(beepr)
 
-# get referencing set up for MacArthur temp dependence function
-source("R-scripts/02-temp-dep-macarthur.R") #this contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the Arrhenius function.
+# get referencing set up for MacArthur temp sensitivity function
+source("R-scripts/02-temp-dep-macarthur.R") #this script contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the Arrhenius function.
 
-# load in distributions for parameter values.
-# these are continuous distributions generated from empirical data using MCMC regression, in 01-param-dists.R
+# load in distributions for parameter values
+# these are distributions generated from empirical data using MCMC regression, in 01-param-dists.R
 param_vals <- read_csv(file = "data/processed-data/param_post_dists.csv")
 
 # split these into dfs for each parameter
@@ -66,14 +66,14 @@ param_sum1 %>%
 ##########################    MAIN ANALYSIS   ##################################
 ################################################################################
 
-# Simulation setup for the analysis in the main text -- here all param EAs (temperature sensitivities) are drawn from their estimated empirical distributions, consumers have reciprocal resource use, and resource N grows faster than resource P at the ambient temperature (ref temp), and the species pair starts on the boundary of coexistence.
+# Simulation setup for the analysis in the main text: here all param EAs (temperature sensitivities) are drawn from their estimated empirical distributions, consumers have reciprocal resource use (i.e. each consumer specializes on a different resource and has equal strength preference for its preferred resource), and resource N (== a) grows faster than resource P (== b) at the ambient temperature (== ref temp). The species pair starts on the boundary of coexistence.
 
 ####################### r_Ea varies ----------------------
 r_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
                       ref_temp = 10,
-                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all r_EAs from empirical distributions
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept,
                       c_Ea1N = 0,
                       c_Ea1P = 0,
@@ -96,6 +96,7 @@ for(f in 1:500){
   r_var <- bind_rows(r_var, hold) 
 }
 
+#plot - for fig 3
 r_var_plot <-
   ggplot() +
   geom_path(data = r_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
@@ -139,7 +140,7 @@ r_var_e <- r_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(r_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-#plot effect of thermal asymmetry on distance and NFD
+#plot effect of thermal asymmetry on distance and NFD - for figure S4
 r3p <- r_var_e %>% 
   ggplot(aes(x = r_ta, y = value)) +
   geom_point() + 
@@ -149,11 +150,10 @@ r3p <- r_var_e %>%
   ggtitle("Resource growth rate, r_k") + 
   theme(legend.position = "none")
 
-#unscaled TA - euclidean distance plot
+#unscaled TA - euclidean distance plot - for figure 4
 r_var_plot_e2 <-
   r_var_e %>% 
     filter(response_var == "dist15") %>% 
-    # ggplot(aes(x = r_ta, y = value)) +
     ggplot(aes(x = abs_r_ta, y = value, colour = r_EaP > r_EaN)) +
     geom_point(size = 3) + 
     labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
@@ -164,7 +164,7 @@ r_var_plot_e2 <-
   ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
 
 ############### c_Ea varies -------------------------------------------------------------
-#vary all four
+#vary all four c_Eas
 c_var <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
@@ -192,7 +192,7 @@ for(f in 1:500){
   c_var <- bind_rows(c_var, hold) 
 }
 
-#log plot
+#log plot - for fig 3
 c_var_plot <-
   ggplot() +
   geom_path(data = c_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
@@ -280,7 +280,8 @@ c_var_e <- c_var_ta %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(c_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-#effects on euclidean distance and niche and fitness diffs
+#effects on euclidean distance (fig 4) and niche and fitness diffs (fig s4)
+#for figure S4
 c3p <-
   c_var_e %>% 
   ggplot() + 
@@ -292,6 +293,7 @@ c3p <-
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
   ggtitle("Consumption rate, c_ik")
 
+#for figure 4
 c_var_plot_e2 <-
   c_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -332,7 +334,7 @@ for(f in 1:500){
   k_var <- bind_rows(k_var, hold) 
 }
 
-#log plot
+#log plot - for fig 3
 k_var_plot <-
   ggplot() +
   geom_path(data = k_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
@@ -372,6 +374,7 @@ k_var_e <- k_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(k_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
+#figure s4
 k3p <- 
   k_var_e %>% 
   ggplot(aes(x = k_ta, y = value)) + 
@@ -381,6 +384,7 @@ k3p <-
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
   ggtitle("Resource carrying capacity, K_k")
 
+#figure 4
 k_var_plot_e2 <-
   k_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -421,7 +425,7 @@ for(f in 1:500){
   v_var <- bind_rows(v_var, hold) 
 }
 
-#plot
+#plot - for fig 3
 v_var_plot <- 
   ggplot() +
   geom_path(data = v_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
@@ -462,6 +466,7 @@ v_var_e <- v_var %>%
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(v_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
+#figure s4
 v3p <- 
   v_var_e %>% 
   ggplot(aes(x = v_ta, y = value)) + 
@@ -471,6 +476,7 @@ v3p <-
   labs(x = "Magnitude \nof thermal asymmetry", y = "Value") + 
   ggtitle("Conversion efficiency, v_k")
 
+#figure 4
 v_var_plot_e2 <-
   v_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -511,7 +517,7 @@ for(f in 1:500){
   m_var <- bind_rows(m_var, hold) 
 }
 
-# plot
+# plot - for fig 3
 m_var_plot <- 
   ggplot() +
   geom_path(data = m_var, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
@@ -524,15 +530,11 @@ m_var_plot <-
   geom_point(data = filter(m_var, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
   geom_hline(yintercept = 0, linetype = 5) +
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  # coord_cartesian(ylim=c(-1,1), xlim = c(0, 0.7)) +
-  #dims from full pompom plot figure
   coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
   scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
   scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
-  #back to this plot code
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
-  # labs(colour = "Degrees C \nWarming") +
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   annotate("text", x = 0.7, y = 0.05, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
@@ -552,10 +554,10 @@ m_var_e <- m_var %>%
          shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
   pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
-
 #anywhere where ND and FD are exactly the same at end? No, great.
 nrow(m_var_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
+#figure s4
 m3p <-
   m_var_e %>% 
   ggplot(aes(x = m_ta, y = value)) + 
@@ -565,6 +567,7 @@ m3p <-
   labs(x = "Magnitude of thermal asymmetry", y = "Value") + 
   ggtitle("Mortality, m_i")
 
+#figure 4
 m_var_plot_e2 <-
   m_var_e %>% 
   filter(response_var == "dist15") %>% 
@@ -745,166 +748,8 @@ c_var4_plot <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") 
 
-#non-focal EAs set to 0
+# combined plot for different combinations of C draws
 c_0 <- c_var4_plot + c_var5_plot + c_var1_plot + c_var_ta_plot  + c_var_plot + rvar_legend + plot_annotation(tag_levels = "A")
 
 # ggsave(plot = c_0, filename = "figures/c_drawtypes_EAs0.pdf", width = 16, height = 10)
 #in order, these have focal params: consumption rate of preferred resource only, consumption rate of N only, consumption rate of P only, consumption rates of consumer 1 N & P, all four consumption rates
-
-# no TAs - figure S8 ---------------------------------------------------------------------
-#r
-r_var_nota <- data.frame()
-for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
-                      ref_temp = 10,
-                      r_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
-                      r_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "resource_growth_rate" & summary_stat == "Mean"), value)),
-                      c_Ea1N = 0,
-                      c_Ea1P = 0,
-                      c_Ea2N = 0,
-                      c_Ea2P = 0,
-                      K_EaN = 0,
-                      K_EaP = 0,
-                      v_EaN = 0,
-                      v_EaP = 0,
-                      m_Ea1 = 0,
-                      m_Ea2 = 0,
-                      c1N_b = 0.5, c1P_b = 1, 
-                      c2N_b = 1, c2P_b = 0.5, 
-                      r_N_b = 1, r_P_b = 0.5, 
-                      K_N_b= 2000, K_P_b = 2000, 
-                      v1N_b = 0.5, v1P_b = 1, 
-                      v2N_b = 1, v2P_b = 0.5, 
-                      m1_b = 0.01, m2_b = 0.01)
-  hold$iteration <- f
-  r_var_nota <- bind_rows(r_var_nota, hold) 
-}
-
-#log plot
-r_var_nota_plot <-
-  ggplot() +
-  geom_path(data = r_var_nota, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = -x,
-                  ymax = x),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(r_var_nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
-  geom_hline(yintercept = 0, linetype = 5) +
-  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
-  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  annotate("text", x = 0.6, y = 0.05, label = expression("Resource growth \n rate," ~ italic(r)[italic(k)]), size = 6)
-
-#c
-c_var_nota <- data.frame()
-for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
-                      ref_temp = 10,
-                      r_EaN = 0,
-                      r_EaP = 0,
-                      c_Ea1N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea1P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2N = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      c_Ea2P = unlist(dplyr::select(filter(param_sum1, parameter == "consumption rate" & summary_stat == "Mean"), value)),
-                      K_EaN = 0,
-                      K_EaP = 0,
-                      v_EaN = 0,
-                      v_EaP = 0,
-                      m_Ea1 = 0,
-                      m_Ea2 = 0,
-                      c1N_b = 0.5, c1P_b = 1, 
-                      c2N_b = 1, c2P_b = 0.5, 
-                      r_N_b = 1, r_P_b = 0.5, 
-                      K_N_b= 2000, K_P_b = 2000, 
-                      v1N_b = 0.5, v1P_b = 1, 
-                      v2N_b = 1, v2P_b = 0.5, 
-                      m1_b = 0.01, m2_b = 0.01)
-  hold$iteration <- f
-  c_var_nota <- bind_rows(c_var_nota, hold) 
-}
-
-#log plot
-c_var_nota_plot <-
-  ggplot() +
-  geom_path(data = c_var_nota, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = -x,
-                  ymax = x),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(c_var_nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
-  geom_hline(yintercept = 0, linetype = 5) +
-  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
-  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
-
-#k
-k_var_nota <- data.frame()
-for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), 
-                      ref_temp = 10,
-                      r_EaN = 0,
-                      r_EaP = 0,
-                      c_Ea1N = 0,
-                      c_Ea1P = 0,
-                      c_Ea2N = 0,
-                      c_Ea2P = 0,
-                      K_EaN = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
-                      K_EaP = unlist(dplyr::select(filter(param_sum1, parameter == "carrying_capacity" & summary_stat == "Mean"), value)),
-                      v_EaN = 0,
-                      v_EaP = 0,
-                      m_Ea1 = 0,
-                      m_Ea2 = 0,
-                      c1N_b = 0.5, c1P_b = 1, 
-                      c2N_b = 1, c2P_b = 0.5, 
-                      r_N_b = 1, r_P_b = 0.5, 
-                      K_N_b= 2000, K_P_b = 2000, 
-                      v1N_b = 0.5, v1P_b = 1, 
-                      v2N_b = 1, v2P_b = 0.5, 
-                      m1_b = 0.01, m2_b = 0.01)
-  hold$iteration <- f
-  k_var_nota <- bind_rows(k_var_nota, hold) 
-}
-
-#log plot
-k_var_nota_plot <-
-  ggplot() +
-  geom_path(data = k_var_nota, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
-  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
-              aes(x = x,
-                  y = NULL,
-                  ymin = -x,
-                  ymax = x),
-              fill = "grey", color = "black", alpha = 0.2) +
-  geom_point(data = filter(k_var_nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 5) +
-  geom_hline(yintercept = 0, linetype = 5) +
-  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
-  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  annotate("text", x = 0.6, y = 0.05, label = expression("Carrying capacity," ~ italic(K)[italic(k)]), size = 6)
-
-#example plots of how nothing happens without TAs
-r_var_nota_plot
-c_var_nota_plot
-k_var_nota_plot
-nota_plots <- r_var_nota_plot + c_var_nota_plot + k_var_nota_plot
-# ggsave(plot = nota_plots, "figures/nota_rck_onebyones.pdf", width = 15, height = 10)
