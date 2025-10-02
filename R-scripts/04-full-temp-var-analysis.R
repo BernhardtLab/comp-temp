@@ -1,4 +1,4 @@
-# This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming
+# This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 05. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
 # Author: Kaleigh Davis, PDF University of Guelph
 # Script DOB: 30 April 2025
@@ -65,7 +65,7 @@ param_sum1 %>%
 ##############################  MAIN ANALYSIS   ################################
 ################################################################################
 
-##### draw all param EAs at random (rrc) ##############
+##### draw all param EAs at random -- for figure 5 ##############
 rrc <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
@@ -212,7 +212,7 @@ comb_plot1 <- log_pom / bottom_patch +
 #########################  SUPPLEMENTARY ANALYSES   ############################
 ################################################################################
 
-# Repeat analysis with 50C warming (rrc) - Figure S5 #####
+# Repeat analysis with 50C warming - Figure S5 #####
 rrc50 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 60, by = 0.5), 
@@ -355,7 +355,7 @@ comb_plot50 <- log_pom50 / bottom_patch50 +
 
 # ggsave(plot = comb_plot50, filename = "figures/50C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
-# Repeat analysis with 5C warming (rrc) - Figure S1 ####
+# Repeat analysis with 5C warming - Figure S1 ####
 rrc5 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 15, by = 0.1), 
@@ -528,8 +528,8 @@ nota_avg_new <- nota %>%
   mutate(rel_T = T-10) %>% 
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
-  summarise(new_mean_stab_pot = mean(new_stabil_potential),
-            new_mean_fit_rat = mean(new_fit_ratio))
+  summarise(new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
 
 #base pompom for comparison
 log_pom_nota <-
@@ -547,8 +547,8 @@ log_pom_nota <-
   geom_point(data = filter(nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 9.5) +
   geom_point(data = filter(nota, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 8.5) +
   # position after 15C warming
-  geom_point(data = nota_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat), colour = "black",  size = 7) +
-  geom_point(data = nota_avg_new, aes(x = new_mean_stab_pot, y = new_mean_fit_rat, colour = rel_T),  size = 5.5) +
+  geom_point(data = nota_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7) +
+  geom_point(data = nota_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 5.5) +
   geom_hline(yintercept = 0, linetype=5) +
   #aesthetic customization
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
@@ -590,8 +590,8 @@ nota_p <- nota %>%
 
 nota_p_avg <- nota_p %>% 
   group_by(temp) %>% 
-  summarise(mean_stabil_potential = mean(new_stabil_potential), 
-            mean_fitrat = mean(new_fit_ratio),
+  summarise(med_stabil_potential = median(new_stabil_potential), 
+            med_fitrat = median(new_fit_ratio),
             sd_stabil_potential = sd(new_stabil_potential),
             sd_fitrat = sd(new_fit_ratio))
 
@@ -599,7 +599,7 @@ nota_p_avg <- nota_p %>%
 nd_shift_nota <-
   ggplot() + 
   geom_point(data = nota_p, aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3) +
-  geom_point(data = nota_p_avg, aes(x = temp, y = mean_stabil_potential, fill = temp), size = 5, pch = 21) +
+  geom_point(data = nota_p_avg, aes(x = temp, y = med_stabil_potential, fill = temp), size = 5, pch = 21) +
   labs(x = "Temperature", y = expression(paste("Niche differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
@@ -612,7 +612,7 @@ nd_shift_nota <-
 fd_shift_nota <-
   ggplot() + 
   geom_point(data = nota_p, aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3) +
-  geom_point(data = nota_p_avg, aes(x = temp, y = mean_fitrat, fill = temp), size = 5, pch = 21) + 
+  geom_point(data = nota_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
   labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +

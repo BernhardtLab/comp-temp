@@ -1,4 +1,4 @@
-# This script is to generate distributions of activation energy for each MacArthur parameter based on empirical data
+# This script is to generate posterior distributions of temperature sensitivity for each MacArthur parameter from synthesized empirical data. This scripts output is used in each subsequent analysis (scripts 03, 04, 05).
 
 # author: Kaleigh Davis, Postdoc with Joey Bernhardt at U of Guelph
 # script DOB: 2/12/2025
@@ -17,6 +17,7 @@ library(colorspace)
 # get data for published parameter estimates of relevant traits
 mac_means <- read_csv("data/param-eas.csv") %>% 
   clean_names()
+#here, temperature sensitivity is stored in a column called "activation_energy" in accordance with the Arrhenius model
 
 # get data demographic details 
 # how many studies?
@@ -83,6 +84,7 @@ consumption_rate <- mac_means %>%
 # write_csv(., "data/processed-data/param_post_dists.csv")
 
 ### get summary stats for each parameter #####
+#in order to prevent small changes to parameter distribution values with each simulation, I do not re-run the regressions each time.
 data <- read_csv("data/processed-data/param_post_dists.csv")
 
 param_sum <- data %>%
@@ -184,7 +186,6 @@ interTAs <-
   ggplot() + 
   geom_point(aes(x = parameter1, y = mean), size = 3) + 
   geom_errorbar(aes(x = parameter1, ymin = ci_low, ymax = ci_up), width = 0.2) + 
-  # geom_hline(yintercept = 0.65) + 
   theme_cowplot(font_size = 20) + 
   scale_x_discrete(
       labels = c(expression(italic(K)[italic(k)]),
@@ -199,7 +200,6 @@ interTAs <-
 ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A")
-# ggsave(filename = "temporary/ea-plots1.pdf", ea_plots, width = 16, height = 12)
 
 # ggsave(filename = "figures/ea-plots1.pdf", ea_plots, width = 16, height = 12)
 

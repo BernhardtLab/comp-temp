@@ -1,4 +1,4 @@
-# this script is to reproduce the main results figures of the paper -- figs 3 and 5 -- with different start points
+# This script is to reproduce the main results figures of the paper -- figs 3 and 5 -- with different start points. We achieve these different start points by manipulating the resource preferences (analogous to niche widths) of each species at the models starting conditions, i.e. ambient temperature. Scenario 1 is given in the main text (script 04) and features two consumers that each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. In scenario 2, consumer preferences are the same as in Scenario 1, but the resources grow at the same rate under ambient conditions, which moves the start point from the coexistence boundary to the middle of the coexistence region. In scenario 3, species have very different resource preferences, where one consumer has a strong preference for its preferred resource and the other consumer has a weak preference for its preferred resources. Both resources grow at the same rate under ambient conditions. Parameters defining each of these starting conditions are given in each simulation below, and in summary in Table S1. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
 #script DOB: 9/5/2025
 #author: Kaleigh Davis, Postdoc UoG with Joey Bernhardt
@@ -61,7 +61,7 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-#### ONE-BY-ONE; rrc, equal growth rates ####
+#### ONE-BY-ONE; rrc, equal growth rates -- scenario 2####
 # c ####
 c_var <- data.frame()
 for(f in 1:500){ 
@@ -262,7 +262,7 @@ v_var_plot <-
   ylab(expression(paste("Fitness differences"))) + 
   theme_cowplot(font_size = 26) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.25, y = 0.6, label = expression("Conversion \nefficiency," ~ italic(v)[italic(k)]), size = 8)
+  annotate("text", x = 0.25, y = 0.6, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 8)
 
 # m ####
 m_var <- data.frame()
@@ -345,7 +345,7 @@ for(f in 1:500){
   rrce_all <- bind_rows(rrce_all, hold) 
 }
 
-#get average change in position after 5, 10, 20C warming
+#get average change in position after 15C warming
 rrce_all_avg_new <- rrce_all %>% 
   mutate(rel_T = T-10) %>% 
   filter(rel_T == 15) %>% 
@@ -594,7 +594,7 @@ v_var1_plot <-
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
-  annotate("text", x = 0.25, y = 0.7, label = expression("Conversion \nefficiency," ~ italic(v)[italic(k)]), size = 6)
+  annotate("text", x = 0.25, y = 0.7, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 6)
 
 # m ####
 m_var1 <- data.frame()
@@ -649,7 +649,7 @@ m_var1_plot <-
 # uneven reciprocal, equal base growth plot ###
 urrce_plots <- c_var1_plot + r_var1_plot + k_var1_plot + v_var1_plot + m_var1_plot
 
-#### POMPOM; uneven reciprocal preference, equal growth rates ####
+#### POMPOM; uneven reciprocal preference, equal growth rates - scenario 3 ####
 urrce_all <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1),

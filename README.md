@@ -30,11 +30,11 @@ requires param-eas.csv as an input and then generates posterior
 distributions for each parameter and generates the output
 param_post_dists.csv, stored in the
 [data/processed-data/](https://github.com/BernhardtLab/comp-temp/tree/main/data/processed-data)
-folder. This script also generates main text figure 2.
+folder. This .csv file is a required input for scripts 03, 04, and 05. This script also generates main text figure 2.
 
 **02-temp-dep-macarthur.R**: This script provides the function that
 incorporates temperature sensitivity into the MacArthur consumer
-resource model, as well as the Arrhenius function. This function is used
+resource model. This function is used
 as an input for scripts 03, 04, and 05.
 
 **03-var-ea-one-by-one.R**: This script analyses the effects of
@@ -55,6 +55,8 @@ simulation start points, imposed here by differences in the resource use
 preferences of competing species pairs, influences the warming
 trajectories of species. This script requires inputs from scripts 01 and
 02, and produces supplementary figures S9 and S10.
+
+For scripts 02 - 05, temperature sensitivities are defined in each simulation, with the naming convention: "{parameter_EAik}", where ik captures the relevant consumer, resource, or both. The parameter value at the reference temperature in each simulation is given following the naming convention: "{parameter-ik_b}". Consumer species are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively. The set of parameters at the ambient temperature defien the model's starting conditions, and thus the position in ND--FD space of the all species pairs for a given simulation prior to warming. 
 
 If you have any questions about this repository, please direct them to
 the manuscript's corresponding author, Kaleigh Davis, at

@@ -1,4 +1,4 @@
-#MacArthur consumer-resource function, where all parameters are assignable at the function deploying stage
+#This script defines the MacArthur consumer-resource function, where all parameters are assignable at the function deploying stage, and the Arrhenius temperature-depenence function, which feeds directly into the MacArthur C-R function. Temperature senstivities are referred to here as activation energy are parameters containing "EA." Intercept terms, given with the "_b" notation in parameter names, determine the value of the each function at the ambient temperature (Tref, ref_temp). Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively. These functions are called in all subsequent analysis scripts that simulate warming: Scripts 03, 04, and 05.
 
 #script author: Kaleigh Davis, UoG postdoc with Joey Bernhardt
 
