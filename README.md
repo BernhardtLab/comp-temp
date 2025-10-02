@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # Data and code for Davis et al., General predictions for the effects of warming on competition
 
 Description: In this study, we incorporated temperature sensitivity into
