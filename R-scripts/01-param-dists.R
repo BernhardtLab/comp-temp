@@ -37,6 +37,10 @@ mortality_rates <- mac_means %>%
   filter(simple_parameter == "mortality rate") %>% 
   dplyr::select(activation_energy)
 
+mortality_rates %>% 
+  summarise(min = min(activation_energy),
+            max = max(activation_energy))
+
 
 # resource growth rate ----------------------------------------------------
 lm_rgr <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "resource growth rate"), burnin = 1000) %>% 
@@ -48,6 +52,9 @@ growth_rates <- mac_means %>%
   filter(simple_parameter == "resource growth rate") %>% 
   dplyr::select(activation_energy)
 
+growth_rates %>% 
+  summarise(min = min(activation_energy),
+            max = max(activation_energy))
 
 # conversion efficiency ---------------------------------------------------
 lm_conv_eff <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "conversion efficiency"), burnin = 1000) %>% 
@@ -59,6 +66,10 @@ conv_rates <- mac_means %>%
   filter(simple_parameter == "conversion efficiency") %>% 
   dplyr::select(activation_energy)
 
+conv_rates %>% 
+  summarise(min = min(activation_energy),
+            max = max(activation_energy))
+
 # resource carrying capacity  ---------------------------------------------------
 lm_carrying_capacity <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "resource carrying capacity"), burnin = 1000) %>% 
   as.data.frame() %>% 
@@ -69,6 +80,10 @@ carrying_capacity <- mac_means %>%
   filter(simple_parameter == "resource carrying capacity") %>% 
   dplyr::select(activation_energy)
 
+carrying_capacity %>% 
+  summarise(min = min(activation_energy),
+            max = max(activation_energy))
+
 # consumption rate  ---------------------------------------------------
 lm_consumption_rate <- MCMCregress(activation_energy ~ 1, data = filter(mac_means, simple_parameter == "consumption rate"), burnin = 1000) %>% 
   as.data.frame() %>% 
@@ -78,6 +93,10 @@ lm_consumption_rate <- MCMCregress(activation_energy ~ 1, data = filter(mac_mean
 consumption_rate <- mac_means %>% 
   filter(simple_parameter == "consumption rate") %>% 
   dplyr::select(activation_energy)
+
+consumption_rate %>% 
+  summarise(min = min(activation_energy),
+            max = max(activation_energy))
 
 #stitch all these dfs together for use in other scripts
 # bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>% 
@@ -113,8 +132,8 @@ mort_ea_plot <-
   filter(parameter == "mortality_rate") %>% 
   ggplot(aes(x = intercept)) + 
   geom_density(fill = "lightgrey") + 
-  geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "orange", size = 3) +
-  geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "black", size = 3, shape = 1) +
+  geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "orange", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
@@ -126,8 +145,8 @@ rgr_plot <- data %>%
   filter(parameter == "resource_growth_rate") %>% 
   ggplot(aes(x = intercept)) + 
   geom_density(fill = "lightgrey") + 
-  geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "orange", size = 3) +
-  geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "black", size = 3, shape = 1) +
+  geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "orange", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
@@ -139,8 +158,8 @@ conv_eff_plot <- data %>%
   filter(parameter == "conversion_efficiency") %>% 
   ggplot(aes(x = intercept)) + 
   geom_density(fill = "lightgrey") +
-  geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "orange", size = 3) +
-  geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "black", size = 3, shape = 1) +
+  geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "orange", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
@@ -152,8 +171,8 @@ carrying_capacity_plot <- data %>%
   filter(parameter == "carrying_capacity") %>% 
   ggplot(aes(x = intercept)) + 
   geom_density(fill = "lightgrey") +
-  geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "orange", size = 3) +
-  geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "black", size = 3, shape = 1) +
+  geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "orange", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
@@ -165,8 +184,8 @@ consumption_rate_plot <- data %>%
   filter(parameter == "consumption rate") %>% 
   ggplot(aes(x = intercept)) + 
   geom_density(fill = "lightgrey") +
-  geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "orange", size = 3) +
-  geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "black", size = 3, shape = 1) +
+  geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "orange", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "darkred") +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
@@ -201,5 +220,5 @@ ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A")
 
-# ggsave(filename = "figures/ea-plots1.pdf", ea_plots, width = 16, height = 12)
+# ggsave(filename = "figures/Fig2-ea-plots1.pdf", ea_plots, width = 16, height = 12)
 

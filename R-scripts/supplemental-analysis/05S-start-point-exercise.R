@@ -204,13 +204,17 @@ log_pom_urrce1_all <-
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 9, fontface = 2) +
-  annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
-  theme_cowplot(font_size = 26)
+  theme_cowplot(font_size = 28) + 
+  theme(legend.position = "none") + 
+  annotate("text", x = 0, y = -0.8, 
+           label = "c1N_b = 0.6, c1P_b = 0.9, 
+c2N_b = 0.5, c2P_b = 0.2, 
+r_N_b = 0.7, r_P_b = 0.2, 
+K_N_b= 1000, K_P_b = 1000, 
+v1N_b = 0.3, v1P_b = 0.9, 
+v2N_b = 0.3, v2P_b = 0.1, 
+m1_b = 0.01, m2_b = 0.01", 
+           size = 9, fontface = 1, hjust = 0) 
 
 #### POMPOM 2; uneven reciprocal preference, unequal growth rates ####
 urrce2_all <- data.frame()
@@ -275,13 +279,17 @@ log_pom_urrce2_all <-
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 9, fontface = 2) +
-  annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
-  theme_cowplot(font_size = 26)
+  theme_cowplot(font_size = 28) + 
+  theme(legend.position = "none") + 
+  annotate("text", x = 0, y = 0.8, 
+           label = "c1N_b = 0.5, c1P_b = 0.2, 
+c2N_b = 0.9, c2P_b = 0.9, 
+r_N_b = 0.2, r_P_b = 0.7, 
+K_N_b= 1000, K_P_b = 1000, 
+v1N_b = 0.1, v1P_b = 0.6, 
+v2N_b = 0.4, v2P_b = 0.7, 
+m1_b = 0.01, m2_b = 0.01", 
+           size = 9, fontface = 1, hjust = 0) 
 
 #### POMPOM 3; uneven reciprocal preference, unequal growth rates ####
 urrce3_all <- data.frame()
@@ -304,7 +312,7 @@ for(f in 1:500){
                       c2N_b = 0.9, c2P_b = 0.2, 
                       r_N_b = 0.7, r_P_b = 2, 
                       K_N_b= 1000, K_P_b = 1000, 
-                      v1N_b = 1.3, v1P_b = 0.9, 
+                      v1N_b = 0.9, v1P_b = 0.9, 
                       v2N_b = 0.9, v2P_b = 0.9, 
                       m1_b = 0.1, m2_b = 0.1) 
   hold$iteration <- f
@@ -346,13 +354,17 @@ log_pom_urrce3_all <-
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
-  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 9, fontface = 2) +
-  annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
-  theme_cowplot(font_size = 26)
+  theme_cowplot(font_size = 28) + 
+  theme(legend.position = "none") + 
+  annotate("text", x = 0, y = 0.8, 
+           label = "c1N_b = 1.3, c1P_b = 0.9, 
+c2N_b = 0.9, c2P_b = 0.2, 
+r_N_b = 0.7, r_P_b = 2, 
+K_N_b= 1000, K_P_b = 1000, 
+v1N_b = 0.9, v1P_b = 0.9, 
+v2N_b = 0.9, v2P_b = 0.9, 
+m1_b = 0.1, m2_b = 0.1", 
+           size = 9, fontface = 1, hjust = 0) 
 
 #### POMPOM 4; uneven reciprocal preference, unequal growth rates ####
 urrce4_all <- data.frame()
@@ -375,7 +387,7 @@ for(f in 1:500){
                       c2N_b = 0.9, c2P_b = 0.4, 
                       r_N_b = 0.7, r_P_b = 1, 
                       K_N_b= 1000, K_P_b = 1000, 
-                      v1N_b = 1.3, v1P_b = 0.4, 
+                      v1N_b = 0.9, v1P_b = 0.4, 
                       v2N_b = 0.9, v2P_b = 0.4, 
                       m1_b = 0.1, m2_b = 0.1) 
   hold$iteration <- f
@@ -393,7 +405,7 @@ urrce4_all_avg_new <- urrce4_all %>%
             new_med_fit_rat = median(new_fit_ratio))
 
 #pompom
-# log_pom_urrce4_all <-
+log_pom_urrce4_all <-
   ggplot() +
   # coexist area
   geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
@@ -417,10 +429,167 @@ urrce4_all_avg_new <- urrce4_all %>%
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
-  # coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
-  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 9, fontface = 2) +
-  annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 9, fontface = 2) +
-  annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
-  theme_cowplot(font_size = 26)
+  theme_cowplot(font_size = 28) + 
+  theme(legend.position = "none") + 
+  annotate("text", x = 0, y = -0.8, 
+           label = "c1N_b = 1.3, c1P_b = 0.4, 
+c2N_b = 0.9, c2P_b = 0.4, 
+r_N_b = 0.7, r_P_b = 1, 
+K_N_b= 1000, K_P_b = 1000, 
+v1N_b = 0.9, v1P_b = 0.4, 
+v2N_b = 0.9, v2P_b = 0.4, 
+m1_b = 0.1, m2_b = 0.1", 
+           size = 9, fontface = 1, hjust = 0) 
+
+#### POMPOM 5; uneven reciprocal preference, unequal growth rates ####
+urrce5_all <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1),
+                      ref_temp = 10,
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 1.3, c1P_b = 0.8, 
+                      c2N_b = 0.3, c2P_b = 2, 
+                      r_N_b = 0.8, r_P_b = 0.8, 
+                      K_N_b= 1000, K_P_b = 1000, 
+                      v1N_b = 0.9, v1P_b = 0.8, 
+                      v2N_b = 0.1, v2P_b = 0.9, 
+                      m1_b = 0.1, m2_b = 0.1) 
+  hold$iteration <- f
+  urrce5_all <- bind_rows(urrce5_all, hold) 
+}
+
+#get average change in position after 15C warming
+urrce5_all_avg_new <- urrce5_all %>% 
+  mutate(rel_T = T-10) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+#pompom
+log_pom_urrce5_all <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = urrce5_all, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(urrce5_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(urrce5_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = urrce5_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce5_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = urrce5_all, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  theme_cowplot(font_size = 28) + 
+  theme(legend.position = "none") + 
+  annotate("text", x = 0, y = 0.8, 
+           label = "c1N_b = 1.3, c1P_b = 0.8, 
+c2N_b = 0.3, c2P_b = 2, 
+r_N_b = 0.8, r_P_b = 0.8, 
+K_N_b= 1000, K_P_b = 1000, 
+v1N_b = 0.9, v1P_b = 0.8, 
+v2N_b = 0.1, v2P_b = 0.9, 
+m1_b = 0.1, m2_b = 0.1", 
+           size = 9, fontface = 1, hjust = 0)
+
+
+#### POMPOM 6; uneven reciprocal preference, unequal growth rates ####
+urrce6_all <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1),
+                      ref_temp = 10,
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 1.3, c1P_b = 0.6, 
+                      c2N_b = 0.3, c2P_b = 2, 
+                      r_N_b = 0.8, r_P_b = 1.5, 
+                      K_N_b= 1000, K_P_b = 1000, 
+                      v1N_b = 0.9, v1P_b = 0.8, 
+                      v2N_b = 0.1, v2P_b = 0.9, 
+                      m1_b = 0.1, m2_b = 0.1) 
+  hold$iteration <- f
+  urrce6_all <- bind_rows(urrce6_all, hold) 
+}
+
+#get average change in position after 15C warming
+urrce6_all_avg_new <- urrce6_all %>% 
+  mutate(rel_T = T-10) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+#pompom
+log_pom_urrce6_all <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = urrce6_all, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(urrce6_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(urrce6_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = urrce6_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce6_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = urrce6_all, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  theme_cowplot(font_size = 26) + 
+  annotate("text", x = 0, y = -0.8, 
+           label = "c1N_b = 1.3, c1P_b = 0.6,
+c2N_b = 0.3, c2P_b = 2,
+r_N_b = 0.8, r_P_b = 1.5,
+K_N_b= 1000, K_P_b = 1000,
+v1N_b = 0.9, v1P_b = 0.8,
+v2N_b = 0.1, v2P_b = 0.9,
+m1_b = 0.1, m2_b = 0.1", 
+           size = 9, fontface = 1, hjust = 0) 
+
+diff_start_points <- (log_pom_urrce2_all + log_pom_urrce3_all +  log_pom_urrce5_all) / (log_pom_urrce4_all + log_pom_urrce1_all + log_pom_urrce6_all)
+
+# ggsave(plot = diff_start_points, filename = "figures/extra-start-points.pdf", height = 24, width = 30)
