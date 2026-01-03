@@ -15,7 +15,8 @@ library(viridis)
 library(beepr)
 
 # get referencing set up for MacArthur temp dependence function
-source("R-scripts/02-temp-dep-macarthur.R") #this contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/02-temp-dep-macarthur.R") #this calls the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use
+source("R-scripts/03-arrhenius.R") #this calls the arrhenius function.
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in 01-param-dists.R

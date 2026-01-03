@@ -85,16 +85,5 @@ temp_dep_mac <- function(T, ref_temp,
              m1 = m1, m2 = m2, rN = rN, rP = rP, KN = KN, KP = KP,
              c1N = c1N,  c1P = c1P,  c2N = c2N, c2P = c2P, beta11 = beta11, beta21 = beta21, beta22 = beta22, beta12 = beta12)}
 
-arrhenius_function <- function(Temp, E, b1, ref_temp) {
-	k <- 8.62e-05 #Boltzmann's constant
-	E <- E # 0.6 # activation energy (eV)
-	T <- Temp+273.15 #range of temp in K
-	Tc <- ref_temp+273.15 #reference temperature
-	
-	metabolism <- (b1*exp(1)^(E*(1/(k*Tc)-1/(k*T))))
-	return(metabolism)
-}
-
-
 
 
