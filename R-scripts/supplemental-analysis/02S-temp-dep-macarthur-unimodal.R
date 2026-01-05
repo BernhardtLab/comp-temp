@@ -29,8 +29,8 @@ model1 <- tibble(temp = seq(from = 5, to = 25, by = 0.01)) %>%
                               ~jl_function2(Temp = .x, 
                                            E = 0.65, 
                                            b1 = 1,
-                                           ED = 3,
-                                           Topt_C = 25,
+                                           ED = 4.5,
+                                           Topt_C = 19,
                                            ref_temp = 10)))
 
 ggplot(model1, aes(x = temp, y = metabolism)) + 

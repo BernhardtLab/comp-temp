@@ -93,7 +93,7 @@ for(f in 1:500){
   rrc <- bind_rows(rrc, hold) 
 }
 
-#get average change in position after 5, 10, 20C warming
+#get average change in position after 15C warming
 rrc_avg_new <- rrc %>% 
   mutate(rel_T = T-10) %>% 
   filter(rel_T == 15) %>% 
@@ -148,7 +148,25 @@ rrc_e <- rrc %>%
          shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
          shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) 
 
-hist(rrc_e$dist15)
+#visualize distance from start point as warming occurs
+track <- rrc %>% 
+  dplyr::select(T, iteration, new_stabil_potential, new_fit_ratio, r_EaN:m_Ea2) %>%  #param combo identifies the simulation replicate
+  mutate(start_nd = start_new_stab_pot,
+         start_fd = start_new_fit_rat,
+         ED = sqrt((new_stabil_potential - start_nd)^2 + (new_fit_ratio - start_fd)^2),
+         dist_neut = sqrt(new_stabil_potential^2 + new_fit_ratio^2),
+         iter_for_grouping = sprintf("%03d", iteration),
+         iter_group = str_extract(as.character(iter_for_grouping), "^[0-9]", group = NULL))
+
+track %>% 
+  ggplot() + 
+  geom_line(aes(x = T, y = ED, group = iteration), alpha = 0.2) +
+  labs(x = "Temperature (°C)", y = "Euclidean Distance from Start Position") 
+
+track %>% 
+  filter(T == 25) %>%
+  summarise(mean_ed = mean(ED))
+
 
 #histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 
