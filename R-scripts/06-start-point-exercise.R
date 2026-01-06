@@ -389,11 +389,11 @@ log_pom_rrce_all <-
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
   theme_cowplot(font_size = 28)
 
-### rrc equal start two plots #####
+# rrc equal start two plots 
 startpoint1 <- rrce_plots / log_pom_rrce_all + plot_annotation(tag_levels = "A")
 # ggsave(plot = startpoint1, filename = "figures/supp_startpoint_errce.pdf", height = 20, width = 26)
 
-#### ONE-BY-ONE; uneven reciprocal preference, equal growth rates ####
+#### ONE-BY-ONE; uneven reciprocal preference, equal growth rates -- scenario 3 ####
 # c ####
 c_var1 <- data.frame()
 for(f in 1:500){ 
@@ -650,7 +650,7 @@ m_var1_plot <-
 # uneven reciprocal, equal base growth plot ###
 urrce_plots <- c_var1_plot + r_var1_plot + k_var1_plot + v_var1_plot + m_var1_plot
 
-#### POMPOM; uneven reciprocal preference, equal growth rates - scenario 3 ####
+#### POMPOM; uneven reciprocal preference, equal growth rates ####
 urrce_all <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1),
@@ -721,6 +721,6 @@ log_pom_urrce_all <-
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
   theme_cowplot(font_size = 26)
 
-### uneven reciprocal preference, equal start two plots #####
+# uneven reciprocal preference, equal start two plots
 startpoint2 <- urrce_plots / log_pom_urrce_all + plot_annotation(tag_levels = "A")
 # ggsave(plot = startpoint2, filename = "figures/supp_startpoint_urrce.pdf", height = 20, width = 26)

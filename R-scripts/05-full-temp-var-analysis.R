@@ -136,6 +136,36 @@ log_pom <-
   # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
   theme_cowplot(font_size = 20)
 
+#for how many species pairs does ND decrease and does FD decrease
+rrc_start <- rrc %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+rrc_shifts <- rrc %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = rrc_start$new_mean_stab_pot,
+         fit_rat_start = rrc_start$new_mean_fit_rat) %>% 
+  mutate(fd_shift = ifelse(new_fit_ratio < fit_rat_start, "decrease", 
+                           ifelse(new_fit_ratio > fit_rat_start, "increase",
+                                  ifelse(new_fit_ratio == fit_rat_start, "no change", "potato"))),
+         nd_shift = ifelse(new_stabil_potential < stab_pot_start, "decrease",
+                           ifelse(new_stabil_potential > stab_pot_start, "increase",
+                                  ifelse(new_stabil_potential == stab_pot_start, "no change","potato")))) %>% 
+  filter(T == 10 | T == 25)
+
+rrc_shifts %>% 
+  group_by(T, fd_shift, nd_shift) %>% 
+  tally()
+
+## FD: 288/500 decrease (another sim - 275/500)
+## ND: 289/500 decrease (another sim - 291/500)
+## ND + FD: 185/500 decrease in both (another sim - 170/500)
+
+
 # get euclidean distances for each species pair
 rrc_e <- rrc %>% 
   filter(T %in% c(10, 25)) %>%
@@ -148,6 +178,22 @@ rrc_e <- rrc %>%
          shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
          shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) 
 
+#track the euclidean distance from neutrality for each species pair with warming
+#get start position
+start_new_stab_pot <- rrc %>% 
+  filter(T == 10) %>% 
+  summarise(mean_start_nd = mean(new_stabil_potential),
+            sd_stard_nd = sd(new_stabil_potential)) %>% 
+  dplyr::select(mean_start_nd) %>% 
+  unlist()
+
+start_new_fit_rat <- rrc %>% 
+  filter(T == 10) %>% 
+  summarise(mean_start_fd = mean(new_fit_ratio),
+            sd_stard_fd = sd(new_fit_ratio)) %>% 
+  dplyr::select(mean_start_fd) %>% 
+  unlist()
+
 #visualize distance from start point as warming occurs
 track <- rrc %>% 
   dplyr::select(T, iteration, new_stabil_potential, new_fit_ratio, r_EaN:m_Ea2) %>%  #param combo identifies the simulation replicate
@@ -159,14 +205,8 @@ track <- rrc %>%
          iter_group = str_extract(as.character(iter_for_grouping), "^[0-9]", group = NULL))
 
 track %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = ED, group = iteration), alpha = 0.2) +
-  labs(x = "Temperature (°C)", y = "Euclidean Distance from Start Position") 
-
-track %>% 
   filter(T == 25) %>%
-  summarise(mean_ed = mean(ED))
-
+  summarise(mean_ed = median(ED)) #for comparison with unimodal model
 
 #histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 

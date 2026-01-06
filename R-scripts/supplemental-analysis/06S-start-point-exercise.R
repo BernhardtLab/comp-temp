@@ -1,7 +1,4 @@
-# This is a daughter script of script 06 to explore the reviewers' analysis suggestions.
-
-#KD TO DO: set these to self-determining coords and then place or remove region definitions
-
+# This is a daughter script of script 06 to explore the reviewers' analysis suggestion of exploring more starting points.
 
 # This script is to reproduce the main results figures of the paper -- figs 3 and 5 -- with different start points. We achieve these different start points by manipulating the resource preferences (analogous to niche widths) of each species at the models starting conditions, i.e. ambient temperature. Scenario 1 is given in the main text (script 04) and features two consumers that each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. In scenario 2, consumer preferences are the same as in Scenario 1, but the resources grow at the same rate under ambient conditions, which moves the start point from the coexistence boundary to the middle of the coexistence region. In scenario 3, species have very different resource preferences, where one consumer has a strong preference for its preferred resource and the other consumer has a weak preference for its preferred resources. Both resources grow at the same rate under ambient conditions. Parameters defining each of these starting conditions are given in each simulation below, and in summary in Table S1. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
@@ -20,7 +17,8 @@ library(viridis)
 library(beepr)
 
 # get referencing set up for MacArthur temp dependence function
-source("R-scripts/02-temp-dep-macarthur.R") #this contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use, and the arrhenius function.
+source("R-scripts/02-temp-dep-macarthur.R") #this contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use
+source("R-scripts/03-arrhenius.R") #arrhenius function
 
 #load in distributions for parameter values.
 # these are continuous distributions generated from empirical data using MCMC regression, in 01-param-dists.R
@@ -137,9 +135,143 @@ log_pom_urrce_all <-
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
   theme_cowplot(font_size = 26)
 
-### uneven reciprocal preference, equal start two plots #####
-startpoint2 <- urrce_plots / log_pom_urrce_all + plot_annotation(tag_levels = "A")
-# ggsave(plot = startpoint2, filename = "figures/supp_startpoint_urrce.pdf", height = 20, width = 26)
+#for how many simulations does ND decrease and does FD decrease
+
+urrce_start <- urrce_all %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+urrce_shifts <- urrce_all %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = urrce_start$new_mean_stab_pot,
+         fit_rat_start = urrce_start$new_mean_fit_rat) %>% 
+  mutate(fd_shift = ifelse(new_fit_ratio < fit_rat_start, "decrease", 
+                           ifelse(new_fit_ratio > fit_rat_start, "increase",
+                                  ifelse(new_fit_ratio == fit_rat_start, "no change", "potato"))),
+         nd_shift = ifelse(new_stabil_potential < stab_pot_start, "decrease",
+                           ifelse(new_stabil_potential > stab_pot_start, "increase",
+                                  ifelse(new_stabil_potential == stab_pot_start, "no change","potato")))) %>% 
+  filter(T == 10 | T == 25)
+
+urrce_shifts %>% 
+  group_by(T, fd_shift, nd_shift) %>% 
+  tally()
+
+#FD decrease in 253/500 cases; 2nd sim: 254/500; 3rd:279/500
+#ND decrease in 250/500 cases; 2nd sim: 255/500; 3rd: 263/500
+
+# calculate euclidean distances at 25C for each iteration
+urrce_all_e <- urrce_all %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>%
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
+         abs_c_ta = abs(c_Ea1P - c_Ea2N),
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2),
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(urrce_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
+
+#unscaled TA - euclidean distance plot - r
+urrce_all_plot_e2_r <-
+  urrce_all_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_r_ta, y = value)) +
+  geom_point(aes(colour = r_EaP > r_EaN), size = 3) + 
+  geom_smooth(method = "lm", colour = "black") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) + 
+  annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
+  annotate("text", x = 0.8, y = 0.15, label = "m = 0.16, \np = 0.03, r2 = 0.003", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
+
+summary(lm(value ~ abs_r_ta, data = urrce_all_e))
+
+#unscaled TA - euclidean distance plot 
+urrce_all_plot_e2_c <-
+  urrce_all_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_c_ta, y = value)) +
+  geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
+  geom_smooth(method = "lm", linetype = "dashed", colour = "black") +
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, r", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[c1a] * "- E"[c2b]*"|"))
+
+summary(lm(value~abs_c_ta, data = urrce_all_e))
+
+urrce_all_plot_e2_k <-
+  urrce_all_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_k_ta, y = value)) +
+  geom_point(aes(colour = K_EaN > K_EaP), size = 3) + 
+  geom_smooth(method = "lm", linetype = "dashed", colour = "black") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.97, y = 0.35, label = "Carrying \ncapacity, K", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
+
+summary(lm(value~abs_k_ta, data = urrce_all_e))
+
+urrce_all_plot_e2_v <-
+  urrce_all_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_v_ta, y = value)) +
+  geom_point(aes(colour = v_EaN > v_EaP), size = 3) + 
+  geom_smooth(method = "lm", colour = "black") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.92, y = 0.2, label = "Conversion \nefficiency, v", size = 5.5) + 
+  annotate("text", x = 0.92, y = 0.05, label = "m = 0.07, \np = 0.007, r2 = 0.005", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
+
+summary(lm(value~abs_v_ta, data = urrce_all_e))
+
+
+urrce_all_plot_e2_m <-
+  urrce_all_e %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_m_ta, y = value)) +
+  geom_point(aes(colour = m_Ea1 > m_Ea2), size = 3) + 
+  geom_smooth(method = "lm", linetype = "dashed", colour = "black") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.8, y = 0.5, label = "Mortality \nrate, m", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
+
+summary(lm(value~abs_m_ta, data = urrce_all_e))
+hist(urrce_all_e$value)
+
+
+urrce_tas <- urrce_all_plot_e2_c + urrce_all_plot_e2_k + urrce_all_plot_e2_m + urrce_all_plot_e2_r + urrce_all_plot_e2_v + plot_annotation(tag_levels = "A")
+
+ggsave(plot = urrce_tas, filename = "figures/urrce_pompom_tas.pdf", width = 18, height = 12)
+
 
 #### POMPOM 1; uneven reciprocal preference, unequal growth rates ####
 urrce1_all <- data.frame()
