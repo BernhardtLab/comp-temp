@@ -1727,7 +1727,7 @@ comb_plot_ex <- log_pom_ex / bottom_patch_ex +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = comb_plot1, filename = "figures/extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
+ggsave(plot = comb_plot_ex, filename = "figures/extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
 
 #### which thermal asymmetries drive large shifts in competition? - one by ones ####
 
