@@ -206,7 +206,7 @@ rrc_plot_e2_r <-
   geom_point(size = 3) + 
   geom_smooth(method = "lm", colour = "red") + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
   annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
   annotate("text", x = 0.8, y = 0.15, label = "m = 0.83, \np = <0.001, adj. r2 = 0.53", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
@@ -224,7 +224,7 @@ rrc_plot_e2_c2 <-
   geom_point(aes(x = abs_c2_ta, y = value), size = 3) +
   geom_smooth(aes(abs_c2_ta, y = value), method = "lm", colour = "red") +
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
   annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
   annotate("text", x = 0.8, y = 0.15, label = "m = 0.28, \np = 0.038, adj r2 = 0.0066", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
@@ -239,7 +239,7 @@ rrc_plot_e2_c4 <-
   geom_point(aes(x = abs_c4_ta, y = value), size = 3) +
   geom_smooth(aes(abs_c4_ta, y = value), method = "lm", colour = "red") +
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
   annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
   annotate("text", x = 0.8, y = 0.15, label = "m = 0.35, \np = 0.018, adj r2 = 0.0092", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
@@ -262,7 +262,7 @@ rrc_plot_e2_k <-
   geom_point(size = 3) +
   geom_smooth(method = "lm", colour = "red") + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
   annotate("text", x = 0.97, y = 0.35, label = "Carrying \ncapacity, K", size = 5.5) + 
   annotate("text", x = 0.97, y = 0.15, label = "m = 0.089, \np = 0.001, \nadj. r2 = 0.019", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
@@ -279,9 +279,9 @@ rrc_plot_e2_v <-
   geom_point(size = 3) +
   geom_smooth(method = "lm", colour = "red") + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.92, y = 0.75, label = "Conversion \nefficiency, v", size = 5.5) + 
-  annotate("text", x = 0.92, y = 0.55, label = "m = 0.077, \np = <0.001,\nadj. r2 = 0.030", size = 5.5) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
+  annotate("text", x = 1.05, y = 0.41, label = "Conversion \nefficiency, v", size = 5.5) + 
+  annotate("text", x = 1.07, y = 0.09, label = "m = 0.077, \np = <0.001,\nadj. r2 = 0.030", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
@@ -296,8 +296,8 @@ rrc_plot_e2_m <-
   geom_point(size = 3) +
   geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "red") + 
   labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.5, label = "Mortality \nrate, m", size = 5.5) + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
+  annotate("text", x = 0.8, y = 0.35, label = "Mortality \nrate, m", size = 5.5) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
@@ -305,9 +305,9 @@ rrc_plot_e2_m <-
 summary(lm(value~abs_m_ta, data = rrc_ed)) #NS
 hist(rrc_ed$value)
 
-rrc_tas <- rrc_plot_e2_c2 + rrc_plot_e2_c4 +rrc_plot_e2_r + rrc_plot_e2_k + rrc_plot_e2_v +  rrc_plot_e2_m + plot_annotation(tag_levels = "A")
+rrc_tas <- rrc_plot_e2_c2 + rrc_plot_e2_c4 +rrc_plot_e2_r + rrc_plot_e2_k + rrc_plot_e2_v +  rrc_plot_e2_m + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Main Text Model")
 
-ggsave(plot = rrc_tas, filename = "figures/TA-ED-main-full.pdf", width = 18, height = 12)
+# ggsave(plot = rrc_tas, filename = "figures/TA-ED-main-full.pdf", width = 18, height = 12)
 
 #histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 
