@@ -161,9 +161,9 @@ rrc_shifts %>%
   group_by(T, fd_shift, nd_shift) %>% 
   tally()
 
-## FD: 288/500 decrease (another sim - 275/500)
-## ND: 289/500 decrease (another sim - 291/500)
-## ND + FD: 185/500 decrease in both (another sim - 170/500)
+## FD: 288/500 decrease (another sim - 275/500, 300/500)
+## ND: 289/500 decrease (another sim - 291/500, 326/500)
+## ND + FD: 185/500 decrease in both (another sim - 170/500, 204/500)
 
 
 # get euclidean distances for each species pair
@@ -174,39 +174,140 @@ rrc_e <- rrc %>%
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
               names_glue = "T{T}_{.value}") %>% 
+  #thermal asymmetries
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         abs_c1_ta = abs(c_Ea1P - c_Ea2N),
+         abs_c2_ta = abs(c_Ea1P - c_Ea1N),
+         abs_c3_ta = abs(c_Ea1P - c_Ea2P), 
+         abs_c4_ta = abs(c_Ea2P - c_Ea2N), 
+         abs_c5_ta = abs(c_Ea2P - c_Ea1N), 
+         abs_c6_ta = abs(c_Ea1N - c_Ea2N), 
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2)) %>% 
+         #shifts in competition
   mutate(dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
          shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
-         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) 
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
 
-#track the euclidean distance from neutrality for each species pair with warming
-#get start position
-start_new_stab_pot <- rrc %>% 
-  filter(T == 10) %>% 
-  summarise(mean_start_nd = mean(new_stabil_potential),
-            sd_stard_nd = sd(new_stabil_potential)) %>% 
-  dplyr::select(mean_start_nd) %>% 
-  unlist()
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(rrc_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 
-start_new_fit_rat <- rrc %>% 
-  filter(T == 10) %>% 
-  summarise(mean_start_fd = mean(new_fit_ratio),
-            sd_stard_fd = sd(new_fit_ratio)) %>% 
-  dplyr::select(mean_start_fd) %>% 
-  unlist()
+#which thermal asymmetries drive large shifts in competition?
+rrc_ed <- rrc_e %>% 
+  filter(response_var == "dist15")
 
-#visualize distance from start point as warming occurs
-track <- rrc %>% 
-  dplyr::select(T, iteration, new_stabil_potential, new_fit_ratio, r_EaN:m_Ea2) %>%  #param combo identifies the simulation replicate
-  mutate(start_nd = start_new_stab_pot,
-         start_fd = start_new_fit_rat,
-         ED = sqrt((new_stabil_potential - start_nd)^2 + (new_fit_ratio - start_fd)^2),
-         dist_neut = sqrt(new_stabil_potential^2 + new_fit_ratio^2),
-         iter_for_grouping = sprintf("%03d", iteration),
-         iter_group = str_extract(as.character(iter_for_grouping), "^[0-9]", group = NULL))
+#unscaled TA - euclidean distance plot - r
+rrc_plot_e2_r <-
+  rrc_ed %>% 
+  ggplot(aes(x = abs_r_ta, y = value)) +
+  # geom_point(aes(colour = r_EaP > r_EaN), size = 3) + 
+  geom_point(size = 3) + 
+  geom_smooth(method = "lm", colour = "red") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) + 
+  annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
+  annotate("text", x = 0.8, y = 0.15, label = "m = 0.83, \np = <0.001, adj. r2 = 0.53", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
 
-track %>% 
-  filter(T == 25) %>%
-  summarise(mean_ed = median(ED)) #for comparison with unimodal model
+summary(lm(value ~ abs_r_ta, data = rrc_ed)) #S
+
+#unscaled TA - euclidean distance plot 
+rrc_plot_e2_c2 <-
+  rrc_ed %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot() +
+  # geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
+  geom_point(aes(x = abs_c2_ta, y = value), size = 3) +
+  geom_smooth(aes(abs_c2_ta, y = value), method = "lm", colour = "red") +
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
+  annotate("text", x = 0.8, y = 0.15, label = "m = 0.28, \np = 0.038, adj r2 = 0.0066", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[c1a] * "- E"[c1b]*"|"))
+
+rrc_plot_e2_c4 <-
+  rrc_ed %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot() +
+  # geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
+  geom_point(aes(x = abs_c4_ta, y = value), size = 3) +
+  geom_smooth(aes(abs_c4_ta, y = value), method = "lm", colour = "red") +
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
+  annotate("text", x = 0.8, y = 0.15, label = "m = 0.35, \np = 0.018, adj r2 = 0.0092", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[c2a] * "- E"[c2b]*"|"))
+
+#none significant
+summary(lm(value~abs_c1_ta, data = rrc_ed)) #NS
+summary(lm(value~abs_c2_ta, data = rrc_ed)) #significant
+summary(lm(value~abs_c3_ta, data = rrc_ed)) #NS
+summary(lm(value~abs_c4_ta, data = rrc_ed)) #significant
+summary(lm(value~abs_c5_ta, data = rrc_ed)) #NS
+summary(lm(value~abs_c6_ta, data = rrc_ed)) #NS
+
+rrc_plot_e2_k <-
+  rrc_ed %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_k_ta, y = value)) +
+  # geom_point(aes(colour = K_EaN > K_EaP), size = 3) + 
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", colour = "red") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.97, y = 0.35, label = "Carrying \ncapacity, K", size = 5.5) + 
+  annotate("text", x = 0.97, y = 0.15, label = "m = 0.089, \np = 0.001, \nadj. r2 = 0.019", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
+
+summary(lm(value~abs_k_ta, data = rrc_ed)) #S
+
+rrc_plot_e2_v <-
+  rrc_ed %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_v_ta, y = value)) +
+  # geom_point(aes(colour = v_EaN > v_EaP), size = 3) + 
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", colour = "red") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.92, y = 0.75, label = "Conversion \nefficiency, v", size = 5.5) + 
+  annotate("text", x = 0.92, y = 0.55, label = "m = 0.077, \np = <0.001,\nadj. r2 = 0.030", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
+
+summary(lm(value~abs_v_ta, data = rrc_ed)) #S
+
+rrc_plot_e2_m <-
+  rrc_ed %>% 
+  filter(response_var == "dist15") %>% 
+  ggplot(aes(x = abs_m_ta, y = value)) +
+  # geom_point(aes(colour = m_Ea1 > m_Ea2), size = 3) + 
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "red") + 
+  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
+  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
+  annotate("text", x = 0.8, y = 0.5, label = "Mortality \nrate, m", size = 5.5) + 
+  theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
+  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
+
+summary(lm(value~abs_m_ta, data = rrc_ed)) #NS
+hist(rrc_ed$value)
+
+rrc_tas <- rrc_plot_e2_c2 + rrc_plot_e2_c4 +rrc_plot_e2_r + rrc_plot_e2_k + rrc_plot_e2_v +  rrc_plot_e2_m + plot_annotation(tag_levels = "A")
+
+ggsave(plot = rrc_tas, filename = "figures/TA-ED-main-full.pdf", width = 18, height = 12)
 
 #histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 
