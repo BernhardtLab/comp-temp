@@ -82,7 +82,7 @@ temp_dep_mac <- function(T, ref_temp,
              m1_b = m1_b, m2_b = m2_b,
              a11 = a11, a12 = a12, a22 = a22, a21 = a21, g1 = g1, g2 = g2,
              stabil_potential = stabil_potential, new_stabil_potential = new_stabil_potential, fit_ratio = fit_ratio, new_fit_ratio = new_fit_ratio, rho = rho, coexist = coexist,
-             m1 = m1, m2 = m2, rN = rN, rP = rP, KN = KN, KP = KP,
+             m1 = m1, m2 = m2, rN = rN, rP = rP, KN = KN, KP = KP, v1N = v1N, v2N = v2N, v1P = v1P, v2P = v2P,
              c1N = c1N,  c1P = c1P,  c2N = c2N, c2P = c2P, beta11 = beta11, beta21 = beta21, beta22 = beta22, beta12 = beta12)}
 
 
