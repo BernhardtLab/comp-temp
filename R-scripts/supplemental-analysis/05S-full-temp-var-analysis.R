@@ -14,6 +14,7 @@ library(patchwork)
 library(purrr)
 library(viridis)
 library(beepr)
+library(see)
 
 # get referencing set up for macarthur temp dependence function
 source("R-scripts/02-temp-dep-macarthur.R") #base CR model - two resources and arrhenius-form temperature dependence
@@ -69,7 +70,7 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-# change the temp range to ensure consistent results #####
+# change the temp range #####
 # ref temp 0
 rrc0 <- data.frame()
 for(f in 1:500){ 
@@ -361,6 +362,7 @@ comb_plot200 <- log_pom200 / bottom_patch200 +
 
 # ggsave(plot = comb_plot200, filename = "figures/pom_hist_nfd200.pdf", width = 12, height = 10)
 
+### add in the neutrality plotting here ####
 
 # Repeat analysis more resources - 4 resources in favour of 2 ####
 #two more resources - C and D, which species have the exact same preferences for as the original resources
@@ -802,7 +804,7 @@ rrc_8r_avg_new <- rrc_8r %>%
 log_pom8r <-
 ggplot() +
   # coexist area
-  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+  geom_ribbon(data = data.frame(x = seq(0, 2, 0.001)),
               aes(x = x,
                   y = NULL,
                   ymin = -x,
@@ -824,9 +826,10 @@ ggplot() +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
   # coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
-  coord_cartesian(ylim = c(-0.27, 0.75), xlim = c(-0.022, 0.75)) +
+  # coord_cartesian(ylim = c(-0.27, 0.75), xlim = c(-0.022, 0.75)) +
+  coord_cartesian(ylim = c(-0.5, 1.5), xlim = c(-0.022,2)) +
   scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  theme_cowplot(font_size = 24)
+  theme_cowplot(font_size = 26)
 
 # get euclidean distances
 rrc_8r_e <- rrc_8r %>% 
@@ -847,7 +850,7 @@ pom_hist8r <- rrc_8r_e %>%
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 0.05, colour = "black") + 
   labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
-  theme_cowplot(font_size = 18)
+  theme_cowplot(font_size = 20)
 
 # plot absolute shift in niche diffs and fitness diffs with warming #
 rrc_8r_p <- rrc_8r %>% 
@@ -868,10 +871,11 @@ nd_shift8r <-
   ggplot() + 
   geom_jitter(data = filter(rrc_8r_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_8r_p_avg, aes(x = temp, y = med_stab_pot, fill = temp), size = 5, pch = 21) +
+  geom_violinhalf(data = filter(rrc_8r_p, T ==25), aes(x = temp, y = new_stabil_potential, fill = temp), alpha = 0.6, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Niche differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
-  theme_cowplot(font_size = 18) + 
+  theme_cowplot(font_size = 20) + 
   theme(axis.title.x = element_blank(),
         legend.position = "none") +
   coord_cartesian(ylim = c(0, 0.65)) 
@@ -881,10 +885,11 @@ fd_shift8r <-
   ggplot() + 
   geom_jitter(data = filter(rrc_8r_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_8r_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
+  geom_violinhalf(data = filter(rrc_8r_p, T ==25), aes(x = temp, y = new_fit_ratio, fill = temp), alpha = 0.6, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
-  theme_cowplot(font_size = 18) + 
+  theme_cowplot(font_size = 20) + 
   theme(axis.title.x = element_blank(),
         legend.position = "none") + 
   coord_cartesian(ylim = c(0, 0.65))
@@ -894,11 +899,9 @@ nd_shift8r + fd_shift8r
 # pompom with subplots
 bottom_patch8r <- pom_hist8r + nd_shift8r + fd_shift8r
 
-comb_plot8r <- log_pom8r / bottom_patch8r + 
+comb_plot8r <- (log_pom8r + theme(legend.position = "none")) / bottom_patch8r + 
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
-
-# ggsave(plot = comb_plot8r, filename = "figures/8r_pom_hist_nfd.pdf", width = 12, height = 10)
 
 #track the euclidean distance from neutrality for each species pair with warming
 #get start position
@@ -986,9 +989,9 @@ for(f in 1:500){
                          c1E_b = 0.1, c1F_b = 0.1,
                          c1G_b = 0.1, c1H_b = 1.4, #highest consumeption rate of 1.4, lowest of 0.1
                          c2N_b = 1, c2P_b = 0.5,
-                         c2C_b = 0.1, c2D_b = 0.1,
+                         c2C_b = 0.1, c2D_b = 0.2,
                          c2E_b = 1.6, c2F_b = 0.1,
-                         c2G_b = 0.8, c2H_b = 0.3, #highest consumption rate of 1.5, lowest 0.1
+                         c2G_b = 0.8, c2H_b = 0.3, #highest consumption rate of 1.6, lowest 0.1
                          r_N_b = 1, r_P_b = 0.5, 
                          r_C_b = 1, r_D_b = 0.5,
                          r_E_b = 1, r_F_b = 0.5,
@@ -1002,7 +1005,7 @@ for(f in 1:500){
                          v1E_b = 0.1, v1F_b = 0.1,
                          v1G_b = 0.1, v1H_b = 1.4,
                          v2N_b = 1, v2P_b = 0.5,
-                         v2C_b = 0.1, v2D_b = 0.1,
+                         v2C_b = 0.1, v2D_b = 0.2,
                          v2E_b = 1.6, v2F_b = 0.1,
                          v2G_b = 0.8, v2H_b = 0.3,
                          m1_b = 0.01, m2_b = 0.01) 
@@ -1046,12 +1049,14 @@ log_pom8ru <-
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
   coord_cartesian(ylim = c(-0.5, 1.5), xlim = c(-0.022,2)) +
-  theme_cowplot(font_size = 24)
+  theme_cowplot(font_size = 26)
 
 # get euclidean distances
-rrc_8ru_e <- rrc_8ru %>% 
+rrc_8ru_e_long <- rrc_8ru %>% 
   filter(T %in% c(10, 25)) %>%
-  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  dplyr::select(-c(a11:g2, m1:beta12))
+  
+rrc_8ru_e <- rrc_8ru_e_long %>% 
   pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
               names_from = T,
               values_from = c(new_stabil_potential, new_fit_ratio),
@@ -1062,12 +1067,19 @@ rrc_8ru_e <- rrc_8ru %>%
 
 hist(rrc_8ru_e$dist15)
 
+rrc_8ru_e_long %>% 
+  group_by(T) %>% 
+  summarise(medianFD = median(new_stabil_potential),
+            medianND = median(new_fit_ratio),
+            sdND = sd(new_stabil_potential),
+            sdFD = sd(new_fit_ratio))
+
 #histogram plot of euclidean distances in the pom pom plot
 pom_hist8ru <- rrc_8ru_e %>% 
   ggplot(aes(x = dist15)) + 
   geom_histogram(binwidth = 0.05, colour = "black") + 
   labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
-  theme_cowplot(font_size = 18)
+  theme_cowplot(font_size = 20)
 
 # plot absolute shift in niche diffs and fitness diffs with warming #
 rrc_8ru_p <- rrc_8ru %>% 
@@ -1088,10 +1100,11 @@ nd_shift8ru <-
   ggplot() + 
   geom_jitter(data = filter(rrc_8ru_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_8ru_p_avg, aes(x = temp, y = med_stab_pot, fill = temp), size = 5, pch = 21) +
+  geom_violinhalf(data = filter(rrc_8ru_p, T ==25), aes(x = temp, y = new_stabil_potential, fill = temp), alpha = 0.6, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Niche differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
-  theme_cowplot(font_size = 18) + 
+  theme_cowplot(font_size = 20) + 
   theme(axis.title.x = element_blank(),
         legend.position = "none")
   # coord_cartesian(ylim = c(0, 0.65)) 
@@ -1101,10 +1114,11 @@ fd_shift8ru <-
   ggplot() + 
   geom_jitter(data = filter(rrc_8ru_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_8ru_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
+  geom_violinhalf(data = filter(rrc_8ru_p, T ==25), aes(x = temp, y = new_fit_ratio, fill = temp), alpha = 0.6, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
-  theme_cowplot(font_size = 18) + 
+  theme_cowplot(font_size = 20) + 
   theme(axis.title.x = element_blank(),
         legend.position = "none") 
   # coord_cartesian(ylim = c(0, 0.65))
@@ -1114,21 +1128,17 @@ nd_shift8ru + fd_shift8ru
 # pompom with subplots
 bottom_patch8ru <- pom_hist8ru + nd_shift8ru + fd_shift8ru
 
-comb_plot8ru <- log_pom8ru / bottom_patch8ru + 
+comb_plot8ru <- (log_pom8ru) / bottom_patch8ru + 
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
-
-# ggsave(plot = comb_plot8ru, filename = "figures/8ru_pom_hist_nfd.pdf", width = 12, height = 10)
 
 
 # combi plot with the two 8-resrouce scenarios
 eightr_plots <- (log_pom8r + theme(legend.position ="none")) + log_pom8ru + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = eightr_plots, filename = "figures/8ru_poms.pdf", width = 16, height = 8)
-
 comb_plot_8s1 <- wrap_plots(comb_plot8r, comb_plot8ru, ncol = 2) + plot_annotation(tag_levels = "A") 
-# ggsave(plot = comb_plot_8s1, filename = "figures/8r_pomnfds.pdf", width = 26, height = 20)
+# ggsave(plot = comb_plot_8s1, filename = "figures/8r_pomnfds_violins.png", width = 26, height = 20)
   
   
 #track the euclidean distance from neutrality for each species pair with warming

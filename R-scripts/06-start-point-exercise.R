@@ -389,6 +389,15 @@ log_pom_rrce_all <-
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
   theme_cowplot(font_size = 28)
 
+rrce_all %>% 
+  group_by(T) %>% 
+  summarise(median_ND = median(new_stabil_potential),
+            median_FD = median(new_fit_ratio)) %>% 
+  pivot_longer(cols = c(median_ND, median_FD), names_to = "NFD", values_to = "median") %>% 
+  ggplot() +
+  geom_point(aes(x = T, y = median, colour = NFD)) +
+  facet_wrap(~NFD, scales = "free_y")
+
 # rrc equal start two plots 
 startpoint1 <- rrce_plots / log_pom_rrce_all + plot_annotation(tag_levels = "A")
 # ggsave(plot = startpoint1, filename = "figures/supp_startpoint_errce.pdf", height = 20, width = 26)
@@ -653,7 +662,7 @@ urrce_plots <- c_var1_plot + r_var1_plot + k_var1_plot + v_var1_plot + m_var1_pl
 #### POMPOM; uneven reciprocal preference, equal growth rates ####
 urrce_all <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 25, by = 0.1),
+  hold = temp_dep_mac(T = seq(10, 210, by = 1),
                       ref_temp = 10,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, 
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
@@ -681,7 +690,7 @@ for(f in 1:500){
 #get average change in position after 15C warming
 urrce_all_avg_new <- urrce_all %>% 
   mutate(rel_T = T-10) %>% 
-  filter(rel_T == 15) %>% 
+  filter(rel_T == 200) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
             new_mean_fit_rat = mean(new_fit_ratio),
@@ -721,6 +730,24 @@ log_pom_urrce_all <-
   annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 9, fontface = 2) +
   theme_cowplot(font_size = 26)
 
+urrce_parmT <- urrce_all %>% 
+  group_by(T) %>% 
+  summarise(ND = median(new_stabil_potential),
+            FD = median(new_fit_ratio),
+            a11 = median(a11),
+            a12 = median(a12),
+            a21 = median(a21),
+            a22 = median(a22),
+            KN = median(KN),
+            KN_over_rN = median(KN/rN),
+            KP = median(KP),
+            KP_over_rP = median(KP/rP)) %>% 
+  pivot_longer(cols = c(ND:KP_over_rP), names_to = "parameter", values_to = "median") %>% 
+  ggplot() +
+  geom_point(aes(x = T, y = median)) + 
+  facet_wrap(~parameter, scales = "free_y")
+
 # uneven reciprocal preference, equal start two plots
 startpoint2 <- urrce_plots / log_pom_urrce_all + plot_annotation(tag_levels = "A")
-# ggsave(plot = startpoint2, filename = "figures/supp_startpoint_urrce.pdf", height = 20, width = 26)
+# ggsave(plot = startpoint2, filename = "figures/supp_startpoint_urrce2.png", height = 20, width = 26, bg = "white")
+# ggsave(plot = urrce_parmT, filename = "figures/supp_startpoint_urrce2_parmT.pdf", height = 14, width = 18)

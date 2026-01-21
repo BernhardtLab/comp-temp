@@ -383,13 +383,13 @@ log_pom_urrce1_all <-
   theme_cowplot(font_size = 28) + 
   theme(legend.position = "none") + 
   annotate("text", x = 0, y = -0.8, 
-           label = "c1N_b = 0.6, c1P_b = 0.9, 
-c2N_b = 0.5, c2P_b = 0.2, 
-r_N_b = 0.7, r_P_b = 0.2, 
-K_N_b= 1000, K_P_b = 1000, 
-v1N_b = 0.3, v1P_b = 0.9, 
-v2N_b = 0.3, v2P_b = 0.1, 
-m1_b = 0.01, m2_b = 0.01", 
+           label = "c_1a = 0.6, c_1b = 0.9, 
+c_2a = 0.5, c_2b = 0.2, 
+r_a = 0.7, r_b = 0.2, 
+K_a= 1000, K_b = 1000, 
+v_1a = 0.3, v_1b = 0.9, 
+v_2a = 0.3, v_2b = 0.1, 
+m_1 = 0.01, m_2 = 0.01", 
            size = 9, fontface = 1, hjust = 0) 
 
 #make the pompom again, but without annotations
@@ -605,13 +605,13 @@ log_pom_urrce2_all <-
   theme_cowplot(font_size = 28) + 
   theme(legend.position = "none") + 
   annotate("text", x = 0, y = 0.8, 
-           label = "c1N_b = 0.5, c1P_b = 0.2, 
-c2N_b = 0.9, c2P_b = 0.9, 
-r_N_b = 0.2, r_P_b = 0.7, 
-K_N_b= 1000, K_P_b = 1000, 
-v1N_b = 0.1, v1P_b = 0.6, 
-v2N_b = 0.4, v2P_b = 0.7, 
-m1_b = 0.01, m2_b = 0.01", 
+           label = "c_1a = 0.5, c_1b = 0.2, 
+c_2a = 0.9, c_2b = 0.9, 
+r_a = 0.2, r_b = 0.7, 
+K_a= 1000, K_b = 1000, 
+v_1a = 0.1, v_1b = 0.6, 
+v_2a = 0.4, v_2b = 0.7, 
+m_1 = 0.01, m_2 = 0.01", 
            size = 9, fontface = 1, hjust = 0) 
 
 #### POMPOM 3; uneven reciprocal preference, unequal growth rates ####
@@ -680,13 +680,13 @@ log_pom_urrce3_all <-
   theme_cowplot(font_size = 28) + 
   theme(legend.position = "none") + 
   annotate("text", x = 0, y = 0.8, 
-           label = "c1N_b = 1.3, c1P_b = 0.9, 
-c2N_b = 0.9, c2P_b = 0.2, 
-r_N_b = 0.7, r_P_b = 2, 
-K_N_b= 1000, K_P_b = 1000, 
-v1N_b = 0.9, v1P_b = 0.9, 
-v2N_b = 0.9, v2P_b = 0.9, 
-m1_b = 0.1, m2_b = 0.1", 
+           label = "c_1a = 1.3, c_1b = 0.9, 
+c_2a = 0.9, c_2b = 0.2, 
+r_a = 0.7, r_b = 2, 
+K_a= 1000, K_b = 1000, 
+v_1a = 0.9, v_1b = 0.9, 
+v_2a = 0.9, v_2b = 0.9, 
+m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0) 
 
 #make the pompom again, but without annotations
@@ -903,13 +903,13 @@ log_pom_urrce4_all <-
   theme_cowplot(font_size = 28) + 
   theme(legend.position = "none") + 
   annotate("text", x = 0, y = -0.8, 
-           label = "c1N_b = 1.3, c1P_b = 0.4, 
-c2N_b = 0.9, c2P_b = 0.4, 
-r_N_b = 0.7, r_P_b = 1, 
-K_N_b= 1000, K_P_b = 1000, 
-v1N_b = 0.9, v1P_b = 0.4, 
-v2N_b = 0.9, v2P_b = 0.4, 
-m1_b = 0.1, m2_b = 0.1", 
+           label = "c_1a = 1.3, c_1b = 0.4, 
+c_2a = 0.9, c_2b = 0.4, 
+r_a = 0.7, r_b = 1, 
+K_a= 1000, K_b = 1000, 
+v_1a = 0.9, v_1b = 0.4, 
+v_2a = 0.9, v_2b = 0.4, 
+m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0) 
 
 #### POMPOM 5; uneven reciprocal preference, unequal growth rates ####
@@ -977,13 +977,13 @@ log_pom_urrce5_all <-
   theme_cowplot(font_size = 28) + 
   theme(legend.position = "none") + 
   annotate("text", x = 0, y = 0.8, 
-           label = "c1N_b = 1.3, c1P_b = 0.8, 
-c2N_b = 0.3, c2P_b = 2, 
-r_N_b = 0.8, r_P_b = 0.8, 
-K_N_b= 1000, K_P_b = 1000, 
-v1N_b = 0.9, v1P_b = 0.8, 
-v2N_b = 0.1, v2P_b = 0.9, 
-m1_b = 0.1, m2_b = 0.1", 
+           label = "c_1a = 1.3, c_1b = 0.8, 
+c_2a = 0.3, c_2b = 2, 
+r_a = 0.8, r_b = 0.8, 
+K_a= 1000, K_b = 1000, 
+v_1a = 0.9, v_1b = 0.8, 
+v_2a = 0.1, v_2b = 0.9, 
+m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0)
 
 
@@ -1052,15 +1052,16 @@ log_pom_urrce6_all <-
   labs(colour = "°C Warming") +
   theme_cowplot(font_size = 26) + 
   annotate("text", x = 0, y = -0.8, 
-           label = "c1N_b = 1.3, c1P_b = 0.6,
-c2N_b = 0.3, c2P_b = 2,
-r_N_b = 0.8, r_P_b = 1.5,
-K_N_b= 1000, K_P_b = 1000,
-v1N_b = 0.9, v1P_b = 0.8,
-v2N_b = 0.1, v2P_b = 0.9,
-m1_b = 0.1, m2_b = 0.1", 
+           label = "c_1a = 1.3, c_1b = 0.6,
+           c_2a = 0.3, c_2b = 2,
+           r_a = 0.8, r_b = 1.5,
+           K_a = 1000, K_b = 1000,
+           v_1a = 0.9, v_1b = 0.8,
+           v_2a = 0.1, v_2b = 0.9,
+           m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0) 
 
 diff_start_points <- (log_pom_urrce2_all + log_pom_urrce3_all +  log_pom_urrce5_all) / (log_pom_urrce4_all + log_pom_urrce1_all + log_pom_urrce6_all) + plot_annotation(tag_levels = "A")
 
-# ggsave(plot = diff_start_points, filename = "figures/extra-start-points.pdf", height = 24, width = 30)
+# ggsave(plot = diff_start_points, filename = "figures/extra-start-points.png", height = 24, width = 30)
+

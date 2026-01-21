@@ -12,6 +12,7 @@ library(patchwork)
 library(purrr)
 library(viridis)
 library(beepr)
+library(see)
 
 # get referencing set up for macarthur temp dependence function
 source("R-scripts/02-temp-dep-macarthur.R") #this calls the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use
@@ -165,7 +166,7 @@ rrc_shifts %>%
 ## ND: 289/500 decrease (another sim - 291/500, 326/500)
 ## ND + FD: 185/500 decrease in both (another sim - 170/500, 204/500)
 
-
+#does euclidean distance relate to thermal asymmetry -----------
 # get euclidean distances for each species pair
 rrc_e <- rrc %>% 
   filter(T %in% c(10, 25)) %>%
@@ -311,8 +312,9 @@ rrc_tas <- rrc_plot_e2_c2 + rrc_plot_e2_c4 +rrc_plot_e2_r + rrc_plot_e2_k + rrc_
 
 #histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 
-  ggplot(aes(x = dist15)) + 
-  geom_histogram(binwidth = 0.05, colour = "black") + 
+  filter(response_var == "dist15") %>% 
+  ggplot() + 
+  geom_histogram(aes(x = value), binwidth = 0.05, colour = "black") + 
   labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
   theme_cowplot(font_size = 14)
 
@@ -335,6 +337,7 @@ nd_shift <-
   ggplot() + 
   geom_jitter(data = filter(rrc_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_p_avg, aes(x = temp, y = med_stabil_potential, fill = temp), size = 5, pch = 21) +
+  geom_violinhalf(data = filter(rrc_p, T ==25), aes(x = temp, y = new_stabil_potential, fill = temp), alpha = 0.4, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Niche differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
@@ -348,6 +351,7 @@ fd_shift <-
   ggplot() + 
   geom_jitter(data = filter(rrc_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
+  geom_violinhalf(data = filter(rrc_p, T ==25), aes(x = temp, y = new_fit_ratio, fill = temp), alpha = 0.4, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
@@ -365,7 +369,7 @@ comb_plot1 <- log_pom / bottom_patch +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = comb_plot1, filename = "figures/pom_hist_nfd.pdf", width = 12, height = 10)
+ggsave(plot = comb_plot1, filename = "figures/pom_hist_nfd_violins.pdf", width = 12, height = 10)
 
 #track movement of trajectories with temperature
 #get starting position

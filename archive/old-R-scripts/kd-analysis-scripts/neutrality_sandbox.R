@@ -88,7 +88,7 @@ param_sum1 %>%
 ##### draw all param EAs at random -- for figure 5 ##############
 rrc <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
+  hold = temp_dep_mac(T = seq(10, 210, by = 0.1), #was by 0.1
                       ref_temp = 10,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
@@ -117,51 +117,51 @@ rrc1 <- rrc %>%
   mutate(amtN = KN/rN,
          amtP = KP/rP)
 
-#relative competition coefficients
-# a12 <- 
-  rrc11 %>% 
-  ggplot() + 
-  # geom_line(aes(x = T, y = a12, group = iteration, colour = beta12)) 
-  geom_line(aes(x = T, y = a12, group = iteration, colour = g1))
-
-# a21 <- 
-  rrc1 %>% 
-  ggplot() + 
-  # geom_line(aes(x = T, y = a21, group = iteration, colour = beta21))
-  geom_line(aes(x = T, y = a21, group = iteration, colour = g2))
-
-# a11 <- 
-  rrc1 %>% 
-  ggplot() + 
-  # geom_line(aes(x = T, y = a11, group = iteration, colour = beta11))
-  geom_line(aes(x = T, y = a11, group = iteration, colour = g1))
-
-# a22 <- 
-  rrc1 %>% 
-  ggplot() + 
-  # geom_line(aes(x = T, y = a22, group = iteration, colour = beta22))
-  geom_line(aes(x = T, y = a22, group = iteration, colour = g2))
-
-alphas <- a12 + a21 + a11 + a22
-
-#coefficient ratios
-ai1 <- rrc1 %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = a21*a22, group = iteration))
-
-ai2 <- rrc1 %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = a12*a11, group = iteration))
-
-ai3 <- rrc1 %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = a11*a22, group = iteration))
-
-ai4 <- rrc1 %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = a12*a21, group = iteration))
-
-intterms <- ai1 + ai2 + ai3 + ai4 
+# #relative competition coefficients
+# # a12 <- 
+#   rrc11 %>% 
+#   ggplot() + 
+#   # geom_line(aes(x = T, y = a12, group = iteration, colour = beta12)) 
+#   geom_line(aes(x = T, y = a12, group = iteration, colour = g1))
+# 
+# # a21 <- 
+#   rrc1 %>% 
+#   ggplot() + 
+#   # geom_line(aes(x = T, y = a21, group = iteration, colour = beta21))
+#   geom_line(aes(x = T, y = a21, group = iteration, colour = g2))
+# 
+# # a11 <- 
+#   rrc1 %>% 
+#   ggplot() + 
+#   # geom_line(aes(x = T, y = a11, group = iteration, colour = beta11))
+#   geom_line(aes(x = T, y = a11, group = iteration, colour = g1))
+# 
+# # a22 <- 
+#   rrc1 %>% 
+#   ggplot() + 
+#   # geom_line(aes(x = T, y = a22, group = iteration, colour = beta22))
+#   geom_line(aes(x = T, y = a22, group = iteration, colour = g2))
+# 
+# alphas <- a12 + a21 + a11 + a22
+# 
+# #coefficient ratios
+# ai1 <- rrc1 %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = a21*a22, group = iteration))
+# 
+# ai2 <- rrc1 %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = a12*a11, group = iteration))
+# 
+# ai3 <- rrc1 %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = a11*a22, group = iteration))
+# 
+# ai4 <- rrc1 %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = a12*a21, group = iteration))
+# 
+# intterms <- ai1 + ai2 + ai3 + ai4 
 
 # absolute competition coefficients
 rrc1_long <- 
@@ -173,17 +173,17 @@ rrc1_long <-
   
 # 53 variables *75500temp*iteration pairs = 3850500 #check
 
-rrc_long %>% 
-  filter(parameter %in% c("a11", "a12", "a21", "a22", "g1", "g2", "beta11", "beta12", "beta21", "beta22")) %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = value, group = iteration)) + 
-  facet_wrap(~parameter, scales = "free")
-
-rrc_long %>% 
-  filter(parameter %in% c("beta11", "beta12", "beta21", "beta22", "amtN", "amtP")) %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = value, group = iteration, colour = amtN)) + 
-  facet_wrap(~parameter, scales = "free")
+# rrc_long %>% 
+#   filter(parameter %in% c("a11", "a12", "a21", "a22", "g1", "g2", "beta11", "beta12", "beta21", "beta22")) %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = value, group = iteration)) + 
+#   facet_wrap(~parameter, scales = "free")
+# 
+# rrc_long %>% 
+#   filter(parameter %in% c("beta11", "beta12", "beta21", "beta22", "amtN", "amtP")) %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = value, group = iteration, colour = amtN)) + 
+#   facet_wrap(~parameter, scales = "free")
 
 rrc_long1 <- 
   rrc1 %>% 
@@ -201,29 +201,29 @@ rrc_long1 %>%
 
 rrc1 %>% 
   ggplot() + 
-  geom_line(aes(x = KN, y = KN_over_rN, group = iteration, colour = K_EaN))
+  geom_line(aes(x = KN, y = amtN, group = iteration, colour = K_EaN))
 
 #because K has a negative temperature dependence, K approaches 0 exponentially as systems heatup. That means that K/r grows rapidly as the system heats up
 
 rrc1 %>% 
   ggplot() + 
   geom_line(aes(x = T, y = KN, group = iteration), colour = "blue") + #negative exponential
-  geom_line(aes(x = T, y = KN_over_rN, group = iteration), colour = "red") #negative exponential divided by a positive exponential
+  geom_line(aes(x = T, y = amtN, group = iteration), colour = "red") #negative exponential divided by a positive exponential
 
-rrc_long2 <- rrc_long1 %>% 
-  filter(parameter %in% c("a11", "a12", "a21", "a22", "KN_over_rN", "KP_over_rP", "KN", "KP", "K_EaN", "K_EaP", "r_EaN", "r_EaP", "rN", "rP"))
-
-rrc_long2 %>% 
-  filter(parameter %in% c("KN", "rN", "KN_over_rN", "a11", "a12", "a22", "a21")) %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = value, group = iteration)) + 
-  facet_wrap(~parameter, scales = "free_y")
-
-rrc_long2 %>% 
-  filter(parameter %in% c("KP", "rP", "KP_over_rP")) %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = value, group = iteration)) + 
-  facet_wrap(~parameter)
+# rrc_long2 <- rrc_long1 %>% 
+#   filter(parameter %in% c("a11", "a12", "a21", "a22", "KN_over_rN", "KP_over_rP", "KN", "KP", "K_EaN", "K_EaP", "r_EaN", "r_EaP", "rN", "rP"))
+# 
+# rrc_long2 %>% 
+#   filter(parameter %in% c("KN", "rN", "KN_over_rN", "a11", "a12", "a22", "a21")) %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = value, group = iteration)) + 
+#   facet_wrap(~parameter, scales = "free_y")
+# 
+# rrc_long2 %>% 
+#   filter(parameter %in% c("KP", "rP", "KP_over_rP")) %>% 
+#   ggplot() + 
+#   geom_line(aes(x = T, y = value, group = iteration)) + 
+#   facet_wrap(~parameter, scales = "free_y")
 
 rrc_long3 <- 
   rrc1 %>% 
@@ -246,13 +246,15 @@ rrc_long3 %>%
   filter(parameter %in% c("a11", "a12", "a22", "a21")) %>%
   ggplot() + 
   geom_line(aes(x = T, y = value, group = iteration)) + 
-  facet_wrap(~parameter, scales = "free_y")
+  facet_wrap(~parameter) + 
+  coord_cartesian(ylim = c(-10, 10))
 
 rrc_long3 %>% 
-  filter(parameter %in% c("KN", "rN", "KN_over_rN", "a11", "a12", "a22", "a21")) %>% 
+  filter(parameter %in% c("KN", "rN", "KN_over_rN", "a11", "a12", "a22", "a21", "new_fit_ratio", "new_stabil_potential")) %>% 
   ggplot() + 
   geom_line(aes(x = T, y = value, group = iteration, colour = K_EaN/r_EaN)) + 
-  facet_wrap(~parameter, scales = "free_y")
+  facet_wrap(~parameter, scales = "free_y") + 
+  coord_cartesian(ylim = c(-5, 5), xlim = c(0, 100))
 
 rrc_long3 %>% 
   filter(parameter %in% c("KN", "KN_over_rN", "K_EaN", "r_EaN")) %>% 
@@ -261,7 +263,59 @@ rrc_long3 %>%
   geom_line(aes(x = KN, y = KN_over_rN, colour = K_EaN/r_EaN, group = iteration)) +
   geom_abline(slope = 1)
 
+rrc_wide3 <- rrc_long3 %>% 
+  pivot_wider(names_from = parameter, values_from = value)
 
+rrc_wide3_sum <- rrc_wide3 %>% 
+  group_by(T) %>% 
+  summarise(across(
+    .cols = c(a11, a12, a21, a22, KN, KN_over_rN, new_fit_ratio, new_stabil_potential, rN),
+    .fns = list(
+      mean   = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE),
+      sd     = ~sd(.x, na.rm = TRUE)
+    ),
+    .names = "{.col}_{.fn}"
+  ),
+  .groups = "drop"
+  )
+
+rrc_sums <- rrc_wide3_sum %>% 
+  pivot_longer(cols = c(a11_mean:rN_sd), names_to = "parameter", values_to = "value") %>% 
+  separate(parameter, sep = "_(?=[^_]+$)", into = c("parameter", "statistic")) %>%  
+  filter(parameter %in% c("a11", "a12", "a21", "a22", "KN", "KN_over_rN", "new_fit_ratio", "new_stabil_potential", "rN") & statistic %in% c("median", "mean")) %>% 
+  mutate(parameter = forcats::fct_relevel(parameter, "KN", "rN", "KN_over_rN", "a11", "a12", "a21", "a22", "new_fit_ratio", "new_stabil_potential")) 
+  
+param_labels <- c(
+  a11 = "alpha[11]",
+  a12 = "alpha[12]",
+  a21 = "alpha[21]",
+  a22 = "alpha[22]",
+  KN  = "K[N]",
+  KN_over_rN = "K[N]/r[N]",
+  new_fit_ratio = "Fitness~ratio",
+  new_stabil_potential = "Stabilization~potential",
+  rN = "r[N]"
+)
+
+rrc_sums_to25 <- rrc_sums %>% 
+filter(T > 9, T < 26)
+  
+warming_tendencies200 <- rrc_sums %>% 
+ggplot() + 
+  geom_point(aes(x = T, y = value, colour = statistic)) +
+  facet_wrap(~parameter, 
+             labeller = as_labeller(param_labels, label_parsed), 
+             scales = "free")
+
+# ggsave(plot = warming_tendencies200, filename = "figures/200C_param_trajectories.pdf", width = 12, height = 8)
+
+warming_tendencies15 <- rrc_sums_to25 %>% 
+  ggplot() + 
+  geom_point(aes(x = T, y = value, colour = statistic)) +
+  facet_wrap(~parameter, scales = "free")
+
+# ggsave(plot = warming_tendencies15, filename = "figures/15C_param_trajectories.pdf", width = 12, height = 8)
 
 # restrict transfer efficiencies to all positive values and see how that affects trajectories
 # set K to mean value, to remove effects of thermal asymmetries to observe those effects. We need to understand why K and v turn back non-linearly to understand the neutrality finding

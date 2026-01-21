@@ -216,7 +216,7 @@ mort_ea_plot <-
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = -0.65, y = 9, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
+  annotate("text", x = -0.3, y = 9, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
 
 rgr_plot <-
   ggplot() + 
@@ -230,7 +230,7 @@ rgr_plot <-
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = -0.75, y = 9, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6)
+  annotate("text", x = -0.4, y = 9, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6)
 
 conv_eff_plot <- 
   ggplot() + 
@@ -244,10 +244,19 @@ conv_eff_plot <-
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency," ~ italic(v)[italic(ik)]), size = 6)
+  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency,"), size = 6) + 
+  # Second line: italic c with subscript
+  annotate(
+    "text",
+    x = 1.2, y = 8.5,  # adjust vertical spacing
+    parse = TRUE,
+    label = "italic(v)[i*k]",
+    size = 6,
+    hjust = 0
+  )
   
 #problem with unicellular estimates ruining the plot
-carrying_capacity_plot <- 
+carrying_capacity_plot <-
   ggplot() + 
   geom_density(aes(x = intercept), fill = "#00BFC4", alpha = 0.5, data = filter(data, parameter == "carrying_capacity")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(carrying_capacity, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.5) +
@@ -259,7 +268,24 @@ carrying_capacity_plot <-
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1, y = 9, label = expression("Resource \ncarrying capacity," ~ italic(K)[italic(k)]), size = 6)
+    # First line: plain text
+    annotate(
+      "text",
+      x = -1, y = 9,
+      label = "Resource carrying",
+      size = 6,
+      hjust = 0
+    ) +
+    
+    # Second line: "carrying capacity, K_k" with italic K and subscript
+    annotate(
+      "text",
+      x = -1, y = 8,  # adjust spacing
+      parse = TRUE,
+      label = '"capacity, "*italic(K)[k]',
+      size = 6,
+      hjust = 0
+    )
 
 consumption_rate_plot <-
   ggplot() + 
@@ -273,7 +299,20 @@ consumption_rate_plot <-
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
-  annotate("text", x = -0.55, y = 9, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
+    annotate(
+      "text",
+      x = -0.2, y = 9,
+      parse = TRUE,
+      label = '"Consumption "',
+      size = 6
+    ) +
+    annotate(
+      "text",
+      x = -0.2, y = 8,   # adjust y to move it below
+      parse = TRUE,
+      label = '"rate, "*italic(c)[i*k]',
+      size = 6
+    )
  
 # plot inter-process TAs
 mac_cell2 %>% 
@@ -313,7 +352,7 @@ ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A") #there are no unicellular mortality rate estimates, so I'm not sure why there are two dots there
 
-# ggsave(filename = "figures/unimulti-ea-plots.pdf", ea_plots, width = 16, height = 12)
+ggsave(filename = "figures/unimulti-ea-plots.pdf", ea_plots, width = 16, height = 12)
 
 # AGAIN -- repeat but with heterotroph/autotroph ######
 # create uni/multi columns
