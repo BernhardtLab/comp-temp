@@ -1,0 +1,293 @@
+Detailed Parameter,Simple Parameter,Reference,Species,Evidence of Temperature Dependence,Activation Energy,Single species or multiple?,Where to find in paper,Evidence that temp dependence differs between species,Notes,More Notes,Their Data or Dataset?
+k: half saturation constant (growth),half-saturation constant growth,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Ankistrodesmus nannoselene",Yes,3.26,single species,"From Table S4A
+E=3.26 (Ankistrodesmus)
+E=0.96 (Chlamydomonas)
+E=1.49 (Chlorella)
+E=1.47 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=2.30 (Raphidocelis)",Yes: The activation energies are different for the 6 species in the study,Nutrient: phosphate. Activation energies for k between 15 and 25°C. Fig. 1C shows relationship between k and temp for a greater range of temperatures.,,their data
+k: half saturation constant (growth),half-saturation constant growth,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Chlamydomonas moewusii",Yes,0.96,single species,"From Table S4A
+E=3.26 (Ankistrodesmus)
+E=0.96 (Chlamydomonas)
+E=1.49 (Chlorella)
+E=1.47 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=2.30 (Raphidocelis)",Yes: The activation energies are different for the 6 species in the study,Nutrient: phosphate. Activation energies for k between 15 and 25°C. Fig. 1C shows relationship between k and temp for a greater range of temperatures.,,their data
+k: half saturation constant (growth),half-saturation constant growth,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Chlorella sorokiniana",Yes,1.49,single species,"From Table S4A
+E=3.26 (Ankistrodesmus)
+E=0.96 (Chlamydomonas)
+E=1.49 (Chlorella)
+E=1.47 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=2.30 (Raphidocelis)",Yes: The activation energies are different for the 6 species in the study,Nutrient: phosphate. Activation energies for k between 15 and 25°C. Fig. 1C shows relationship between k and temp for a greater range of temperatures.,,their data
+k: half saturation constant (growth),half-saturation constant growth,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Monoraphidium minutum",Yes,1.47,single species,"From Table S4A
+E=3.26 (Ankistrodesmus)
+E=0.96 (Chlamydomonas)
+E=1.49 (Chlorella)
+E=1.47 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=2.30 (Raphidocelis)",Yes: The activation energies are different for the 6 species in the study,Nutrient: phosphate. Activation energies for k between 15 and 25°C. Fig. 1C shows relationship between k and temp for a greater range of temperatures.,,their data
+k: half saturation constant (growth),half-saturation constant growth,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Scenedesmus obliquus",No,0,single species,"From Table S4A
+E=3.26 (Ankistrodesmus)
+E=0.96 (Chlamydomonas)
+E=1.49 (Chlorella)
+E=1.47 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=2.30 (Raphidocelis)",Yes: The activation energies are different for the 6 species in the study,Nutrient: phosphate. Activation energies for k between 15 and 25°C. Fig. 1C shows relationship between k and temp for a greater range of temperatures.,,their data
+k: half saturation constant (growth),half-saturation constant growth,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Raphidocelis subcapitata",Yes,2.3,single species,"From Table S4A
+E=3.26 (Ankistrodesmus)
+E=0.96 (Chlamydomonas)
+E=1.49 (Chlorella)
+E=1.47 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=2.30 (Raphidocelis)",Yes: The activation energies are different for the 6 species in the study,Nutrient: phosphate. Activation energies for k between 15 and 25°C. Fig. 1C shows relationship between k and temp for a greater range of temperatures.,,their data
+k: half saturation constant (nutrient uptake: nitrogen),half-saturation constant nitrogen uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"phytoplankton:
+Coscinodiscus wailesii",Yes,0.36,single species,calculated from data in Dryad,"Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however). k for nitrogen uptake decreased with increasing temperature in some species.",This activation energy is from only two temperatures,,dataset
+k: half saturation constant (nutrient uptake: phosphorus),half-saturation constant phosphorus uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"phytoplankton:
+Coscinodiscus wailesii",Yes,0.11,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: nitrogen),half-saturation constant nitrogen uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"phytoplankton:
+Eucampia zodiacus",Yes,0.08,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: phosphorus),half-saturation constant phosphorus uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"phytoplankton:
+Eucampia zodiacus",Yes,0.63,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: nitrogen),half-saturation constant nitrogen uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"Tree:
+Acer rubrum",Yes,0.29,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: nitrogen),half-saturation constant nitrogen uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"Tree:
+Ceratonia siliqua",Yes,,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: nitrogen),half-saturation constant nitrogen uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"Algae:
+Gracilaria gracilis",Yes,,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: nitrogen),half-saturation constant nitrogen uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"Algae:
+Thalassia testudinum",Yes,,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: phosphorus),half-saturation constant phosphorus uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"shrub:
+Euphorbia pulcherrima",Yes,0.03,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+k: half saturation constant (nutrient uptake: phosphorus),half-saturation constant phosphorus uptake,Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514,"herb:
+Tagetes patula",Yes,0.1,single species,"From Table 3
+E=0.08 (nitrogen uptake)
+E=0.22 (phosphorus uptake)","Yes: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however).",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+m: mortality rate,mortality rate,McCoy & Gillooly (2008). Predicting natural mortality rates of plants and animals. Ecology Letters: 11: 710-716,phytoplankton,Yes,0.96,multiple species,"From Table 1
+E=0.96
+(Given as -0.96 in the paper, see notes)",,The activation energy for multicellular plants was not found to be significantly different from 0. ,"The paper reports activation energies where a negative value of E represents an increase in mortality rate with increasing temp. slopes from Arrhenius plots are used intechangeably with activation energies, which creates some confusion.","dataset:
+Compiled by Marbà et al. (2009)"
+m: mortality rate,mortality rate,McCoy & Gillooly (2008). Predicting natural mortality rates of plants and animals. Ecology Letters: 11: 710-716,multicellular plants,Yes,-0.13,multiple species,"From Table 1
+E=-0.13 (multicellular plants)
+(Given as 0.13 in the paper, see notes)",,The activation energy for multicellular plants was not found to be significantly different from 0. ,"The paper reports activation energies where a negative value of E represents an increase in mortality rate with increasing temp. slopes from Arrhenius plots are used intechangeably with activation energies, which creates some confusion.","dataset:
+Compiled by Marbà et al. (2009)"
+growth rate (r: intrinsic growth rate),growth rate,Savage et al. (2004). Effects of body size and temperature on population growth. American Naturalist: 163(3): 429-441,Algae,Yes,0.53,multiple species,"From page 436
+E=0.53 (given as -0.53)",,,,dataset
+growth rate (r: intrinsic growth rate),growth rate,"Lasfar et al. (2007). Intrinsic growth rate: A new approach to evaluate the effects of temperature, photoperiod and phosphorus–nitrogen concentrations on duckweed growth under controlled eutrophication. Water Research: 41(11): 2333-2340
+Activation energy calculated by: Dell et al. (2011). Systematic variation in the temperature dependence of physiological and ecological traits. PNAS: 108(26): 10591-10596",Duckweed: Lemna minor,Yes,1.09,single species,"From Dell et al. (2011) Table S3
+E=1.09",,"The original paper uses a different model for temperature dependence, which they calculated model parameters for. (see Table 1 in Lasfar et al. (2007))",,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Bouterfas et al. (2002). Light and temperature effects on the growth rate of three freshwater algae isolated from a eutrophic lake. Hydrobiologia: 489(1): 207-217
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Coelastrum microporum",Yes,0.5,single species,"From Dell et al. (2011) Table S3
+E=0.5 (Coelastrum)
+E=0.34 (Selenastrum)
+No E given for Cosmarium. It says the fit was not significant",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 2 in Bouterfas et al. (2002)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Bouterfas et al. (2002). Light and temperature effects on the growth rate of three freshwater algae isolated from a eutrophic lake. Hydrobiologia: 489(1): 207-217
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Selenastrum minutum",Yes,0.34,single species,"From Dell et al. (2011) Table S3
+E=0.5 (Coelastrum)
+E=0.34 (Selenastrum)
+No E given for Cosmarium. It says the fit was not significant",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 2 in Bouterfas et al. (2002)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Bouterfas et al. (2002). Light and temperature effects on the growth rate of three freshwater algae isolated from a eutrophic lake. Hydrobiologia: 489(1): 207-217
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Cosmarium subprotumidum",No,0,single species,"From Dell et al. (2011) Table S3
+E=0.5 (Coelastrum)
+E=0.34 (Selenastrum)
+No E given for Cosmarium. It says the fit was not significant",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 2 in Bouterfas et al. (2002)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Dauta et al. (1990). Growth rate of four freshwater algae in relation to light and temperature. Hydrobiologia: 207(1): 221-226
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Chlorella vulgaris",Yes,0.39,single species,"From Dell et al. (2011) Table S3
+E=0.39 (Chlorella)
+E=0.47 (Fragilaria)
+E=0.56 (Staurastrum)
+E=0.36 (Synechocystis)",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 1 in Dauta et al. (1990)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Dauta et al. (1990). Growth rate of four freshwater algae in relation to light and temperature. Hydrobiologia: 207(1): 221-226
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Fragilaria crotonensis",Yes,0.47,single species,"From Dell et al. (2011) Table S3
+E=0.39 (Chlorella)
+E=0.47 (Fragilaria)
+E=0.56 (Staurastrum)
+E=0.36 (Synechocystis)",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 1 in Dauta et al. (1990)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Dauta et al. (1990). Growth rate of four freshwater algae in relation to light and temperature. Hydrobiologia: 207(1): 221-226
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Staurastrum pingue",Yes,0.56,single species,"From Dell et al. (2011) Table S3
+E=0.39 (Chlorella)
+E=0.47 (Fragilaria)
+E=0.56 (Staurastrum)
+E=0.36 (Synechocystis)",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 1 in Dauta et al. (1990)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,"Dauta et al. (1990). Growth rate of four freshwater algae in relation to light and temperature. Hydrobiologia: 207(1): 221-226
+Activation energy calculated by: Dell et al. (2011). See full reference above","Algae:
+Synechocystis minima",Yes,0.36,single species,"From Dell et al. (2011) Table S3
+E=0.39 (Chlorella)
+E=0.47 (Fragilaria)
+E=0.56 (Staurastrum)
+E=0.36 (Synechocystis)",Perhaps. It is not noted if the values of E differ significantly between species or not.,Q10 values are provided in the original paper (see Table 1 in Dauta et al. (1990)),,"their data, part of Dell et al. (2011) dataset"
+growth rate (µ: specific growth rate),growth rate,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Ankistrodesmus nannoselene",Yes,0.27,single species,"From Table S4A
+E=0.27 (Ankistrodesmus)
+E=0.16 (Chlamydomonas)
+E=0.99 (Chlorella)
+E=0.59 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=0.90 (Raphidocelis)",Yes: E differs singnificantly between some of the species,Activation energies for µ between 15 and 25°C. Fig. 1b shows relationship between µ and temp for a greater range of temperatures.,They used the maximum value of µ under nutrient saturated conditions to calculate E ,their data
+growth rate (µ: specific growth rate),growth rate,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae: 
+Chlamydomonas moewusii",Yes,0.16,single species,"From Table S4A
+E=0.27 (Ankistrodesmus)
+E=0.16 (Chlamydomonas)
+E=0.99 (Chlorella)
+E=0.59 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=0.90 (Raphidocelis)",Yes: E differs singnificantly between some of the species,Activation energies for µ between 15 and 25°C. Fig. 1b shows relationship between µ and temp for a greater range of temperatures.,They used the maximum value of µ under nutrient saturated conditions to calculate E ,their data
+growth rate (µ: specific growth rate),growth rate,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Chlorella sorokiniana",Yes,0.99,single species,"From Table S4A
+E=0.27 (Ankistrodesmus)
+E=0.16 (Chlamydomonas)
+E=0.99 (Chlorella)
+E=0.59 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=0.90 (Raphidocelis)",Yes: E differs singnificantly between some of the species,Activation energies for µ between 15 and 25°C. Fig. 1b shows relationship between µ and temp for a greater range of temperatures.,They used the maximum value of µ under nutrient saturated conditions to calculate E ,their data
+growth rate (µ: specific growth rate),growth rate,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Monoraphidium minutum",Yes,0.59,single species,"From Table S4A
+E=0.27 (Ankistrodesmus)
+E=0.16 (Chlamydomonas)
+E=0.99 (Chlorella)
+E=0.59 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=0.90 (Raphidocelis)",Yes: E differs singnificantly between some of the species,Activation energies for µ between 15 and 25°C. Fig. 1b shows relationship between µ and temp for a greater range of temperatures.,They used the maximum value of µ under nutrient saturated conditions to calculate E ,their data
+growth rate (µ: specific growth rate),growth rate,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Scenedesmus obliquus",No,0,single species,"From Table S4A
+E=0.27 (Ankistrodesmus)
+E=0.16 (Chlamydomonas)
+E=0.99 (Chlorella)
+E=0.59 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=0.90 (Raphidocelis)",Yes: E differs singnificantly between some of the species,Activation energies for µ between 15 and 25°C. Fig. 1b shows relationship between µ and temp for a greater range of temperatures.,They used the maximum value of µ under nutrient saturated conditions to calculate E ,their data
+growth rate (µ: specific growth rate),growth rate,Bestion et al. (2018). Metabolic traits predict the effects of warming on phytoplankton competition. Ecology Letters: 21: 655-664,"Algae:
+Raphidocelis subcapitata",Yes,0.9,single species,"From Table S4A
+E=0.27 (Ankistrodesmus)
+E=0.16 (Chlamydomonas)
+E=0.99 (Chlorella)
+E=0.59 (Monoraphidium)
+E=0.00 (Scenedesmus)
+E=0.90 (Raphidocelis)",Yes: E differs singnificantly between some of the species,Activation energies for µ between 15 and 25°C. Fig. 1b shows relationship between µ and temp for a greater range of temperatures.,They used the maximum value of µ under nutrient saturated conditions to calculate E ,their data
+"growth rate (µ: they don't call it specific growth rate, but that's what it seems to be)",growth rate,Kremer et al. (2017). Temperature- and size-scaling of phytoplankton population growth rates: Reconciling the Eppley curve and the metabolic theory of ecology. Limnology and Oceanography: 62(4): 1658-1670,Phytoplankton,Yes,0.3,multiple species,"**Dataset overlap: uses Thomas et al. (2012)
+From page 1663 text and Table 2
+E=0.30","Page 1664 text states that no significant interaction was found between E and functional group, suggesting that the activation energy is consistent across species",,,"dataset:
+Makes use of a previously compiled dataset:
+Thomas et al. (2012)."
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: micro-phytoplankton,Yes,0.52,multiple species,"From Table 1 (EO station)
+E=0.52",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: nano-phytoplankton,Yes,0.43,multiple species,"From Table 1 (EO station)
+E=0.43",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: pico-phytoplankton,Yes,0.31,multiple species,"From Table 1 (EO station)
+E=0.31",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: Synechococcus,Yes,0.58,single species (maybe),"From Table 1 (EO station)
+E=0.58",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: Picoeukaryotes,Yes,0.38,multiple species,"From Table 1 (EO station)
+E=0.38",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: micro-phytoplankton,Yes,0.34,multiple species,"From Table 1 (WE station)
+E=0.34",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: nano-phytoplankton,Yes,0.63,multiple species,"From Table 1 (WE station)
+E=0.63",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: pico-phytoplankton,Yes,0.43,multiple species,"From Table 1 (WE station)
+E=0.43",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: Synechococcus,Yes,0.54,single species (maybe),"From Table 1 (WE station)
+E=0.54",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+"growth rate (unclear to me, see notes)",growth rate,Liu et al. (2019). Marine phytoplankton in subtropical coastal waters showing lower thermal sensitivity than microzooplankton. Limnology and Oceanography: 64(3): 1103-1119,Phytoplankton: Picoeukaryotes,Yes,0.48,multiple species,"From Table 1 (WE station)
+E=0.48",Probably: E appears to differ somewhat between size classes of phyoplankton (Fig. 5),They mention the calculation of a few different growth rates and I'm not sure which one their calculation of E is based on,This value of E is from a linear mixed effects model. Values for E from an OLS regression are available in Table 1,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen et al. (2012). Does warming enhance the effect of microzooplankton grazing on marine phytoplankton in the ocean? Limnology and Oceanography: 57(2): 519-526,Phytoplankton,Yes,0.36,multiple species,"From page 522
+E=0.36 (see notes)",,"There's a lot of fairly technical language in this paper that I'm not familiar with. As such, I'm not totally confident that I understand the process by which they arrived at this value of E.",,"dataset:
+Builds upon a dataset from:
+Calbet and Landry (2004)"
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Synechococcus (measured by flow cytometry),Yes,0.71,single species (maybe),"From Table 2
+E=0.71",,"They only ever give the genus name, so this could potentially be multiple species of Synechococcus",,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Synechococcus (measured by high-performance liquid chromatography),Yes,0.46,single species (maybe),"From Table 2
+E=0.46",,"They only ever give the genus name, so this could potentially be multiple species of Synechococcus",,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Picoeukaryotes,Yes,0.6,multiple species,"From Table 2
+E=0.60",,,,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Diatoms,Yes,0.59,multiple species,"From Table 2
+E=0.59",,,,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Prasinophytes,Yes,0.52,multiple species,"From Table 2
+E=0.52",,,,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Cryptophytes,Yes,0.54,multiple species,"From Table 2
+E=0.54",,,,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Dinoflagellates,Yes,0.38,multiple species,"From Table 2
+E=0.38",,,,their data
+growth rate (nutrient-enriched growth rate),growth rate,Chen & Liu (2015). Responses of autotrophic and heterotrophic rates of plankton from a subtropical coastal site to short-term temperature modulations. Marine Ecology Progress Series: 527: 59-71,Phytoplankton: Green algae,Yes,0.61,multiple species,"From Table 2
+E=0.61",,,,their data
+consumption rate (max uptake rate: nitrogen),nitrogen consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","phytoplankton:
+Coscinodiscus wailesii",Yes,0.32,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: phosphorus),phosphorus consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","phytoplankton:
+Coscinodiscus wailesii",Yes,0.22,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: nitrogen),nitrogen consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","phytoplankton:
+Eucampia zodiacus",Yes,0.11,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: phosphorus),phosphorus consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","phytoplankton:
+Eucampia zodiacus",Yes,0.58,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: nitrogen),nitrogen consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","Tree:
+Acer rubrum",Yes,0.29,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: nitrogen),nitrogen consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","Tree:
+Ceratonia siliqua",Yes,,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: nitrogen),nitrogen consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","Algae:
+Gracilaria gracilis",Yes,,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: nitrogen),nitrogen consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","Algae:
+Thalassia testudinum",Yes,,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: phosphorus),phosphorus consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","shrub:
+Euphorbia pulcherrima",Yes,0.23,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (max uptake rate: phosphorus),phosphorus consumption rate,"Marx et al. (2019). Opening the black box of plant nutrient uptake under warming predicts global patterns in community biomass and biological carbon storage. Oikos: 128(10): 1503-1514
+(Also referenced above for half saturation constant of nutrient uptake)","herb:
+Tagetes patula",Yes,0.15,single species,"From Table 3
+E=0.22 (nitrogen)
+E=0.3 (phosphorus)","Probably, to some degree: Activation energies provided are averages. Appendix Figures A1-A8 show temperature dependence for individual species (individual activation energies not provided, however)",The average activation energies include some species for which E was calculated from only two temperatures.,,dataset
+consumption rate (stoichiometry),nitrogen consumption rate,"Verity (1985).  Grazing, respiration, excretion, and growth rates of tintinnids. Limnology and Oceanography: 30(6): 1268-1282","Phytoplankton:
+Dicrateria inornata",No. The author states that there were no consistent trends between C or N content and temperature (page 1271),0,single species,NA,,Nutrient: nitrogen,"It's possible that I am not interpreting this correctly. The main focus of the paper is not on the phytoplankton, so very little time was spent on discussing this aspect of the study.",their data
+consumption rate (stoichiometry),nitrogen consumption rate,"Verity (1985).  Grazing, respiration, excretion, and growth rates of tintinnids. Limnology and Oceanography: 30(6): 1268-1282","Phytoplankton:
+Isochrysis galbana",No. The author states that there were no consistent trends between C or N content and temperature (page 1271),0,single species,NA,,Nutrient: nitrogen,"It's possible that I am not interpreting this correctly. The main focus of the paper is not on the phytoplankton, so very little time was spent on discussing this aspect of the study.",their data
