@@ -226,6 +226,11 @@ nrow(urrce_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potent
 urrce_all_ed <- urrce_all_e %>% 
   filter(response_var == "dist15")
 
+model <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce_all_ed)
+
+visreg::visreg(model)
+summary(model)
+
 #unscaled TA - euclidean distance plot - r
 urrce_all_plot_e2_r <-
   urrce_all_ed %>% 
@@ -240,7 +245,6 @@ urrce_all_plot_e2_r <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
 
-summary(lm(value ~ abs_r_ta, data = urrce_all_ed)) #S
 
 #unscaled TA - euclidean distance plot 
 urrce_all_plot_e2_c <-
@@ -256,14 +260,6 @@ urrce_all_plot_e2_c <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[c1a] * "- E"[c2b]*"|"))
 
-#none significant
-summary(lm(value~abs_c1_ta, data = urrce_all_ed))
-summary(lm(value~abs_c2_ta, data = urrce_all_ed))
-summary(lm(value~abs_c3_ta, data = urrce_all_ed))
-summary(lm(value~abs_c4_ta, data = urrce_all_ed))
-summary(lm(value~abs_c5_ta, data = urrce_all_ed))
-summary(lm(value~abs_c6_ta, data = urrce_all_ed)) #none significant
-
 urrce_all_plot_e2_k <-
   urrce_all_ed %>% 
   filter(response_var == "dist15") %>% 
@@ -277,8 +273,6 @@ urrce_all_plot_e2_k <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
-
-summary(lm(value~abs_k_ta, data = urrce_all_ed)) #S
 
 urrce_all_plot_e2_v <-
   urrce_all_ed %>% 
@@ -294,7 +288,6 @@ urrce_all_plot_e2_v <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
 
-summary(lm(value~abs_v_ta, data = urrce_all_ed)) #S
 
 urrce_all_plot_e2_m <-
   urrce_all_ed %>% 
@@ -309,7 +302,6 @@ urrce_all_plot_e2_m <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
 
-summary(lm(value~abs_m_ta, data = urrce_all_ed)) #NS
 hist(urrce_all_ed$value)
 
 urrce_tas <- urrce_all_plot_e2_c +urrce_all_plot_e2_r + urrce_all_plot_e2_k + urrce_all_plot_e2_v +  urrce_all_plot_e2_m + log_pom_urrce_all_noanno + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Example 1")
@@ -452,6 +444,13 @@ nrow(urrce1_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_poten
 urrce1_all_ed <- urrce1_all_e %>% 
   filter(response_var == "dist15")
 
+model1 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce1_all_ed)
+
+visreg::visreg(model1)
+summary(model1)
+
+
+
 #which thermal asymmetries drive large shifts in competition?
 #unscaled TA - euclidean distance plot - r
 urrce1_all_plot_e2_r <-
@@ -466,8 +465,6 @@ urrce1_all_plot_e2_r <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
-
-summary(lm(value ~ abs_r_ta, data = urrce1_all_ed)) #S
 
 #unscaled TA - euclidean distance plot 
 urrce1_all_plot_e2_c <-
@@ -749,6 +746,11 @@ nrow(urrce3_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_poten
 #which thermal asymmetries drive large shifts in competition?
 urrce3_all_ed <- urrce3_all_e %>% 
   filter(response_var == "dist15")
+
+model3 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce3_all_ed)
+
+visreg::visreg(model3)
+summary(model3)
 
 #unscaled TA - euclidean distance plot - r
 urrce3_all_plot_e2_r <-
@@ -1531,4 +1533,4 @@ log_pom_urrce6_nota_all <-
 # no TAs multiplot ------------
 diff_start_points_notas <- (log_pom_urrce2_nota_all + log_pom_urrce3_nota_all +  log_pom_urrce5_nota_all) / (log_pom_urrce4_nota_all + log_pom_urrce1_nota_all + log_pom_urrce6_nota_all) + plot_annotation(tag_levels = "A")
 
-ggsave(plot = diff_start_points_notas, filename = "figures/extra-start-points-notas.png", height = 24, width = 30)
+# ggsave(plot = diff_start_points_notas, filename = "figures/extra-start-points-notas.png", height = 24, width = 30)

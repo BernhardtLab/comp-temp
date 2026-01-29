@@ -13,6 +13,7 @@ library(purrr)
 library(viridis)
 library(beepr)
 library(see)
+library(visreg)
 
 # get referencing set up for macarthur temp dependence function
 source("R-scripts/02-temp-dep-macarthur.R") #this calls the macarthur translation function, with all parameters flexibly defined in the function for assigning at time of use
@@ -149,22 +150,34 @@ rrc_start <- rrc %>%
 rrc_shifts <- rrc %>% 
   select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
   mutate(stab_pot_start = rrc_start$new_mean_stab_pot,
-         fit_rat_start = rrc_start$new_mean_fit_rat) %>% 
-  mutate(fd_shift = ifelse(new_fit_ratio < fit_rat_start, "decrease", 
+         fit_rat_start = rrc_start$new_mean_fit_rat,
+         shift_fd = new_fit_ratio - fit_rat_start,
+         shift_nd = new_stabil_potential - stab_pot_start,
+         shift_fd_prop = shift_fd/fit_rat_start,
+         shift_nd_prop = shift_nd/stab_pot_start) %>% 
+  mutate(fd_shift_cat = ifelse(new_fit_ratio < fit_rat_start, "decrease", 
                            ifelse(new_fit_ratio > fit_rat_start, "increase",
                                   ifelse(new_fit_ratio == fit_rat_start, "no change", "potato"))),
-         nd_shift = ifelse(new_stabil_potential < stab_pot_start, "decrease",
+         nd_shift_cat = ifelse(new_stabil_potential < stab_pot_start, "decrease",
                            ifelse(new_stabil_potential > stab_pot_start, "increase",
                                   ifelse(new_stabil_potential == stab_pot_start, "no change","potato")))) %>% 
   filter(T == 10 | T == 25)
 
 rrc_shifts %>% 
-  group_by(T, fd_shift, nd_shift) %>% 
+  group_by(T, fd_shift_cat, nd_shift_cat) %>% 
   tally()
 
 ## FD: 288/500 decrease (another sim - 275/500, 300/500)
 ## ND: 289/500 decrease (another sim - 291/500, 326/500)
 ## ND + FD: 185/500 decrease in both (another sim - 170/500, 204/500)
+
+shift_sums <- rrc_shifts %>% 
+  filter(T == 25) %>% 
+  summarise(across(
+    c(shift_fd, shift_fd_prop, shift_nd, shift_nd_prop),
+    list(
+      mean = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE))))
 
 #does euclidean distance relate to thermal asymmetry -----------
 # get euclidean distances for each species pair
@@ -199,6 +212,123 @@ nrow(rrc_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 rrc_ed <- rrc_e %>% 
   filter(response_var == "dist15")
 
+# run multiple regression to test for correlations between TAs and Euclidean distance from start point to warmed point ----------------------------
+model <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = rrc_ed)
+
+visreg::visreg(model)
+summary(model)
+# r, c4 (E_c2b-E_c2a), k, v significant
+
+r <- visreg(model, names(coef(model))[2], plot=FALSE)
+r_pr <- ggplot() +
+  # raw points
+  geom_point(data = r$res, 
+             aes_string(x = names(coef(model))[2], y = "visregRes")) +
+  # fitted line
+  geom_line(data = r$fit, 
+            aes_string(x = names(coef(model))[2], y = "visregFit"), color = "blue") +
+  # confidence ribbon
+  geom_ribbon(data = r$fit, 
+              aes_string(x = names(coef(model))[2], ymin = "visregLwr", ymax = "visregUpr"), 
+              alpha = 0.2, fill = "blue") + 
+  labs(x = "Maginute of thermal asymmetry r,", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+c1 <- visreg(model, names(coef(model))[3], plot=FALSE)
+c1_pr <- ggplot() +
+  # raw points
+  geom_point(data = c1$res, 
+             aes_string(x = names(coef(model))[3], y = "visregRes")) +
+  labs(x = "Thermal asymmetry in E_c1a", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+c2 <- visreg(model, names(coef(model))[4], plot=FALSE)
+c2_pr <- ggplot() +
+  # raw points
+  geom_point(data = c2$res, 
+             aes_string(x = names(coef(model))[4], y = "visregRes")) +
+  labs(x = "Thermal asymmetry in E_c2", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+c3 <- visreg(model, names(coef(model))[5], plot=FALSE)
+c3_pr <- ggplot() +
+  # raw points
+  geom_point(data = c3$res, 
+             aes_string(x = names(coef(model))[5], y = "visregRes")) +
+  labs(x = "Thermal asymmetry in E_c3", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+c4 <- visreg(model, names(coef(model))[6], plot=FALSE)
+c4_pr <- ggplot() +
+  # raw points
+  geom_point(data = c4$res, 
+             aes_string(x = names(coef(model))[6], y = "visregRes")) +
+  # fitted line
+  geom_line(data = c4$fit, 
+            aes_string(x = names(coef(model))[6], y = "visregFit"), color = "blue") +
+  # confidence ribbon
+  geom_ribbon(data = c4$fit, 
+              aes_string(x = names(coef(model))[6], ymin = "visregLwr", ymax = "visregUpr"), 
+              alpha = 0.2, fill = "blue") + 
+  labs(x = "Thermal asymmetry in E_c4", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+c5 <- visreg(model, names(coef(model))[7], plot=FALSE)
+c5_pr <- ggplot() +
+  # raw points
+  geom_point(data = c5$res, 
+             aes_string(x = names(coef(model))[7], y = "visregRes")) +
+  labs(x = "Thermal asymmetry in E_c5", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+c6 <- visreg(model, names(coef(model))[8], plot=FALSE)
+c6_pr <- ggplot() +
+  # raw points
+  geom_point(data = c6$res, 
+             aes_string(x = names(coef(model))[8], y = "visregRes")) +
+  labs(x = "Thermal asymmetry in E_c6", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+k <- visreg(model, names(coef(model))[9], plot=FALSE)
+k_pr <- ggplot() +
+  # raw points
+  geom_point(data = k$res, 
+             aes_string(x = names(coef(model))[9], y = "visregRes")) +
+  # fitted line
+  geom_line(data = k$fit, 
+            aes_string(x = names(coef(model))[9], y = "visregFit"), color = "blue") +
+  # confidence ribbon
+  geom_ribbon(data = k$fit, 
+              aes_string(x = names(coef(model))[9], ymin = "visregLwr", ymax = "visregUpr"), 
+              alpha = 0.2, fill = "blue") + 
+  labs(x = "Thermal asymmetry in E_K", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+v <- visreg(model, names(coef(model))[10], plot=FALSE)
+v_pr <- ggplot() +
+  # raw points
+  geom_point(data = v$res, 
+             aes_string(x = names(coef(model))[10], y = "visregRes")) +
+  # fitted line
+  geom_line(data = v$fit, 
+            aes_string(x = names(coef(model))[10], y = "visregFit"), color = "blue") +
+  # confidence ribbon
+  geom_ribbon(data = v$fit, 
+              aes_string(x = names(coef(model))[10], ymin = "visregLwr", ymax = "visregUpr"), 
+              alpha = 0.2, fill = "blue") + 
+  labs(x = "Thermal asymmetry in E_v", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+
+m <- visreg(model, names(coef(model))[11], plot=FALSE)
+m_pr <- ggplot() +
+  # raw points
+  geom_point(data = m$res, 
+             aes_string(x = names(coef(model))[11], y = "visregRes")) +
+  labs(x = "Thermal asymmetry in E_m", y = "Displacement of species pair with \nwarming (Euclidean distance)")
+
+pr_plots <- r_pr + c1_pr + c2_pr + c3_pr + c4_pr + c5_pr + c6_pr + k_pr + v_pr + m_pr
+
+# ggsave(pr_plots, filename = "figures/ta-prs.pdf", width = 12, height = 8, units = "in")
+
 #unscaled TA - euclidean distance plot - r
 rrc_plot_e2_r <-
   rrc_ed %>% 
@@ -213,8 +343,6 @@ rrc_plot_e2_r <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
-
-summary(lm(value ~ abs_r_ta, data = rrc_ed)) #S
 
 #unscaled TA - euclidean distance plot 
 rrc_plot_e2_c2 <-
@@ -247,14 +375,6 @@ rrc_plot_e2_c4 <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[c2a] * "- E"[c2b]*"|"))
 
-#none significant
-summary(lm(value~abs_c1_ta, data = rrc_ed)) #NS
-summary(lm(value~abs_c2_ta, data = rrc_ed)) #significant
-summary(lm(value~abs_c3_ta, data = rrc_ed)) #NS
-summary(lm(value~abs_c4_ta, data = rrc_ed)) #significant
-summary(lm(value~abs_c5_ta, data = rrc_ed)) #NS
-summary(lm(value~abs_c6_ta, data = rrc_ed)) #NS
-
 rrc_plot_e2_k <-
   rrc_ed %>% 
   filter(response_var == "dist15") %>% 
@@ -269,8 +389,6 @@ rrc_plot_e2_k <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
-
-summary(lm(value~abs_k_ta, data = rrc_ed)) #S
 
 rrc_plot_e2_v <-
   rrc_ed %>% 
@@ -287,8 +405,6 @@ rrc_plot_e2_v <-
   theme(legend.position = "none") +
   ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
 
-summary(lm(value~abs_v_ta, data = rrc_ed)) #S
-
 rrc_plot_e2_m <-
   rrc_ed %>% 
   filter(response_var == "dist15") %>% 
@@ -302,9 +418,6 @@ rrc_plot_e2_m <-
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
-
-summary(lm(value~abs_m_ta, data = rrc_ed)) #NS
-hist(rrc_ed$value)
 
 rrc_tas <- rrc_plot_e2_c2 + rrc_plot_e2_c4 +rrc_plot_e2_r + rrc_plot_e2_k + rrc_plot_e2_v +  rrc_plot_e2_m + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Main Text Model")
 

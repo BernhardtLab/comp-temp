@@ -800,6 +800,33 @@ rrc_8r_avg_new <- rrc_8r %>%
             new_med_stab_pot = median(new_stabil_potential),
             new_med_fit_rat = median(new_fit_ratio))
 
+#for how many species pairs does ND decrease and does FD decrease
+rrc_start_8r <- rrc_8r %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+rrc_8r_shifts <- rrc_8r %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = rrc_start_8r$new_mean_stab_pot,
+         fit_rat_start = rrc_start_8r$new_mean_fit_rat,
+         shift_fd = new_fit_ratio - fit_rat_start,
+         shift_nd = new_stabil_potential - stab_pot_start,
+         shift_fd_prop = shift_fd/fit_rat_start,
+         shift_nd_prop = shift_nd/stab_pot_start) %>% 
+  filter(T == 10 | T == 25)
+
+shift_sums8r <- rrc_8r_shifts %>% 
+  filter(T == 25) %>% 
+  summarise(across(
+    c(shift_fd, shift_fd_prop, shift_nd, shift_nd_prop),
+    list(
+      mean = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE))))
+
 #pompom
 log_pom8r <-
 ggplot() +
@@ -841,7 +868,7 @@ rrc_8r_e <- rrc_8r %>%
               names_glue = "T{T}_{.value}") %>% 
   mutate(dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
          shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
-         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) 
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential)
 
 hist(rrc_8r_e$dist15)
 
@@ -1023,6 +1050,34 @@ rrc_8ru_avg_new <- rrc_8ru %>%
             new_med_stab_pot = median(new_stabil_potential),
             new_med_fit_rat = median(new_fit_ratio))
 
+#for how many species pairs does ND decrease and does FD decrease
+rrc_start_8ru <- rrc_8ru %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+rrc_8ru_shifts <- rrc_8ru %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = rrc_start_8ru$new_mean_stab_pot,
+         fit_rat_start = rrc_start_8ru$new_mean_fit_rat,
+         shift_fd = new_fit_ratio - fit_rat_start,
+         shift_nd = new_stabil_potential - stab_pot_start,
+         shift_fd_prop = shift_fd/fit_rat_start,
+         shift_nd_prop = shift_nd/stab_pot_start) %>% 
+  filter(T == 10 | T == 25)
+
+shift_sums8ru <- rrc_8ru_shifts %>% 
+  filter(T == 25) %>% 
+  summarise(across(
+    c(shift_fd, shift_fd_prop, shift_nd, shift_nd_prop),
+    list(
+      mean = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE))))
+
+
 #pompom
 log_pom8ru <-
   ggplot() +
@@ -1193,7 +1248,7 @@ for(f in 1:500){
                       Topt_C2 = 25,
                       Topt_Cr = 25,
                       ref_temp = 10,
-                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
                       c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
                       c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
@@ -1226,6 +1281,33 @@ rrc_uni_avg_new <- rrc_uni %>%
             new_med_stab_pot = median(new_stabil_potential),
             new_med_fit_rat = median(new_fit_ratio))
 
+#for how many species pairs does ND decrease and does FD decrease
+rrc_start_uni <- rrc_uni %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+rrc_uni_shifts <- rrc_uni %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = rrc_start_uni$new_mean_stab_pot,
+         fit_rat_start = rrc_start_uni$new_mean_fit_rat,
+         shift_fd = new_fit_ratio - fit_rat_start,
+         shift_nd = new_stabil_potential - stab_pot_start,
+         shift_fd_prop = shift_fd/fit_rat_start,
+         shift_nd_prop = shift_nd/stab_pot_start) %>% 
+  filter(T == 10 | T == 25)
+
+shift_sumsuni <- rrc_uni_shifts %>% 
+  filter(T == 25) %>% 
+  summarise(across(
+    c(shift_fd, shift_fd_prop, shift_nd, shift_nd_prop),
+    list(
+      mean = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE))))
+
 #pompom
 log_pom_uni <-
   ggplot() +
@@ -1256,9 +1338,8 @@ log_pom_uni <-
   # scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
   theme_cowplot(font_size = 20)
   
-# ggsave(filename = "figures/unimodal-pompom.pdf", plot = last_plot())
+# ggsave(filename = "figures/unimodal-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
 
-  
 
 # make temperature dependence unimodal with different Topts for different species##############
 rrc_uni_diffs <- data.frame()
@@ -1302,6 +1383,33 @@ rrc_uni_diffs_avg_new <- rrc_uni_diffs %>%
             new_med_stab_pot = median(new_stabil_potential),
             new_med_fit_rat = median(new_fit_ratio))
 
+#for how many species pairs does ND decrease and does FD decrease
+rrc_start_uni_diffs <- rrc_uni_diffs %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+rrc_uni_diffs_shifts <- rrc_uni_diffs %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = rrc_start_uni_diffs$new_mean_stab_pot,
+         fit_rat_start = rrc_start_uni_diffs$new_mean_fit_rat,
+         shift_fd = new_fit_ratio - fit_rat_start,
+         shift_nd = new_stabil_potential - stab_pot_start,
+         shift_fd_prop = shift_fd/fit_rat_start,
+         shift_nd_prop = shift_nd/stab_pot_start) %>% 
+  filter(T == 10 | T == 25)
+
+shift_sumsuni_diffs <- rrc_uni_diffs_shifts %>% 
+  filter(T == 25) %>% 
+  summarise(across(
+    c(shift_fd, shift_fd_prop, shift_nd, shift_nd_prop),
+    list(
+      mean = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE))))
+
 #pompom
 log_pom_uni_diffs <-
 ggplot() +
@@ -1328,9 +1436,9 @@ ggplot() +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
   coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
-  theme_cowplot(font_size = 24)
+  theme_cowplot(font_size = 20)
 
-# ggsave(filename = "figures/unimodal-vartopt-pompom.pdf", plot = last_plot(), width = 8, height = 6, units = "in", device = "pdf")
+# ggsave(filename = "figures/unimodal-vartopt-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
 
 #track the euclidean distance from neutrality for each species pair with warming
 #get start position

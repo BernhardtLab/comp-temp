@@ -27,7 +27,7 @@ jl_function2 <- function(Temp, E, b1, ED, Topt_C, ref_temp) {
 model1 <- tibble(temp = seq(from = 5, to = 25, by = 0.01)) %>% 
   mutate(metabolism = map_dbl(temp, 
                               ~jl_function2(Temp = .x, 
-                                           E = 0.65, 
+                                           E = -0.65, 
                                            b1 = 1,
                                            ED = 4.5,
                                            Topt_C = 19,
