@@ -41,18 +41,18 @@ param_vals %>%
   set_names(unique(param_vals$parameter)) %>%  # Set the names based on unique category values
   walk(~ assign(paste0(.x$parameter[1], "_post_dist"), .x, envir = .GlobalEnv))
 
-
-#again with vpos
-v_pos %>%
-  mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
-         parameter = str_replace(parameter, "carrying_capacity", "k"),
-         parameter = str_replace(parameter, "conversion_efficiency", "v"),
-         parameter = str_replace(parameter, "mortality_rate", "m"),
-         parameter = str_replace(parameter, "consumption rate", "c")) %>% 
-  group_by(parameter) %>%
-  group_split() %>%
-  set_names(unique(param_vals$parameter)) %>%  # Set the names based on unique category values
-  walk(~ assign(paste0(.x$parameter[1], "_post_dist"), .x, envir = .GlobalEnv))
+# #KD To come fix this
+# #again with vpos
+# vpos_post_dist %>%
+#   mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
+#          parameter = str_replace(parameter, "carrying_capacity", "k"),
+#          parameter = str_replace(parameter, "conversion_efficiency", "v"),
+#          parameter = str_replace(parameter, "mortality_rate", "m"),
+#          parameter = str_replace(parameter, "consumption rate", "c")) %>% 
+#   group_by(parameter) %>%
+#   group_split() %>%
+#   set_names(unique(param_vals$parameter)) %>%  # Set the names based on unique category values
+#   walk(~ assign(paste0(.x$parameter[1], "_post_dist"), .x, envir = .GlobalEnv))
 
 #get summary stats for all parameters ########
 param_sum <- param_vals %>%
@@ -88,7 +88,7 @@ param_sum1 %>%
 ##### draw all param EAs at random -- for figure 5 ##############
 rrc <- data.frame()
 for(f in 1:500){ 
-  hold = temp_dep_mac(T = seq(10, 210, by = 0.5), #was by 0.1
+  hold = temp_dep_mac(T = seq(10, 210, by = 1), #was by 0.1
                       ref_temp = 10,
                       r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
                       r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
@@ -145,14 +145,14 @@ rrc1 %>%
   ggplot() + 
   geom_line(aes(x = KN, y = amtN, group = iteration, colour = K_EaN))
 
-#because K has a negative temperature dependence, K approaches 0 exponentially as systems heatup. That means that K/r grows rapidly as the system heats up
+#because K has a negative temperature dependence, K approaches 0 exponentially as systems heat up. That means that K/r grows rapidly as the system heats up
 
 rrc1 %>% 
   ggplot() + 
   geom_line(aes(x = T, y = KN, group = iteration), colour = "blue") + #negative exponential
   geom_line(aes(x = T, y = amtN, group = iteration), colour = "red") #negative exponential divided by a positive exponential
 
-rrc_long3 <- 
+rrc1_add <-
   rrc1 %>% 
   mutate(KN_over_rN = KN/rN,
          KP_over_rP = KP/rP,
@@ -161,12 +161,15 @@ rrc_long3 <-
          inter_intra1 = a12/a11,
          inter_intra2 = a21/a22) %>% 
   select(-ref_temp, -coexist) %>% 
-  select(iteration, T, everything()) %>% 
-  pivot_longer(cols = c(a11:intra_inter2), names_to = "parameter", values_to = "value")
+  select(iteration, T, everything()) 
+
+rrc_long3 <- 
+  rrc1_add %>% 
+  pivot_longer(cols = c(a11:inter_intra2), names_to = "parameter", values_to = "value")
 
 #Species 1 prefers P, species 2 prefers N, N grows faster at ref temp
 rrc_long3 %>% 
-  filter(parameter %in% c("KN", "rN", "KN_over_rN", "a11", "a12", "a22", "a21", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2")) %>% 
+  filter(parameter %in% c("KN", "rN", "KN_over_rN", "a11", "a12", "a22", "a21", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2", "fit_ratio", "rho")) %>% 
   ggplot() + 
   geom_line(aes(x = T, y = value, group = iteration, colour = r_EaN)) + 
   facet_wrap(~parameter, scales = "free_y")
@@ -198,7 +201,7 @@ rrc_wide3 <- rrc_long3 %>%
 rrc_wide3_sum <- rrc_wide3 %>% 
   group_by(T) %>% 
   summarise(across(
-    .cols = c(a11, a12, a21, a22, KN, KN_over_rN, new_fit_ratio, new_stabil_potential, rN, intra_inter1, intra_inter2, inter_intra1, inter_intra2),
+    .cols = c(a11, a12, a21, a22, KN, KN_over_rN, new_fit_ratio, new_stabil_potential, rN, intra_inter1, intra_inter2, inter_intra1, inter_intra2, fit_ratio, rho),
     .fns = list(
       mean   = ~mean(.x, na.rm = TRUE),
       median = ~median(.x, na.rm = TRUE),
@@ -210,10 +213,10 @@ rrc_wide3_sum <- rrc_wide3 %>%
   )
 
 rrc_sums <- rrc_wide3_sum %>% 
-  pivot_longer(cols = c(a11_mean:inter_intra2_sd), names_to = "parameter", values_to = "value") %>% 
+  pivot_longer(cols = c(a11_mean:rho_sd), names_to = "parameter", values_to = "value") %>% 
   separate(parameter, sep = "_(?=[^_]+$)", into = c("parameter", "statistic")) %>%  
-  filter(parameter %in% c("a11", "a12", "a21", "a22", "KN", "KN_over_rN", "new_fit_ratio", "new_stabil_potential", "rN", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2") & statistic %in% c("median", "mean")) %>% 
-  mutate(parameter = forcats::fct_relevel(parameter, "KN", "rN", "KN_over_rN", "a11", "a12", "a21", "a22", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2", "new_fit_ratio", "new_stabil_potential")) 
+  filter(parameter %in% c("a11", "a12", "a21", "a22", "KN", "KN_over_rN", "new_fit_ratio", "new_stabil_potential", "rN", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2", "fit_ratio", "rho") & statistic %in% c("median", "mean")) %>% 
+  mutate(parameter = forcats::fct_relevel(parameter, "KN", "rN", "KN_over_rN", "a11", "a12", "a21", "a22", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2", "fit_ratio", "rho","new_fit_ratio", "new_stabil_potential")) 
   
 param_labels <- c(
   a11 = "alpha[11]",
@@ -222,13 +225,15 @@ param_labels <- c(
   a22 = "alpha[22]",
   KN  = "K[N]",
   KN_over_rN = "K[N]/r[N]",
-  new_fit_ratio = "Fitness~ratio",
-  new_stabil_potential = "Stabilization~potential",
+  new_fit_ratio = "log(Fitness~ratio)",
+  new_stabil_potential = "-log(rho)",
   rN = "r[N]",
   intra_inter1 = "alpha[11]/alpha[12]",
   intra_inter2 = "alpha[22]/alpha[21]",
   inter_intra1 = "alpha[12]/alpha[11]",
-  inter_intra2 = "alpha[21]/alpha[22]"
+  inter_intra2 = "alpha[21]/alpha[22]",
+  fit_ratio = "Fitness~ratio",
+  rho = "rho"
 )
 
 rrc_sums_to25 <- rrc_sums %>% 
@@ -236,18 +241,28 @@ filter(T > 9, T < 26)
   
 warming_tendencies200 <-
 rrc_sums %>% 
-ggplot() + 
-  geom_point(aes(x = T, y = value, colour = statistic)) +
+  filter(statistic == "median") %>% 
+  filter(! parameter %in% c("inter_intra1", "inter_intra2")) %>% 
+  # filter(T > 150) %>% 
+  ggplot() + 
+  geom_point(aes(x = T, y = value)) +
+  # geom_hline(yintercept = 1, colour = "green4") + 
   facet_wrap(~parameter, 
              labeller = as_labeller(param_labels, label_parsed), 
-             scales = "free")
+             scales = "free") 
 
 # ggsave(plot = warming_tendencies200, filename = "figures/200C_param_trajectories.pdf", width = 12, height = 8)
 
-warming_tendencies15 <- rrc_sums_to25 %>% 
+warming_tendencies15 <- 
+  rrc_sums_to25 %>% 
+  filter(statistic == "median") %>% 
+  filter(! parameter %in% c("inter_intra1", "inter_intra2")) %>% 
   ggplot() + 
-  geom_point(aes(x = T, y = value, colour = statistic)) +
-  facet_wrap(~parameter, scales = "free")
+  # geom_hline(yintercept = 1, colour = "green4") + 
+  geom_point(aes(x = T, y = value)) +
+  facet_wrap(~parameter, 
+             labeller = as_labeller(param_labels, label_parsed), 
+             scales = "free")
 
 # ggsave(plot = warming_tendencies15, filename = "figures/15C_param_trajectories.pdf", width = 12, height = 8)
 

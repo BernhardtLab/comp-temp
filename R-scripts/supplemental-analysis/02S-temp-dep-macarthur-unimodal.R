@@ -60,8 +60,8 @@ uni_temp_dep_mac_spec_diffs <- function(T, ED, Topt_C1, Topt_C2, Topt_Cr, ref_te
   rP = jl_function2(Temp = T, E = r_EaP, b1 = r_P_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
   
   # resource carrying capacity
-  KN = jl_function2(Temp = T, E = K_EaN, b1 = K_N_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
-  KP = jl_function2(Temp = T, E = K_EaP, b1 = K_P_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
+  KN = arrhenius_function(Temp = T, E = K_EaN, b1 = K_N_b, ref_temp = ref_temp)
+  KP = arrhenius_function(Temp = T, E = K_EaP, b1 = K_P_b, ref_temp = ref_temp)
   
   # cij = per capita consumption of consumer i on resource j
   c1N = jl_function2(Temp = T, E = c_Ea1N, b1 = c1N_b, ED = ED, Topt_C = Topt_C1, ref_temp = ref_temp)
