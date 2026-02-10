@@ -15,6 +15,7 @@ library(patchwork)
 library(purrr)
 library(viridis)
 library(beepr)
+library(car)
 
 # get referencing set up for MacArthur temp dependence function
 source("R-scripts/02-temp-dep-macarthur.R") #this contains the MacArthur translation function, with all parameters flexibly defined in the function for assigning at time of use
@@ -163,11 +164,10 @@ log_pom_urrce_all_noanno <-
   labs(colour = "°C Warming") +
   coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1.02)) +
   scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
-  theme_cowplot(font_size = 26) +
+  theme_cowplot(font_size = 30) +
   ggtitle("Full model")
 
 #for how many simulations does ND decrease and does FD decrease
-
 urrce_start <- urrce_all %>% 
   filter(T == 10) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
@@ -228,86 +228,9 @@ urrce_all_ed <- urrce_all_e %>%
 
 model <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce_all_ed)
 
-visreg::visreg(model)
-summary(model)
-
-#unscaled TA - euclidean distance plot - r
-urrce_all_plot_e2_r <-
-  urrce_all_ed %>% 
-  ggplot(aes(x = abs_r_ta, y = value)) +
-  geom_point(aes(colour = r_EaP > r_EaN), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) + 
-  annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
-  annotate("text", x = 0.8, y = 0.15, label = "m = 0.62, \np = <0.001, adj. r2 = 0.13", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
-
-
-#unscaled TA - euclidean distance plot 
-urrce_all_plot_e2_c <-
-  urrce_all_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_c1_ta, y = value)) +
-  geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
-  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "black") +
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[c1a] * "- E"[c2b]*"|"))
-
-urrce_all_plot_e2_k <-
-  urrce_all_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_k_ta, y = value)) +
-  geom_point(aes(colour = K_EaN > K_EaP), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.97, y = 0.35, label = "Carrying \ncapacity, K", size = 5.5) + 
-  annotate("text", x = 0.97, y = 0.15, label = "m = 0.24, \np = <0.001, \nadj. r2 = 0.07", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
-
-urrce_all_plot_e2_v <-
-  urrce_all_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_v_ta, y = value)) +
-  geom_point(aes(colour = v_EaN > v_EaP), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.92, y = 0.25, label = "Conversion \nefficiency, v", size = 5.5) + 
-  annotate("text", x = 0.92, y = 0.1, label = "m = 0.32, \np = <0.001,\nadj. r2 = 0.25", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
-
-
-urrce_all_plot_e2_m <-
-  urrce_all_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_m_ta, y = value)) +
-  geom_point(aes(colour = m_Ea1 > m_Ea2), size = 3) + 
-  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.5, label = "Mortality \nrate, m", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
-
-hist(urrce_all_ed$value)
-
-urrce_tas <- urrce_all_plot_e2_c +urrce_all_plot_e2_r + urrce_all_plot_e2_k + urrce_all_plot_e2_v +  urrce_all_plot_e2_m + log_pom_urrce_all_noanno + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Example 1")
-
-# ggsave(plot = urrce_tas, filename = "figures/TA-ED-full1.pdf", width = 18, height = 12)
-
+# #visreg::visreg(model)
+summary(model) #here for effect estimates
+Anova(model, type = "II") #here for p-values
 
 #### POMPOM 1; uneven reciprocal preference, unequal growth rates ####
 urrce1_all <- data.frame()
@@ -410,9 +333,8 @@ log_pom_urrce1_all_noanno <-
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
-  theme_cowplot(font_size = 28) + 
-  theme(legend.position = "none") + 
-  ggtitle("Full model")
+  theme_cowplot(font_size = 36) + 
+  theme(legend.position = "none") 
 
 # calculate euclidean distances at 25C for each iteration
 urrce1_all_e <- urrce1_all %>% 
@@ -446,95 +368,9 @@ urrce1_all_ed <- urrce1_all_e %>%
 
 model1 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce1_all_ed)
 
-visreg::visreg(model1)
+#visreg::visreg(model1)
 summary(model1)
-
-
-
-#which thermal asymmetries drive large shifts in competition?
-#unscaled TA - euclidean distance plot - r
-urrce1_all_plot_e2_r <-
-  urrce1_all_ed %>% 
-  ggplot(aes(x = abs_r_ta, y = value)) +
-  geom_point(aes(colour = r_EaP > r_EaN), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) + 
-  annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
-  annotate("text", x = 0.8, y = 0.15, label = "m = 0.87, \np = <0.001, r2 = 0.41", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
-
-#unscaled TA - euclidean distance plot 
-urrce1_all_plot_e2_c <-
-  urrce1_all_ed %>%
-  ggplot(aes(x = abs_c1_ta, y = value)) +
-  geom_point(aes(colour = c_Ea1P > c_Ea1N), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") +
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)", title = expression("|E"[c1a] * "- E"[c1b]*"|*"), subtitle = "*Only this pair of consumption rate thermal \nasymmetries had a significant effect on \nEuclidean distance. All other \npairs not significant.") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
-  annotate("text", x = 0.8, y = 0.15, label = "m = 0.47, \np = 0.008, r2 = 0.011", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") 
-
-summary(lm(value~abs_c1_ta, data = urrce1_all_ed)) #NS
-summary(lm(value~abs_c2_ta, data = urrce1_all_ed)) #S
-summary(lm(value~abs_c3_ta, data = urrce1_all_ed)) #NS
-summary(lm(value~abs_c4_ta, data = urrce1_all_ed)) #NS
-summary(lm(value~abs_c5_ta, data = urrce1_all_ed)) #NS
-summary(lm(value~abs_c6_ta, data = urrce1_all_ed)) #NS
-
-urrce1_all_plot_e2_k <-
-  urrce1_all_ed %>% 
-  ggplot(aes(x = abs_k_ta, y = value)) +
-  geom_point(aes(colour = K_EaN > K_EaP), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.97, y = 0.78, label = "Carrying \ncapacity, K", size = 5.5) + 
-  annotate("text", x = 0.97, y = 0.55, label = "m = 0.14, \np = < 0.001, \nr2 = 0.037", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
-
-summary(lm(value~abs_k_ta, data = urrce1_all_ed)) #S
-
-urrce1_all_plot_e2_v <-
-  urrce1_all_ed %>% 
-  ggplot(aes(x = abs_v_ta, y = value)) +
-  geom_point(aes(colour = v_EaN > v_EaP), size = 3) +
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.92, y = 0.78, label = "Conversion \nefficiency, v", size = 5.5) + 
-  annotate("text", x = 0.92, y = 0.6, label = "m = 0.18, \np = <0.001, r2 = 0.11", size = 5.5) +
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
-
-summary(lm(value~abs_v_ta, data = urrce1_all_ed)) #S
-hist(urrce1_all_ed$value)
-
-urrce1_all_plot_e2_m <-
-  urrce1_all_ed %>% 
-  ggplot(aes(x = abs_m_ta, y = value)) +
-  geom_point(aes(colour = m_Ea1 > m_Ea2), size = 3) + 
-  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.5, label = "Mortality \nrate, m", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
-
-summary(lm(value~abs_m_ta, data = urrce1_all_ed)) #NS
-hist(urrce1_all_ed$value)
-
-urrce1_tas <- urrce1_all_plot_e2_c + urrce1_all_plot_e2_r + urrce1_all_plot_e2_k +  urrce1_all_plot_e2_v + urrce1_all_plot_e2_m + log_pom_urrce1_all_noanno + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Example 2")
-
-ggsave(plot = urrce1_tas, filename = "figures/TA-ED-full2.pdf", width = 18, height = 12)
+Anova(model1, type = "II")
 
 #### POMPOM 2; uneven reciprocal preference, unequal growth rates ####
 urrce2_all <- data.frame()
@@ -610,6 +446,70 @@ v_1a = 0.1, v_1b = 0.6,
 v_2a = 0.4, v_2b = 0.7, 
 m_1 = 0.01, m_2 = 0.01", 
            size = 9, fontface = 1, hjust = 0) 
+
+log_pom_urrce2_all_noanno <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = urrce2_all, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(urrce2_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(urrce2_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = urrce2_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce2_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = urrce2_all, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  theme_cowplot(font_size = 36) + 
+  theme(legend.position = "none")
+
+# calculate euclidean distances at 25C for each iteration
+urrce2_all_e <- urrce2_all %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>%
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
+         abs_c1_ta = abs(c_Ea1P - c_Ea2N),
+         abs_c2_ta = abs(c_Ea1P - c_Ea1N),
+         abs_c3_ta = abs(c_Ea1P - c_Ea2P), 
+         abs_c4_ta = abs(c_Ea2P - c_Ea2N), 
+         abs_c5_ta = abs(c_Ea2P - c_Ea1N), 
+         abs_c6_ta = abs(c_Ea1N - c_Ea2N), 
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2),
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(urrce2_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
+
+#which thermal asymmetries drive large shifts in competition?
+urrce2_all_ed <- urrce2_all_e %>% 
+  filter(response_var == "dist15")
+
+model2 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce2_all_ed)
+
+#visreg::visreg(model2)
+summary(model2)
+anova(model2)
 
 #### POMPOM 3; uneven reciprocal preference, unequal growth rates ####
 urrce3_all <- data.frame()
@@ -712,9 +612,8 @@ log_pom_urrce3_all_noanno <-
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
   ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
   labs(colour = "°C Warming") +
-  theme_cowplot(font_size = 28) + 
-  theme(legend.position = "none") + 
-  ggtitle("Full model")
+  theme_cowplot(font_size = 36) + 
+  theme(legend.position = "none") 
 
 # calculate euclidean distances at 25C for each iteration
 urrce3_all_e <- urrce3_all %>% 
@@ -749,95 +648,9 @@ urrce3_all_ed <- urrce3_all_e %>%
 
 model3 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce3_all_ed)
 
-visreg::visreg(model3)
+#visreg::visreg(model3)
 summary(model3)
-
-#unscaled TA - euclidean distance plot - r
-urrce3_all_plot_e2_r <-
-  urrce3_all_ed %>% 
-  ggplot(aes(x = abs_r_ta, y = value)) +
-  geom_point(aes(colour = r_EaP > r_EaN), size = 3) + 
-  geom_smooth(method = "lm", colour = "black", linetype = "dashed", se = F) + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) + 
-  annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
-
-summary(lm(value ~ abs_r_ta, data = urrce3_all_ed)) #NS
-
-#unscaled TA - euclidean distance plot 
-urrce3_all_plot_e2_c <-
-  urrce3_all_ed %>% 
-  ggplot(aes(x = abs_c1_ta, y = value)) +
-  geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
-  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "black") +
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[c1a] * "- E"[c2b]*"|"))
-
-#none significant
-summary(lm(value~abs_c1_ta, data = urrce3_all_ed))
-summary(lm(value~abs_c2_ta, data = urrce3_all_ed))
-summary(lm(value~abs_c3_ta, data = urrce3_all_ed))
-summary(lm(value~abs_c4_ta, data = urrce3_all_ed))
-summary(lm(value~abs_c5_ta, data = urrce3_all_ed))
-summary(lm(value~abs_c6_ta, data = urrce3_all_ed)) #none significant
-
-urrce3_all_plot_e2_k <-
-  urrce3_all_ed %>% 
-  ggplot(aes(x = abs_k_ta, y = value)) +
-  geom_point(aes(colour = K_EaN > K_EaP), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.97, y = 0.75, label = "Carrying \ncapacity, K", size = 5.5) + 
-  annotate("text", x = 0.92, y = 0.55, label = "m = 0.12, \np = <0.001, r2 = 0.064", size = 5.5) +
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
-
-summary(lm(value~abs_k_ta, data = urrce3_all_ed)) #S
-
-urrce3_all_plot_e2_v <-
-  urrce3_all_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_v_ta, y = value)) +
-  geom_point(aes(colour = v_EaN > v_EaP), size = 3) + 
-  geom_smooth(method = "lm", colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.92, y = 0.75, label = "Conversion \nefficiency, v", size = 5.5) + 
-  annotate("text", x = 0.92, y = 0.55, label = "m = 0.15, \np = <0.001, r2 = 0.22", size = 5.5) +
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
-
-summary(lm(value~abs_v_ta, data = urrce3_all_ed)) #S
-
-
-urrce3_all_plot_e2_m <-
-  urrce3_all_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_m_ta, y = value)) +
-  geom_point(aes(colour = m_Ea1 > m_Ea2), size = 3) + 
-  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "black") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.8)) +
-  annotate("text", x = 0.8, y = 0.5, label = "Mortality \nrate, m", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
-
-summary(lm(value~abs_m_ta, data = urrce3_all_ed)) #NS
-
-urrce3_tas <- urrce3_all_plot_e2_c + urrce3_all_plot_e2_r +  urrce3_all_plot_e2_k +  urrce3_all_plot_e2_v + urrce3_all_plot_e2_m + log_pom_urrce3_all_noanno + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Example 3")
-
-# ggsave(plot = urrce3_tas, filename = "figures/TA-ED-full3.pdf", width = 18, height = 12)
+Anova(model3, type = "II")
 
 #### POMPOM 4; uneven reciprocal preference, unequal growth rates ####
 urrce4_all <- data.frame()
@@ -914,6 +727,70 @@ v_2a = 0.9, v_2b = 0.4,
 m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0) 
 
+log_pom_urrce4_all_noanno <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = urrce4_all, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(urrce4_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(urrce4_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = urrce4_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce4_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = urrce4_all, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  theme_cowplot(font_size = 36) + 
+  theme(legend.position = "none") 
+
+# calculate euclidean distances at 25C for each iteration
+urrce4_all_e <- urrce4_all %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>%
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
+         abs_c1_ta = abs(c_Ea1P - c_Ea2N),
+         abs_c2_ta = abs(c_Ea1P - c_Ea1N),
+         abs_c3_ta = abs(c_Ea1P - c_Ea2P), 
+         abs_c4_ta = abs(c_Ea2P - c_Ea2N), 
+         abs_c5_ta = abs(c_Ea2P - c_Ea1N), 
+         abs_c6_ta = abs(c_Ea1N - c_Ea2N), 
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2),
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(urrce4_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
+
+#which thermal asymmetries drive large shifts in competition?
+urrce4_all_ed <- urrce4_all_e %>% 
+  filter(response_var == "dist15")
+
+model4 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce4_all_ed)
+
+#visreg::visreg(model4)
+summary(model4)
+anova(model4)
+
 #### POMPOM 5; uneven reciprocal preference, unequal growth rates ####
 urrce5_all <- data.frame()
 for(f in 1:500){ 
@@ -987,6 +864,68 @@ v_1a = 0.9, v_1b = 0.8,
 v_2a = 0.1, v_2b = 0.9, 
 m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0)
+
+log_pom_urrce5_all_noanno <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = urrce5_all, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(urrce5_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(urrce5_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = urrce5_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce5_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = urrce5_all, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  theme_cowplot(font_size = 36) + 
+  theme(legend.position = "none") 
+
+# calculate euclidean distances at 25C for each iteration
+urrce5_all_e <- urrce5_all %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>%
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
+         abs_c1_ta = abs(c_Ea1P - c_Ea2N),
+         abs_c2_ta = abs(c_Ea1P - c_Ea1N),
+         abs_c3_ta = abs(c_Ea1P - c_Ea2P), 
+         abs_c4_ta = abs(c_Ea2P - c_Ea2N), 
+         abs_c5_ta = abs(c_Ea2P - c_Ea1N), 
+         abs_c6_ta = abs(c_Ea1N - c_Ea2N), 
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2),
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(urrce5_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
+
+#which thermal asymmetries drive large shifts in competition?
+urrce5_all_ed <- urrce5_all_e %>% 
+  filter(response_var == "dist15")
+
+model5 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce5_all_ed)
+
+#visreg::visreg(model5)
+summary(model5)
 
 
 #### POMPOM 6; uneven reciprocal preference, unequal growth rates ####
@@ -1063,9 +1002,75 @@ log_pom_urrce6_all <-
            m_1 = 0.1, m_2 = 0.1", 
            size = 9, fontface = 1, hjust = 0) 
 
+log_pom_urrce6_all_noanno <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1.25, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = urrce6_all, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(urrce6_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(urrce6_all, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = urrce6_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = urrce6_all_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = urrce6_all, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  theme_cowplot(font_size = 36)
+
+# calculate euclidean distances at 25C for each iteration
+urrce6_all_e <- urrce6_all %>% 
+  filter(T %in% c(10, 25)) %>% 
+  dplyr::select(-c(a11:g2, coexist:beta12)) %>%
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>%
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         r_ta = r_EaN - r_EaP,
+         abs_c1_ta = abs(c_Ea1P - c_Ea2N),
+         abs_c2_ta = abs(c_Ea1P - c_Ea1N),
+         abs_c3_ta = abs(c_Ea1P - c_Ea2P), 
+         abs_c4_ta = abs(c_Ea2P - c_Ea2N), 
+         abs_c5_ta = abs(c_Ea2P - c_Ea1N), 
+         abs_c6_ta = abs(c_Ea1N - c_Ea2N), 
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2),
+         dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(urrce6_all_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
+
+#which thermal asymmetries drive large shifts in competition?
+urrce6_all_ed <- urrce6_all_e %>% 
+  filter(response_var == "dist15")
+
+model6 <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = urrce6_all_ed)
+
+#visreg::visreg(model6)
+summary(model6)
+Anova(model6, type = "II")
+
+### make supplemental figure -- pompoms from many start points #####
 diff_start_points <- (log_pom_urrce2_all + log_pom_urrce3_all +  log_pom_urrce5_all) / (log_pom_urrce4_all + log_pom_urrce1_all + log_pom_urrce6_all) + plot_annotation(tag_levels = "A")
 
-# ggsave(plot = diff_start_points, filename = "figures/extra-start-points.png", height = 24, width = 30)
+diff_start_points_noanno <- (log_pom_urrce2_all_noanno + log_pom_urrce3_all_noanno +  log_pom_urrce5_all_noanno) / (log_pom_urrce4_all_noanno + log_pom_urrce1_all_noanno + log_pom_urrce6_all_noanno) + plot_annotation(tag_levels = "A")
+
+# ggsave(plot = diff_start_points_noanno, filename = "figures/extra-start-points.png", height = 24, width = 30, device = "png")
 
 ######## no TAs ##################
 # pom base - urrce -------

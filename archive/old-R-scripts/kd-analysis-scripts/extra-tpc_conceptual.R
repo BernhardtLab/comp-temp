@@ -32,36 +32,36 @@ model_data %>%
 #plot inter-process TA 
 model_data %>% 
   ggplot() + 
-  annotate("rect",
-           xmin = 0, xmax = 18, ymin = -1, ymax = 3, 
-           fill = "lightgrey", alpha = 0.6) +
-  geom_line(aes(x = temp, y = log(y1)), colour = "dodgerblue4", linewidth = 1.5) + 
-  geom_line(aes(x = temp, y = log(y2)), colour = "goldenrod", linewidth = 1.5) + 
-  coord_cartesian(xlim = c(2,40), ylim = c(0, 3)) +
+  # annotate("rect",
+  #          xmin = 0, xmax = 18, ymin = -1, ymax = 3, 
+  #          fill = "lightgrey", alpha = 0.6) +
+  geom_line(aes(x = temp, y = y1), colour = "dodgerblue4", linewidth = 1.5) + 
+  geom_line(aes(x = temp, y = y2), colour = "goldenrod", linewidth = 1.5) + 
+  coord_cartesian(xlim = c(2,40), ylim = c(0, 10)) +
   theme_cowplot(font_size = 20) +
   theme(axis.ticks = element_blank(),
         axis.text = element_blank()) + 
   labs(x = "Temperature (°C)",
-       y = "ln(Rate)") 
+       y = "Rate") 
 
-# ggsave(plot = last_plot(), file = "figures/kd-figs/inter-process.png", bg = "transparent", height = 5, width = 5, units = "in")
+# ggsave(plot = last_plot(), file = "figures/conceptual/inter-process-tpc.png", bg = "transparent", height = 5, width = 5, units = "in")
 
 #plot intra-process TA
 model_data %>% 
   ggplot() + 
-  annotate("rect",
-           xmin = 0, xmax = 18, ymin = -1, ymax = 3, 
-           fill = "lightgrey", alpha = 0.6) +
-  geom_line(aes(x = temp, y = log(y1)), colour = "dodgerblue4", linewidth = 1.5) + 
-  geom_line(aes(x = temp, y = log(y3)), colour = "dodgerblue2", linewidth = 1.5) + 
-  coord_cartesian(xlim = c(2,40), ylim = c(0, 3)) + 
+  # annotate("rect",
+  #          xmin = 0, xmax = 18, ymin = -1, ymax = 3, 
+  #          fill = "lightgrey", alpha = 0.6) +
+  geom_line(aes(x = temp, y = y1), colour = "dodgerblue4", linewidth = 1.5) + 
+  geom_line(aes(x = temp, y = y3), colour = "dodgerblue2", linewidth = 1.5) + 
+  coord_cartesian(xlim = c(2,40), ylim = c(0, 10)) + 
   theme_cowplot(font_size = 20) +
   theme(axis.ticks = element_blank(),
         axis.text = element_blank()) + 
   labs(x = "Temperature (°C)",
-       y = "ln(Rate)") 
+       y = "Rate") 
 
-# ggsave(plot = last_plot(), file = "figures/kd-figs/intra-process.png", bg = "transparent", height = 5, width = 5, units = "in")
+# ggsave(plot = last_plot(), file = "figures/conceptual/intra-process-tpc.png", bg = "transparent", height = 5, width = 5, units = "in")
 
 ### plotting thermal asymmetries in distributions ####
 #data

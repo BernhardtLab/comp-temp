@@ -1943,13 +1943,13 @@ rrc_ex_tas <- rrc_ex_plot_e2_c2 + rrc_ex_plot_e2_c4 +rrc_ex_plot_e2_r + rrc_ex_p
 
 # ggsave(plot = rrc_ex_tas, filename = "figures/TA-ED-extremes.pdf", width = 18, height = 12)
 
-#What if resources are all autotrophic or heterotrophic? -----------------
+#What if resources are all unicellular vs multicellular? -----------------
 
 #load in data with heterotrophy indicated
-tparam_vals <- read_csv("data/processed-data/trophy_param_post_dists.csv")
+cparam_vals <- read_csv("data/processed-data/unimulti_param_post_dists.csv")
 
 #split these into dfs for each parameter
-tparam_vals %>%
+cparam_vals %>%
   mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
          parameter = str_replace(parameter, "carrying_capacity", "k"),
          parameter = str_replace(parameter, "conversion_efficiency", "v"),
@@ -1957,11 +1957,11 @@ tparam_vals %>%
          parameter = str_replace(parameter, "consumption rate", "c")) %>% 
   group_by(parameter) %>%
   group_split() %>%
-  set_names(unique(tparam_vals$parameter)) %>%  # Set the names based on unique category values
-  walk(~ assign(paste0(.x$parameter[1], "_t_post_dist"), .x, envir = .GlobalEnv))
+  set_names(unique(cparam_vals$parameter)) %>%  # Set the names based on unique category values
+  walk(~ assign(paste0(.x$parameter[1], "_c_post_dist"), .x, envir = .GlobalEnv))
 
 #get summary stats for all parameters ########
-tparam_sum <- tparam_vals %>%
+cparam_sum <- cparam_vals %>%
   group_by(parameter) %>% 
   summarize(
     across(
@@ -1980,33 +1980,33 @@ tparam_sum <- tparam_vals %>%
 
 
 #make longform
-tparam_sum1 <- tparam_sum %>% 
+cparam_sum1 <- cparam_sum %>% 
   pivot_longer(cols = c(bottom10:sd), 
                names_to = "summary_stat",
                values_to = "value")
 
 #split df up into dfs for each summary statistic
-tparam_sum1 %>% 
+cparam_sum1 %>% 
   group_by(summary_stat) %>% 
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-rrc_het <- data.frame()
+rrc_unic <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
                       ref_temp = 10,
-                      r_EaN = sample_n(filter(rgr_t_post_dist, trophy == "heterotroph"), size = 1)$intercept,
-                      r_EaP = sample_n(filter(rgr_t_post_dist, trophy == "heterotroph"), size = 1)$intercept, 
-                      c_Ea1N = sample_n(c_t_post_dist, size = 1)$intercept,
-                      c_Ea1P = sample_n(c_t_post_dist, size = 1)$intercept, 
-                      c_Ea2N = sample_n(c_t_post_dist, size = 1)$intercept,
-                      c_Ea2P = sample_n(c_t_post_dist, size = 1)$intercept, 
-                      K_EaN = sample_n(k_t_post_dist, size = 1)$intercept, 
-                      K_EaP = sample_n(k_t_post_dist, size = 1)$intercept, 
-                      v_EaN = sample_n(v_t_post_dist, size = 1)$intercept,
-                      v_EaP = sample_n(v_t_post_dist, size = 1)$intercept, 
-                      m_Ea1 = sample_n(m_t_post_dist, size = 1)$intercept, 
-                      m_Ea2 = sample_n(m_t_post_dist, size = 1)$intercept,
+                      r_EaN = sample_n(filter(rgr_c_post_dist, cellularity == "uni"), size = 1)$intercept,
+                      r_EaP = sample_n(filter(rgr_c_post_dist, cellularity == "uni"), size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_c_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_c_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_c_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_c_post_dist, size = 1)$intercept,
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
@@ -2015,12 +2015,12 @@ for(f in 1:500){
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
                       m1_b = 0.01, m2_b = 0.01) #same for both species
   hold$iteration <- f
-  rrc_het <- bind_rows(rrc_het, hold) 
+  rrc_unic <- bind_rows(rrc_unic, hold) 
 }
 
 #get average change in position after 15C warming
-rrc_het_avg_new <- rrc_het %>% 
-  mutate(rel_T = T) %>% 
+rrc_unic_avg_new <- rrc_unic %>% 
+  mutate(rel_T = T - 10) %>% 
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
@@ -2029,7 +2029,7 @@ rrc_het_avg_new <- rrc_het %>%
             new_med_fit_rat = median(new_fit_ratio))
 
 # pompom
-log_pom_het <-
+log_pom_unic <-
   ggplot() +
   # coexist area
   geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
@@ -2039,15 +2039,15 @@ log_pom_het <-
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
   # sim paths
-  geom_path(data = rrc_het, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  geom_path(data = rrc_unic, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   # position before warming
-  geom_point(data = filter(rrc_het, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
-  geom_point(data = filter(rrc_het, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  geom_point(data = filter(rrc_unic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_unic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = rrc_het_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = rrc_het_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = rrc_unic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_unic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
-  geom_point(data = rrc_het_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  geom_point(data = rrc_unic_avg_new, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
@@ -2060,25 +2060,25 @@ log_pom_het <-
   # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
   # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
   theme_cowplot(font_size = 24) + 
-  ggtitle("Heterotroph-style rgr")
+  ggtitle("All unicellular rgr")
 
-#repeat with autotrophs only
-rrc_aut <- data.frame()
+#repeat with multicellular only
+rrc_multic <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
                       ref_temp = 10,
-                      r_EaN = sample_n(filter(rgr_t_post_dist, trophy == "autotroph"), size = 1)$intercept,
-                      r_EaP = sample_n(filter(rgr_t_post_dist, trophy == "autotroph"), size = 1)$intercept, 
-                      c_Ea1N = sample_n(c_t_post_dist, size = 1)$intercept,
-                      c_Ea1P = sample_n(c_t_post_dist, size = 1)$intercept, 
-                      c_Ea2N = sample_n(c_t_post_dist, size = 1)$intercept,
-                      c_Ea2P = sample_n(c_t_post_dist, size = 1)$intercept, 
-                      K_EaN = sample_n(k_t_post_dist, size = 1)$intercept, 
-                      K_EaP = sample_n(k_t_post_dist, size = 1)$intercept, 
-                      v_EaN = sample_n(v_t_post_dist, size = 1)$intercept,
-                      v_EaP = sample_n(v_t_post_dist, size = 1)$intercept, 
-                      m_Ea1 = sample_n(m_t_post_dist, size = 1)$intercept, 
-                      m_Ea2 = sample_n(m_t_post_dist, size = 1)$intercept,
+                      r_EaN = sample_n(filter(rgr_c_post_dist, cellularity == "multi"), size = 1)$intercept,
+                      r_EaP = sample_n(filter(rgr_c_post_dist, cellularity == "multi"), size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_c_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_c_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_c_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_c_post_dist, size = 1)$intercept,
                       c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
                       c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
                       r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
@@ -2087,12 +2087,12 @@ for(f in 1:500){
                       v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
                       m1_b = 0.01, m2_b = 0.01) #same for both species
   hold$iteration <- f
-  rrc_aut <- bind_rows(rrc_aut, hold) 
+  rrc_multic <- bind_rows(rrc_multic, hold)
 }
 
 #get average change in position after 15C warming
-rrc_aut_avg_new <- rrc_aut %>% 
-  mutate(rel_T = T) %>% 
+rrc_multic_avg_new <- rrc_multic %>% 
+  mutate(rel_T = T - 10) %>% 
   filter(rel_T == 15) %>% 
   group_by(rel_T) %>% 
   summarise(new_mean_stab_pot = mean(new_stabil_potential),
@@ -2101,7 +2101,7 @@ rrc_aut_avg_new <- rrc_aut %>%
             new_med_fit_rat = median(new_fit_ratio))
 
 # pompom
-log_pom_aut <-
+log_pom_multic <-
   ggplot() +
   # coexist area
   geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
@@ -2111,15 +2111,15 @@ log_pom_aut <-
                   ymax = x),
               fill = "grey", color = "black", alpha = 0.2) +
   # sim paths
-  geom_path(data = rrc_aut, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  geom_path(data = rrc_multic, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
   # position before warming
-  geom_point(data = filter(rrc_aut, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
-  geom_point(data = filter(rrc_aut, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  geom_point(data = filter(rrc_multic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_multic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
   # position after 15C warming
-  geom_point(data = rrc_aut_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
-  geom_point(data = rrc_aut_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_point(data = rrc_multic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_multic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
   geom_hline(yintercept = 0, linetype=5) +
-  geom_point(data = rrc_aut_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  geom_point(data = rrc_multic_avg_new, x = 0, y = 0, colour = "black", size = 6) +
   #aesthetic customization
   scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
@@ -2132,42 +2132,79 @@ log_pom_aut <-
   # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
   # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
   theme_cowplot(font_size = 24) + 
-  ggtitle("Autotroph-style rgr")
+  ggtitle("All multicellular rgr")
 
-log_pom_het + log_pom_aut
+#repeat with all
+rrc_allc <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
+                      ref_temp = 10,
+                      r_EaN = sample_n(filter(rgr_c_post_dist), size = 1)$intercept,
+                      r_EaP = sample_n(filter(rgr_c_post_dist), size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_c_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_c_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_c_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_c_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc_allc <- bind_rows(rrc_allc, hold)
+}
 
-rrc_het1 <- rrc_het %>% 
-  filter(T %in% c(10, 25)) %>%
-  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
-  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
-              names_from = T,
-              values_from = c(new_stabil_potential, new_fit_ratio),
-              names_glue = "T{T}_{.value}") %>% 
-  #shifts in competition
-  mutate(dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
-         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
-         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
-  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+#get average change in position after 15C warming
+rrc_allc_avg_new <- rrc_allc %>% 
+  mutate(rel_T = T - 10) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
 
-rrc_aut1 <- rrc_aut %>% 
-  filter(T %in% c(10, 25)) %>%
-  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
-  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
-              names_from = T,
-              values_from = c(new_stabil_potential, new_fit_ratio),
-              names_glue = "T{T}_{.value}") %>% 
-  #shifts in competition
-  mutate(dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
-         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
-         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
-  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+# pompom
+log_pom_allc <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc_allc, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc_allc, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_allc, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc_allc_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_allc_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc_allc_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 24) + 
+  ggtitle("All rgr")
 
-rrc_aut1 %>% 
-  group_by(response_var) %>% 
-  summarise(median = median(value),
-            sd = sd(value))
-
-rrc_het1 %>% 
-  group_by(response_var) %>% 
-  summarise(median = median(value),
-            sd = sd(value))
+cellularity_plots <- (log_pom_unic + theme(legend.position = "none")) + (log_pom_multic + theme(legend.position = "none")) + (log_pom_allc + theme(legend.position = "none"))
+ggsave(cellularity_plots, file = "figures/cellularity-pompom.png", width = 16, height = 8)

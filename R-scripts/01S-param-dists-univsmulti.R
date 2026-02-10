@@ -45,6 +45,7 @@ mac_cell2 <- mac_cell1 %>%
   rename(cellularity = cellularity1)
 
 mac_cell2 %>% 
+  ungroup() %>% 
   group_by(cellularity, simple_parameter) %>% 
   tally()
 
@@ -52,7 +53,7 @@ mac_cell2 %>%
 ### mortality rates -------------------------------
 lm_mort <- mac_cell2 %>%
   filter(simple_parameter == "mortality rate") %>% 
-  group_by(cellularity) %>% #no unicellular estimates
+  # group_by(cellularity) %>% #no unicellular estimates
   group_modify(~ {
     MCMCregress(
       activation_energy ~ 1,
@@ -73,7 +74,6 @@ mortality_rates %>%
   group_by(cellularity) %>% 
   summarise(min = min(activation_energy),
             max = max(activation_energy))
-
 
 # resource growth rate ----------------------------------------------------
 lm_rgr <- mac_cell2 %>%
@@ -103,7 +103,7 @@ growth_rates %>%
 # conversion efficiency ---------------------------------------------------
 lm_conv_eff <- mac_cell2 %>%
   filter(simple_parameter == "conversion efficiency") %>% 
-  group_by(cellularity) %>%
+  # group_by(cellularity) %>% #this may not be appropriate -- come back to this after I run the sim
   group_modify(~ {
     MCMCregress(
       activation_energy ~ 1,
@@ -128,7 +128,7 @@ conv_rates %>%
 # resource carrying capacity  ---------------------------------------------------
 lm_carrying_capacity <- mac_cell2 %>%
   filter(simple_parameter == "resource carrying capacity") %>% 
-  group_by(cellularity) %>%
+  # group_by(cellularity) %>% #only one estimate for multicellular
   group_modify(~ {
     MCMCregress(
       activation_energy ~ 1,
@@ -153,7 +153,7 @@ carrying_capacity %>%
 # consumption rate  ---------------------------------------------------
 lm_consumption_rate <- mac_cell2 %>%
   filter(simple_parameter == "consumption rate") %>% 
-  group_by(cellularity) %>% #only 1 unicellular observation
+  # group_by(cellularity) %>% #only 1 unicellular observation
   group_modify(~ {
     MCMCregress(
       activation_energy ~ 1,
@@ -176,14 +176,14 @@ consumption_rate %>%
             max = max(activation_energy))
 
 # stitch all these dfs together for use in other scripts
-# bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>%
-# write_csv(., "data/processed-data/unimulti_param_post_dists.csv")
+bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>%
+write_csv(., "data/processed-data/unimulti_param_post_dists.csv")
 
 ### get summary stats for each parameter #####
 #in order to prevent small changes to parameter distribution values with each simulation, I do not re-run the regressions each time.
-data <- read_csv("data/processed-data/unimulti_param_post_dists.csv") %>% 
-  filter(!(parameter == "carrying_capacity" & cellularity == "multi")) %>% 
-  filter(!(parameter == "consumption rate" & cellularity == "uni")) #this is hacky, but the best way forward right now. One alternative is to use the single value for the other rate as a stand in. This is possible for the two params with only one cellularity level present, as well.
+data <- read_csv("data/processed-data/unimulti_param_post_dists.csv") 
+  # filter(!(parameter == "carrying_capacity" & cellularity == "multi")) %>% 
+  # filter(!(parameter == "consumption rate" & cellularity == "uni")) #this is hacky, but the best way forward right now. One alternative is to use the single value for the other rate as a stand in. This is possible for the two params with only one cellularity level present, as well.
 
 param_sum <- data %>%
   group_by(parameter, cellularity) %>% 
@@ -208,7 +208,7 @@ param_sum <- data %>%
 # plot distribution over original data 
 mort_ea_plot <-
   ggplot() + 
-  geom_density(aes(x = intercept, group = cellularity, fill = cellularity), alpha = 0.5, data = filter(data, parameter == "mortality_rate")) + 
+  geom_density(aes(x = intercept, group = cellularity), fill = "#F8766D", alpha = 0.5, data = filter(data, parameter == "mortality_rate")) + 
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "#F8766D", data = filter(data, parameter == "mortality_rate")) +
@@ -234,12 +234,11 @@ rgr_plot <-
 
 conv_eff_plot <- 
   ggplot() + 
-  geom_density(aes(x = intercept, group = cellularity, fill = cellularity), alpha = 0.5, data = filter(data, parameter == "conversion_efficiency")) + 
+  geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data, parameter == "conversion_efficiency")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(conv_rates, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = filter(conv_rates, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "#252525", size = 5, shape = 1) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "red3", data = filter(data, parameter == "conversion_efficiency" & cellularity == "multi")) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "darkblue", data = filter(data, parameter == "conversion_efficiency" & cellularity == "uni")) +
+  geom_vline(aes(xintercept = mean(intercept)), data = filter(data, parameter == "conversion_efficiency")) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
@@ -258,12 +257,11 @@ conv_eff_plot <-
 #problem with unicellular estimates ruining the plot
 carrying_capacity_plot <-
   ggplot() + 
-  geom_density(aes(x = intercept), fill = "#00BFC4", alpha = 0.5, data = filter(data, parameter == "carrying_capacity")) + 
+  geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data, parameter == "carrying_capacity")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(carrying_capacity, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.5) +
-  # geom_point(aes(x = activation_energy, y = 0), data = filter(carrying_capacity, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = filter(carrying_capacity, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "#252525", size = 5, shape = 1) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "red3", data = filter(data, parameter == "carrying_capacity" & cellularity == "multi")) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "darkblue", data = filter(data, parameter == "carrying_capacity" & cellularity == "uni")) +
+  geom_vline(aes(xintercept = mean(intercept)), color = "black", data = filter(data, parameter == "carrying_capacity" & cellularity == "multi")) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
@@ -289,12 +287,11 @@ carrying_capacity_plot <-
 
 consumption_rate_plot <-
   ggplot() + 
-  geom_density(aes(x = intercept, group = cellularity, fill = cellularity), alpha = 0.5, data = filter(data, parameter == "consumption rate")) + 
-  geom_point(aes(x = activation_energy, y = 0), data = filter(consumption_rate, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.1) +
+  geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data, parameter == "consumption rate")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(consumption_rate, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
+  geom_point(aes(x = activation_energy, y = 0), data = filter(consumption_rate, cellularity == "uni"), color = "#00BFC4", size = 5) +
   geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "#252525", size = 5, shape = 1) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "red3", data = filter(data, parameter == "consumption rate" & cellularity == "multi")) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "darkblue", data = filter(data, parameter == "consumption rate" & cellularity == "uni")) +
+  geom_vline(aes(xintercept = mean(intercept)), color = "black", data = filter(data, parameter == "consumption rate")) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
@@ -323,7 +320,7 @@ single_obs <- mac_cell2 %>%
   filter(simple_parameter == "resource carrying capacity" & cellularity == "multi" | simple_parameter == "consumption rate" & cellularity == "uni") %>% 
   dplyr::select(simple_parameter, activation_energy)
  
-#plot each estimate and CI bars
+#plot each estimate and CI bars - mortality rate and growth rate?
 interTAs <-
   param_sum %>% 
   clean_names() %>% 
@@ -352,7 +349,7 @@ ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A") #there are no unicellular mortality rate estimates, so I'm not sure why there are two dots there
 
-ggsave(filename = "figures/unimulti-ea-plots.pdf", ea_plots, width = 16, height = 12)
+# ggsave(filename = "figures/unimulti-ea-plots.pdf", ea_plots, width = 16, height = 12)
 
 # AGAIN -- repeat but with heterotroph/autotroph ######
 # create uni/multi columns
