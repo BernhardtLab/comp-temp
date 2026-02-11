@@ -41,14 +41,14 @@ param_vals %>%
   set_names(unique(param_vals$parameter)) %>%  # Set the names based on unique category values
   walk(~ assign(paste0(.x$parameter[1], "_post_dist"), .x, envir = .GlobalEnv))
 
-# #KD To come fix this
+# # #KD To come fix this
 # #again with vpos
 # vpos_post_dist %>%
 #   mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
 #          parameter = str_replace(parameter, "carrying_capacity", "k"),
 #          parameter = str_replace(parameter, "conversion_efficiency", "v"),
 #          parameter = str_replace(parameter, "mortality_rate", "m"),
-#          parameter = str_replace(parameter, "consumption rate", "c")) %>% 
+#          parameter = str_replace(parameter, "consumption rate", "c")) %>%
 #   group_by(parameter) %>%
 #   group_split() %>%
 #   set_names(unique(param_vals$parameter)) %>%  # Set the names based on unique category values
@@ -223,11 +223,11 @@ param_labels <- c(
   a12 = "alpha[12]",
   a21 = "alpha[21]",
   a22 = "alpha[22]",
-  KN  = "K[N]",
-  KN_over_rN = "K[N]/r[N]",
+  KN  = "K[a]",
+  KN_over_rN = "K[a]/r[a]",
   new_fit_ratio = "log(Fitness~ratio)",
   new_stabil_potential = "-log(rho)",
-  rN = "r[N]",
+  rN = "r[a]",
   intra_inter1 = "alpha[11]/alpha[12]",
   intra_inter2 = "alpha[22]/alpha[21]",
   inter_intra1 = "alpha[12]/alpha[11]",
@@ -242,14 +242,15 @@ filter(T > 9, T < 26)
 warming_tendencies200 <-
 rrc_sums %>% 
   filter(statistic == "median") %>% 
-  filter(! parameter %in% c("inter_intra1", "inter_intra2")) %>% 
+  filter(! parameter %in% c("inter_intra1", "inter_intra2", "fit_ratio", "rho")) %>% 
   # filter(T > 150) %>% 
   ggplot() + 
   geom_point(aes(x = T, y = value)) +
   # geom_hline(yintercept = 1, colour = "green4") + 
   facet_wrap(~parameter, 
              labeller = as_labeller(param_labels, label_parsed), 
-             scales = "free") 
+             scales = "free") + 
+  theme(strip.text = element_text(size = 16))
 
 # ggsave(plot = warming_tendencies200, filename = "figures/200C_param_trajectories.pdf", width = 12, height = 8)
 

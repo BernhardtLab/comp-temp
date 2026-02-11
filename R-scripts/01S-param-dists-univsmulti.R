@@ -53,7 +53,7 @@ mac_cell2 %>%
 ### mortality rates -------------------------------
 lm_mort <- mac_cell2 %>%
   filter(simple_parameter == "mortality rate") %>% 
-  # group_by(cellularity) %>% #no unicellular estimates
+  group_by(cellularity) %>% #no unicellular estimates
   group_modify(~ {
     MCMCregress(
       activation_energy ~ 1,
@@ -88,6 +88,7 @@ lm_rgr <- mac_cell2 %>%
       as.data.frame() %>%
       clean_names()
   }) %>%
+  slice_sample(n = 5000) %>% #sample 5000 per cellularity group to total distribution is the same size as other parameters
   ungroup() %>%
   mutate(parameter = "resource_growth_rate")
 
@@ -176,7 +177,7 @@ consumption_rate %>%
             max = max(activation_energy))
 
 # stitch all these dfs together for use in other scripts
-bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>%
+bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>% 
 write_csv(., "data/processed-data/unimulti_param_post_dists.csv")
 
 ### get summary stats for each parameter #####
@@ -184,6 +185,7 @@ write_csv(., "data/processed-data/unimulti_param_post_dists.csv")
 data <- read_csv("data/processed-data/unimulti_param_post_dists.csv") 
   # filter(!(parameter == "carrying_capacity" & cellularity == "multi")) %>% 
   # filter(!(parameter == "consumption rate" & cellularity == "uni")) #this is hacky, but the best way forward right now. One alternative is to use the single value for the other rate as a stand in. This is possible for the two params with only one cellularity level present, as well.
+data_all <- read_csv("data/processed-data/param_post_dists.csv")
 
 param_sum <- data %>%
   group_by(parameter, cellularity) %>% 
@@ -208,42 +210,52 @@ param_sum <- data %>%
 # plot distribution over original data 
 mort_ea_plot <-
   ggplot() + 
+  # geom_density(aes(x = intercept, y = after_stat(density * n), group = cellularity), fill = "#F8766D", alpha = 0.5, data = filter(data, parameter == "mortality_rate")) + 
   geom_density(aes(x = intercept, group = cellularity), fill = "#F8766D", alpha = 0.5, data = filter(data, parameter == "mortality_rate")) + 
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = mortality_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "#F8766D", data = filter(data, parameter == "mortality_rate")) +
+  # coord_cartesian(xlim = c(-1.5, 2)) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
-  theme_cowplot(font_size = 20) + 
+  theme_cowplot(font_size = 20) +
   annotate("text", x = -0.3, y = 9, label = expression("Consumer \nmortality rate," ~ italic(m)[italic(i)]), size = 6)
 
 rgr_plot <-
   ggplot() + 
-  geom_density(aes(x = intercept, group = cellularity, fill = cellularity), alpha = 0.5, data = filter(data, parameter == "resource_growth_rate")) + 
+  # geom_density(aes(x = intercept, y = after_stat(density * n), group = cellularity, fill = cellularity), alpha = 0.5, data = filter(data, parameter == "resource_growth_rate")) +
+  # geom_density(aes(x = intercept, y = after_stat(density * n)), fill = "grey", alpha = 0.5, data = filter(data_all, parameter == "resource_growth_rate")) +
+  geom_density(aes(x = intercept, group = cellularity, fill = cellularity), alpha = 0.5, data = filter(data, parameter == "resource_growth_rate")) +
+  geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data_all, parameter == "resource_growth_rate")) +
   geom_point(aes(x = activation_energy, y = 0), data = filter(growth_rates, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
     geom_point(aes(x = activation_energy, y = 0), data = filter(growth_rates, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = growth_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "red3", data = filter(data, parameter == "resource_growth_rate" & cellularity == "multi")) +
   geom_vline(aes(xintercept = mean(intercept)), color = "darkblue", data = filter(data, parameter == "resource_growth_rate" & cellularity == "uni")) +
+  geom_vline(aes(xintercept = mean(intercept)), color = "black", data = filter(data_all, parameter == "resource_growth_rate")) +
+  # coord_cartesian(xlim = c(-1.5, 2)) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
   theme_cowplot(font_size = 20) + 
+  theme(legend.position = "none") +
   annotate("text", x = -0.4, y = 9, label = expression("Resource \ngrowth rate,"~italic(r)[italic(k)]), size = 6)
 
 conv_eff_plot <- 
   ggplot() + 
+  # geom_density(aes(x = intercept, y = after_stat(density * n)), fill = "grey", alpha = 0.5, data = filter(data, parameter == "conversion_efficiency")) + 
   geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data, parameter == "conversion_efficiency")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(conv_rates, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = filter(conv_rates, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = conv_rates, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), data = filter(data, parameter == "conversion_efficiency")) +
+  # coord_cartesian(xlim = c(-1.5, 2)) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
-  theme_cowplot(font_size = 20) + 
-  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency,"), size = 6) + 
+  theme_cowplot(font_size = 20) +
+  annotate("text", x = 1.2, y = 9, label = expression("Conversion \nefficiency,"), size = 6) +
   # Second line: italic c with subscript
   annotate(
     "text",
@@ -253,19 +265,21 @@ conv_eff_plot <-
     size = 6,
     hjust = 0
   )
-  
+
 #problem with unicellular estimates ruining the plot
 carrying_capacity_plot <-
   ggplot() + 
+  # geom_density(aes(x = intercept, y = after_stat(density * n)), fill = "grey", alpha = 0.5, data = filter(data, parameter == "carrying_capacity")) + 
   geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data, parameter == "carrying_capacity")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(carrying_capacity, cellularity == "uni"), color = "#00BFC4", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = filter(carrying_capacity, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = carrying_capacity, color = "#252525", size = 5, shape = 1) +
-  geom_vline(aes(xintercept = mean(intercept)), color = "black", data = filter(data, parameter == "carrying_capacity" & cellularity == "multi")) +
+  geom_vline(aes(xintercept = mean(intercept)), color = "black", data = filter(data, parameter == "carrying_capacity")) +
+  # coord_cartesian(xlim = c(-1.5, 2)) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
-  theme_cowplot(font_size = 20) + 
+  theme_cowplot(font_size = 20) +
     # First line: plain text
     annotate(
       "text",
@@ -274,7 +288,6 @@ carrying_capacity_plot <-
       size = 6,
       hjust = 0
     ) +
-    
     # Second line: "carrying capacity, K_k" with italic K and subscript
     annotate(
       "text",
@@ -287,15 +300,17 @@ carrying_capacity_plot <-
 
 consumption_rate_plot <-
   ggplot() + 
+  # geom_density(aes(x = intercept, y = after_stat(density * n)), fill = "grey", alpha = 0.5, data = filter(data, parameter == "consumption rate")) + 
   geom_density(aes(x = intercept), fill = "grey", alpha = 0.5, data = filter(data, parameter == "consumption rate")) + 
   geom_point(aes(x = activation_energy, y = 0), data = filter(consumption_rate, cellularity == "multi"), color = "#F8766D", size = 5, alpha = 0.5) +
   geom_point(aes(x = activation_energy, y = 0), data = filter(consumption_rate, cellularity == "uni"), color = "#00BFC4", size = 5) +
   geom_point(aes(x = activation_energy, y = 0), data = consumption_rate, color = "#252525", size = 5, shape = 1) +
   geom_vline(aes(xintercept = mean(intercept)), color = "black", data = filter(data, parameter == "consumption rate")) +
+  # coord_cartesian(xlim = c(-1.5, 2)) +
   coord_cartesian(ylim = c(0, 12), xlim = c(-1.5, 2)) +
   scale_y_continuous(breaks = c(0, 3, 6, 9, 12)) +
   labs(y = "Density", x = "Temperature Sensitivity (eV)") +
-  theme_cowplot(font_size = 20) + 
+  theme_cowplot(font_size = 20) +
     annotate(
       "text",
       x = -0.2, y = 9,
@@ -310,7 +325,7 @@ consumption_rate_plot <-
       label = '"rate, "*italic(c)[i*k]',
       size = 6
     )
- 
+
 # plot inter-process TAs
 mac_cell2 %>% 
   group_by(simple_parameter, cellularity) %>% 
@@ -349,7 +364,7 @@ ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A") #there are no unicellular mortality rate estimates, so I'm not sure why there are two dots there
 
-# ggsave(filename = "figures/unimulti-ea-plots.pdf", ea_plots, width = 16, height = 12)
+ggsave(filename = "figures/unimulti-ea-plots1.pdf", ea_plots, width = 16, height = 12)
 
 # AGAIN -- repeat but with heterotroph/autotroph ######
 # create uni/multi columns
