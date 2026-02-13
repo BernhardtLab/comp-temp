@@ -1,5 +1,7 @@
 # This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 05. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
+#This script produces Figures 5 in the main text and all supplementary figures from the same set of starting conditions with four resources. Those Supplementary figures are: S5, S8, 
+
 # Author: Kaleigh Davis, PDF University of Guelph
 # Script DOB: 30 April 2025
 
@@ -179,7 +181,7 @@ shift_sums <- rrc_shifts %>%
       mean = ~mean(.x, na.rm = TRUE),
       median = ~median(.x, na.rm = TRUE))))
 
-#does euclidean distance relate to thermal asymmetry -----------
+# does euclidean distance relate to thermal asymmetry -----------
 # get euclidean distances for each species pair
 rrc_e <- rrc %>% 
   filter(T %in% c(10, 25)) %>%
@@ -212,218 +214,15 @@ nrow(rrc_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
 rrc_ed <- rrc_e %>% 
   filter(response_var == "dist15")
 
-# run multiple regression to test for correlations between TAs and Euclidean distance from start point to warmed point ----------------------------
+# run multiple regression to test for correlations between TAs and Euclidean distance from start point to warmed point - Table S4 ----------------------------
 model <- lm(value ~ abs_r_ta + abs_c1_ta + abs_c2_ta + abs_c3_ta + abs_c4_ta + abs_c5_ta + abs_c6_ta + abs_k_ta + abs_v_ta + abs_m_ta, data = rrc_ed)
 
 visreg::visreg(model)
-summary(model)
+summary(model) #1-3 consumption rates are significant, depending on the simulation run. Effect sizes are repeatable.
+anova(model)
 # r, c4 (E_c2b-E_c2a), k, v significant
 
-r <- visreg(model, names(coef(model))[2], plot=FALSE)
-r_pr <- ggplot() +
-  # raw points
-  geom_point(data = r$res, 
-             aes_string(x = names(coef(model))[2], y = "visregRes")) +
-  # fitted line
-  geom_line(data = r$fit, 
-            aes_string(x = names(coef(model))[2], y = "visregFit"), color = "blue") +
-  # confidence ribbon
-  geom_ribbon(data = r$fit, 
-              aes_string(x = names(coef(model))[2], ymin = "visregLwr", ymax = "visregUpr"), 
-              alpha = 0.2, fill = "blue") + 
-  labs(x = "Maginute of thermal asymmetry r,", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-c1 <- visreg(model, names(coef(model))[3], plot=FALSE)
-c1_pr <- ggplot() +
-  # raw points
-  geom_point(data = c1$res, 
-             aes_string(x = names(coef(model))[3], y = "visregRes")) +
-  labs(x = "Thermal asymmetry in E_c1a", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-c2 <- visreg(model, names(coef(model))[4], plot=FALSE)
-c2_pr <- ggplot() +
-  # raw points
-  geom_point(data = c2$res, 
-             aes_string(x = names(coef(model))[4], y = "visregRes")) +
-  labs(x = "Thermal asymmetry in E_c2", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-c3 <- visreg(model, names(coef(model))[5], plot=FALSE)
-c3_pr <- ggplot() +
-  # raw points
-  geom_point(data = c3$res, 
-             aes_string(x = names(coef(model))[5], y = "visregRes")) +
-  labs(x = "Thermal asymmetry in E_c3", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-c4 <- visreg(model, names(coef(model))[6], plot=FALSE)
-c4_pr <- ggplot() +
-  # raw points
-  geom_point(data = c4$res, 
-             aes_string(x = names(coef(model))[6], y = "visregRes")) +
-  # fitted line
-  geom_line(data = c4$fit, 
-            aes_string(x = names(coef(model))[6], y = "visregFit"), color = "blue") +
-  # confidence ribbon
-  geom_ribbon(data = c4$fit, 
-              aes_string(x = names(coef(model))[6], ymin = "visregLwr", ymax = "visregUpr"), 
-              alpha = 0.2, fill = "blue") + 
-  labs(x = "Thermal asymmetry in E_c4", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-c5 <- visreg(model, names(coef(model))[7], plot=FALSE)
-c5_pr <- ggplot() +
-  # raw points
-  geom_point(data = c5$res, 
-             aes_string(x = names(coef(model))[7], y = "visregRes")) +
-  labs(x = "Thermal asymmetry in E_c5", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-c6 <- visreg(model, names(coef(model))[8], plot=FALSE)
-c6_pr <- ggplot() +
-  # raw points
-  geom_point(data = c6$res, 
-             aes_string(x = names(coef(model))[8], y = "visregRes")) +
-  labs(x = "Thermal asymmetry in E_c6", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-k <- visreg(model, names(coef(model))[9], plot=FALSE)
-k_pr <- ggplot() +
-  # raw points
-  geom_point(data = k$res, 
-             aes_string(x = names(coef(model))[9], y = "visregRes")) +
-  # fitted line
-  geom_line(data = k$fit, 
-            aes_string(x = names(coef(model))[9], y = "visregFit"), color = "blue") +
-  # confidence ribbon
-  geom_ribbon(data = k$fit, 
-              aes_string(x = names(coef(model))[9], ymin = "visregLwr", ymax = "visregUpr"), 
-              alpha = 0.2, fill = "blue") + 
-  labs(x = "Thermal asymmetry in E_K", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-v <- visreg(model, names(coef(model))[10], plot=FALSE)
-v_pr <- ggplot() +
-  # raw points
-  geom_point(data = v$res, 
-             aes_string(x = names(coef(model))[10], y = "visregRes")) +
-  # fitted line
-  geom_line(data = v$fit, 
-            aes_string(x = names(coef(model))[10], y = "visregFit"), color = "blue") +
-  # confidence ribbon
-  geom_ribbon(data = v$fit, 
-              aes_string(x = names(coef(model))[10], ymin = "visregLwr", ymax = "visregUpr"), 
-              alpha = 0.2, fill = "blue") + 
-  labs(x = "Thermal asymmetry in E_v", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-
-m <- visreg(model, names(coef(model))[11], plot=FALSE)
-m_pr <- ggplot() +
-  # raw points
-  geom_point(data = m$res, 
-             aes_string(x = names(coef(model))[11], y = "visregRes")) +
-  labs(x = "Thermal asymmetry in E_m", y = "Displacement of species pair with \nwarming (Euclidean distance)")
-
-pr_plots <- r_pr + c1_pr + c2_pr + c3_pr + c4_pr + c5_pr + c6_pr + k_pr + v_pr + m_pr
-
-# ggsave(pr_plots, filename = "figures/ta-prs.pdf", width = 12, height = 8, units = "in")
-
-#unscaled TA - euclidean distance plot - r
-rrc_plot_e2_r <-
-  rrc_ed %>% 
-  ggplot(aes(x = abs_r_ta, y = value)) +
-  # geom_point(aes(colour = r_EaP > r_EaN), size = 3) + 
-  geom_point(size = 3) + 
-  geom_smooth(method = "lm", colour = "red") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) + 
-  annotate("text", x = 0.8, y = 0.35, label = "Resource \ngrowth rate, r", size = 5.5) + 
-  annotate("text", x = 0.8, y = 0.15, label = "m = 0.83, \np = <0.001, adj. r2 = 0.53", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[ra] * "- E"[rb]*"|"))
-
-#unscaled TA - euclidean distance plot 
-rrc_plot_e2_c2 <-
-  rrc_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot() +
-  # geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
-  geom_point(aes(x = abs_c2_ta, y = value), size = 3) +
-  geom_smooth(aes(abs_c2_ta, y = value), method = "lm", colour = "red") +
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
-  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
-  annotate("text", x = 0.8, y = 0.15, label = "m = 0.28, \np = 0.038, adj r2 = 0.0066", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[c1a] * "- E"[c1b]*"|"))
-
-rrc_plot_e2_c4 <-
-  rrc_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot() +
-  # geom_point(aes(colour = c_Ea1P > c_Ea2N), size = 3) + 
-  geom_point(aes(x = abs_c4_ta, y = value), size = 3) +
-  geom_smooth(aes(abs_c4_ta, y = value), method = "lm", colour = "red") +
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
-  annotate("text", x = 0.8, y = 0.35, label = "Consumption \nrate, c", size = 5.5) + 
-  annotate("text", x = 0.8, y = 0.15, label = "m = 0.35, \np = 0.018, adj r2 = 0.0092", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[c2a] * "- E"[c2b]*"|"))
-
-rrc_plot_e2_k <-
-  rrc_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_k_ta, y = value)) +
-  # geom_point(aes(colour = K_EaN > K_EaP), size = 3) + 
-  geom_point(size = 3) +
-  geom_smooth(method = "lm", colour = "red") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
-  annotate("text", x = 0.97, y = 0.35, label = "Carrying \ncapacity, K", size = 5.5) + 
-  annotate("text", x = 0.97, y = 0.15, label = "m = 0.089, \np = 0.001, \nadj. r2 = 0.019", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[Ka] * "- E"[Kb]*"|"))
-
-rrc_plot_e2_v <-
-  rrc_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_v_ta, y = value)) +
-  # geom_point(aes(colour = v_EaN > v_EaP), size = 3) + 
-  geom_point(size = 3) +
-  geom_smooth(method = "lm", colour = "red") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
-  annotate("text", x = 1.05, y = 0.41, label = "Conversion \nefficiency, v", size = 5.5) + 
-  annotate("text", x = 1.07, y = 0.09, label = "m = 0.077, \np = <0.001,\nadj. r2 = 0.030", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[va] * "- E"[vb]*"|"))
-
-rrc_plot_e2_m <-
-  rrc_ed %>% 
-  filter(response_var == "dist15") %>% 
-  ggplot(aes(x = abs_m_ta, y = value)) +
-  # geom_point(aes(colour = m_Ea1 > m_Ea2), size = 3) + 
-  geom_point(size = 3) +
-  geom_smooth(method = "lm", linetype = "dashed", se = F, colour = "red") + 
-  labs(x = "Magnitude \nof thermal asymmetry", y = "Displacement of species pair with \nwarming (Euclidean distance)") + 
-  coord_cartesian(xlim = c(0, 1.3), ylim = c(0, 0.45)) +
-  annotate("text", x = 0.8, y = 0.35, label = "Mortality \nrate, m", size = 5.5) + 
-  theme_cowplot(font_size = 20) + 
-  theme(legend.position = "none") +
-  ggtitle(expression("|E"[m1] * "- E"[m2]*"|"))
-
-rrc_tas <- rrc_plot_e2_c2 + rrc_plot_e2_c4 +rrc_plot_e2_r + rrc_plot_e2_k + rrc_plot_e2_v +  rrc_plot_e2_m + plot_annotation(tag_levels = "A", title = "Thermal asymmetry links to shifts in competition: Main Text Model")
-
-# ggsave(plot = rrc_tas, filename = "figures/TA-ED-main-full.pdf", width = 18, height = 12)
-
-#histogram plot of euclidean distances in the pom pom plot
+# histogram plot of euclidean distances in the pom pom plot
 pom_hist <- rrc_e %>% 
   filter(response_var == "dist15") %>% 
   ggplot() + 
@@ -450,7 +249,6 @@ nd_shift <-
   ggplot() + 
   geom_jitter(data = filter(rrc_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_p_avg, aes(x = temp, y = med_stabil_potential, fill = temp), size = 5, pch = 21) +
-  geom_violinhalf(data = filter(rrc_p, T ==25), aes(x = temp, y = new_stabil_potential, fill = temp), alpha = 0.4, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Niche differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
@@ -464,7 +262,6 @@ fd_shift <-
   ggplot() + 
   geom_jitter(data = filter(rrc_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
   geom_point(data = rrc_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
-  geom_violinhalf(data = filter(rrc_p, T ==25), aes(x = temp, y = new_fit_ratio, fill = temp), alpha = 0.4, position = position_nudge(x = 0.2, y = 0)) +
   labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
   scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
   scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
@@ -482,51 +279,13 @@ comb_plot1 <- log_pom / bottom_patch +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-ggsave(plot = comb_plot1, filename = "figures/pom_hist_nfd_violins.pdf", width = 12, height = 10)
-
-#track movement of trajectories with temperature
-#get starting position
-start_new_stab_pot_rrc <- rrc %>% 
-  filter(T == 10) %>% 
-  summarise(mean_start_nd = mean(new_stabil_potential),
-            sd_stard_nd = sd(new_stabil_potential)) %>% 
-  dplyr::select(mean_start_nd) %>% 
-  unlist()
-
-start_new_fit_rat_rrc <- rrc %>% 
-  filter(T == 10) %>% 
-  summarise(mean_start_fd = mean(new_fit_ratio),
-            sd_stard_fd = sd(new_fit_ratio)) %>% 
-  dplyr::select(mean_start_fd) %>% 
-  unlist()
-
-#get ED from start point and from neutral point with warming
-track_rrc <- rrc %>% 
-  dplyr::select(T, iteration, new_stabil_potential, new_fit_ratio, r_EaN:m_Ea2) %>%  #param combo identifies the simulation replicate
-  mutate(start_nd = start_new_stab_pot,
-         start_fd = start_new_fit_rat,
-         dist_start = sqrt((new_stabil_potential - start_nd)^2 + (new_fit_ratio - start_fd)^2),
-         dist_neut = sqrt(new_stabil_potential^2 + new_fit_ratio^2),
-         iter_for_grouping = sprintf("%03d", iteration),
-         iter_group = str_extract(as.character(iter_for_grouping), "^[0-9]", group = NULL))
-
-track_rrc %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = dist_start, colour = iteration, group = iteration)) 
-# facet_wrap(~iter_group)
-
-track_rrc %>% 
-  ggplot() + 
-  geom_line(aes(x = T, y = dist_neut, colour = iteration, group = iteration)) + 
-  scale_x_continuous(breaks = c(10, 5, 20, 25)) +
-  labs(y = "Distance to neutrality", x = "Temperature") 
-
+# ggsave(plot = comb_plot1, filename = "figures/pom_hist_nfd.pdf", width = 12, height = 10)
 
 ################################################################################
 #########################  SUPPLEMENTARY ANALYSES   ############################
 ################################################################################
 
-# Repeat analysis with 50C warming - Figure S5 #####
+# Repeat analysis with 50C warming - Figure S12 #####
 rrc50 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 60, by = 0.5), 
@@ -669,7 +428,7 @@ comb_plot50 <- log_pom50 / bottom_patch50 +
 
 # ggsave(plot = comb_plot50, filename = "figures/50C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
-# Repeat analysis with 5C warming - Figure S1 ####
+# Repeat analysis with 5C warming - Figure S5 ####
 rrc5 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 15, by = 0.1), 
@@ -808,7 +567,7 @@ comb_plot5 <- log_pom5 / bottom_patch5 +
 
 # ggsave(plot = comb_plot5, filename = "figures/5C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
-# No thermal asymmetries -- Figure S7 ####
+# No thermal asymmetries -- Figure S8 ####
 nota <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 25, by = 0.1), # was by 0.1
@@ -946,3 +705,800 @@ comb_plot_nota <- log_pom_nota / bottom_patch_nota +
   plot_annotation(tag_levels = "A")
 # ggsave(plot = comb_plot_nota, filename = "figures/NOTA_pom_hist_nfd.pdf", width = 12, height = 10)
 
+##### simulate extreme (200C) warming in order to observe model behaviour ##############
+rrc_200 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 210, by = 1), #was by 0.1
+                      ref_temp = 10,
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc_200 <- bind_rows(rrc_200, hold) 
+}
+
+#get average change in position after 200C warming
+rrc_200_avg_new <- rrc_200 %>% 
+  mutate(rel_T = T-10) %>% 
+  filter(rel_T == 200) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+#pompom
+log_pom200 <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 1, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc_200, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc_200, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_200, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc_200_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_200_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc_200_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.75, 1.5), xlim = c(-0.022, 0.75)) +
+  # scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 20)
+
+# get euclidean distances for each species pair
+rrc_200_e <- rrc_200 %>% 
+  filter(T %in% c(10, 210)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  mutate(dist200 = sqrt((T210_new_stabil_potential - T10_new_stabil_potential)^2 + (T210_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T210_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T210_new_stabil_potential - T10_new_stabil_potential) 
+
+hist(rrc_200_e$dist200)
+
+#histogram plot of euclidean distances in the pom pom plot
+pom_hist200 <- rrc_200_e %>% 
+  ggplot(aes(x = dist200)) + 
+  geom_histogram(binwidth = 0.05, colour = "black") + 
+  labs(x = "Euclidean distance with \n200°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+# plot absolute shift in niche diffs and fitness diffs with warming #
+rrc_200_p <- rrc_200 %>% 
+  filter(T %in% c(10, 210)) %>% 
+  mutate(temp = ifelse(T == 10, "Ambient", "+200°C Warming"))
+
+rrc_200_p_avg <- rrc_200_p %>% 
+  group_by(temp) %>% 
+  summarise(mean_stabil_potential = mean(new_stabil_potential), 
+            mean_fitrat = mean(new_fit_ratio),
+            med_stabil_potential = median(new_stabil_potential),
+            med_fitrat = median(new_fit_ratio),
+            sd_stabil_potential = sd(new_stabil_potential),
+            sd_fitrat = sd(new_fit_ratio))
+
+#shift in stabilization potential
+nd_shift200 <-
+  ggplot() + 
+  geom_jitter(data = filter(rrc_200_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
+  geom_point(data = rrc_200_p_avg, aes(x = temp, y = med_stabil_potential, fill = temp), size = 5, pch = 21) +
+  labs(x = "Temperature", y = expression(paste("Niche differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+200°C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+  coord_cartesian(ylim = c(-1, 1)) 
+
+#shift in fitness ratio
+fd_shift200 <-
+  ggplot() + 
+  geom_jitter(data = filter(rrc_200_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
+  geom_point(data = rrc_200_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
+  labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+200°C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none")  +
+  coord_cartesian(ylim = c(-1, 1))
+
+nd_shift200 + fd_shift200
+
+# Pompom with subplots
+bottom_patch200 <- pom_hist200 + nd_shift200 + fd_shift200
+
+comb_plot200 <- log_pom200 / bottom_patch200 + 
+  plot_layout(heights = c(2.25, 1)) + 
+  plot_annotation(tag_levels = "A")
+
+### Plot vars driving neutrality -- Figure S10 ####
+# develop relevant composite variables
+rrc200a <-
+  rrc_200 %>% 
+  mutate(KN_over_rN = KN/rN,
+         KP_over_rP = KP/rP,
+         intra_inter1 = a11/a12,
+         intra_inter2 = a22/a21,
+         inter_intra1 = a12/a11,
+         inter_intra2 = a21/a22) %>% 
+  select(-ref_temp, -coexist) %>% 
+  select(iteration, T, everything()) 
+
+#plot KN/rN as a function of KN
+rrc200a %>% 
+  ggplot() + 
+  geom_line(aes(x = KN, y = KN_over_rN, group = iteration, colour = K_EaN))
+
+#because K has a negative temperature dependence, K approaches 0 exponentially as systems heat up. That means that K/r grows rapidly as the system heats up
+
+#KN temp response relative to KN/rN
+rrc200a %>% 
+  ggplot() + 
+  geom_line(aes(x = T, y = KN, group = iteration), colour = "blue") + #negative exponential
+  geom_line(aes(x = T, y = KN_over_rN, group = iteration), colour = "red") #negative exponential divided by a positive exponential
+
+#get summary trajectories for each parameter
+rrc200a_sum <- rrc200a %>% 
+  group_by(T) %>% 
+  summarise(across(
+    .cols = c(a11, a12, a21, a22, KN, KN_over_rN, new_fit_ratio, new_stabil_potential, rN, intra_inter1, intra_inter2, inter_intra1, inter_intra2, fit_ratio, rho),
+    .fns = list(
+      mean   = ~mean(.x, na.rm = TRUE),
+      median = ~median(.x, na.rm = TRUE),
+      sd     = ~sd(.x, na.rm = TRUE)
+    ),
+    .names = "{.col}_{.fn}"
+  ),
+  .groups = "drop"
+  )
+
+rrc200_sums <- rrc200a_sum %>% 
+  pivot_longer(cols = c(a11_mean:rho_sd), names_to = "parameter", values_to = "value") %>% 
+  separate(parameter, sep = "_(?=[^_]+$)", into = c("parameter", "statistic")) %>%  
+  filter(parameter %in% c("a11", "a12", "a21", "a22", "KN", "KN_over_rN", "new_fit_ratio", "new_stabil_potential", "rN", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2", "fit_ratio", "rho") & statistic %in% c("median", "mean")) %>% 
+  mutate(parameter = forcats::fct_relevel(parameter, "KN", "rN", "KN_over_rN", "a11", "a12", "a21", "a22", "intra_inter1", "intra_inter2", "inter_intra1", "inter_intra2", "fit_ratio", "rho","new_fit_ratio", "new_stabil_potential")) 
+
+param_labels <- c(
+  a11 = "alpha[11]",
+  a12 = "alpha[12]",
+  a21 = "alpha[21]",
+  a22 = "alpha[22]",
+  KN  = "K[a]",
+  KN_over_rN = "K[a]/r[a]",
+  new_fit_ratio = "log(Fitness~ratio)",
+  new_stabil_potential = "-log(rho)",
+  rN = "r[a]",
+  intra_inter1 = "alpha[11]/alpha[12]",
+  intra_inter2 = "alpha[22]/alpha[21]",
+  inter_intra1 = "alpha[12]/alpha[11]",
+  inter_intra2 = "alpha[21]/alpha[22]",
+  fit_ratio = "Fitness~ratio",
+  rho = "rho"
+)
+
+#divide temperatures
+rrc200_sums_to25 <- rrc200_sums %>% 
+  filter(T > 9, T < 26)
+
+# trajectories of each param over 200C - Figure S10
+warming_tendencies200 <-
+  rrc200_sums %>% 
+  filter(statistic == "median") %>% 
+  filter(! parameter %in% c("inter_intra1", "inter_intra2", "fit_ratio", "rho")) %>% 
+  # filter(T > 150) %>% 
+  ggplot() + 
+  geom_point(aes(x = T, y = value)) +
+  # geom_hline(yintercept = 1, colour = "green4") + 
+  facet_wrap(~parameter, 
+             labeller = as_labeller(param_labels, label_parsed), 
+             scales = "free") + 
+  theme(strip.text = element_text(size = 16))
+
+# ggsave(plot = warming_tendencies200, filename = "figures/200C_param_trajectories.pdf", width = 12, height = 8)
+
+#summaries of each param over the first 15C
+warming_tendencies15 <- 
+  rrc200_sums_to25 %>% 
+  filter(statistic == "median") %>% 
+  filter(! parameter %in% c("inter_intra1", "inter_intra2")) %>% 
+  ggplot() + 
+  # geom_hline(yintercept = 1, colour = "green4") + 
+  geom_point(aes(x = T, y = value)) +
+  facet_wrap(~parameter, 
+             labeller = as_labeller(param_labels, label_parsed), 
+             scales = "free")
+
+# ggsave(plot = warming_tendencies15, filename = "figures/15C_param_trajectories.pdf", width = 12, height = 8)
+
+#simulate effects of warming on species pairs with extreme thermal asymmetries - Figure S11 ----------------------------------
+param_extremes <- param_vals %>% 
+  group_by(parameter) %>% 
+  mutate(q5 = quantile(intercept, 0.05),
+         q95 = quantile(intercept, 0.95)) %>% 
+  filter(intercept <= q5 | intercept >= q95) %>% 
+  ungroup() %>% 
+  select(-q5, -q95)
+
+hist(filter(param_extremes, parameter == "resource_growth_rate")$intercept)
+hist(filter(param_extremes, parameter == "carrying_capacity")$intercept)
+
+#split these into dfs for each parameter
+param_extremes %>%
+  mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
+         parameter = str_replace(parameter, "carrying_capacity", "k"),
+         parameter = str_replace(parameter, "conversion_efficiency", "v"),
+         parameter = str_replace(parameter, "mortality_rate", "m"),
+         parameter = str_replace(parameter, "consumption rate", "c")) %>% 
+  group_by(parameter) %>%
+  group_split() %>%
+  set_names(unique(param_vals$parameter)) %>%  # Set the names based on unique category values
+  walk(~ assign(paste0(.x$parameter[1], "_extreme_pd"), .x, envir = .GlobalEnv))
+
+# sim for all params drawn randomly from the extremes of the distribution --------------------
+rrc_ex <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
+                      ref_temp = 10,
+                      r_EaN = sample_n(rgr_extreme_pd, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaP = sample_n(rgr_extreme_pd, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_extreme_pd, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_extreme_pd, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_extreme_pd, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_extreme_pd, size = 1)$intercept, 
+                      K_EaN = sample_n(k_extreme_pd, size = 1)$intercept, 
+                      K_EaP = sample_n(k_extreme_pd, size = 1)$intercept, 
+                      v_EaN = sample_n(v_extreme_pd, size = 1)$intercept,
+                      v_EaP = sample_n(v_extreme_pd, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_extreme_pd, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_extreme_pd, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc_ex <- bind_rows(rrc_ex, hold) 
+}
+
+hist(rrc_ex$r_EaN)
+
+#get average change in position after 15C warming
+rrc_ex_avg_new <- rrc_ex %>% 
+  mutate(rel_T = T - 10) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+#pompom
+log_pom_ex <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc_ex, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc_ex, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_ex, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc_ex_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_ex_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc_ex_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  # coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 1)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 24) 
+
+#for how many species pairs does ND decrease and does FD decrease
+rrc_ex_start <- rrc_ex %>% 
+  filter(T == 10) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_sd_stab_pot = sd(new_stabil_potential),
+            new_sd_fit_rat = sd(new_fit_ratio)) %>% 
+  select(new_mean_stab_pot, new_mean_fit_rat)
+
+rrc_ex_shifts <- rrc_ex %>% 
+  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  mutate(stab_pot_start = rrc_ex_start$new_mean_stab_pot,
+         fit_rat_start = rrc_ex_start$new_mean_fit_rat) %>% 
+  mutate(fd_shift = ifelse(new_fit_ratio < fit_rat_start, "decrease", 
+                           ifelse(new_fit_ratio > fit_rat_start, "increase",
+                                  ifelse(new_fit_ratio == fit_rat_start, "no change", "potato"))),
+         nd_shift = ifelse(new_stabil_potential < stab_pot_start, "decrease",
+                           ifelse(new_stabil_potential > stab_pot_start, "increase",
+                                  ifelse(new_stabil_potential == stab_pot_start, "no change","potato")))) %>% 
+  filter(T == 10 | T == 25)
+
+rrc_ex_shifts %>% 
+  group_by(T, fd_shift, nd_shift) %>% 
+  tally()
+
+## FD: 316/500 decrease; 282/500
+## ND: 299/500 decrease; 293/500
+## ND + FD: 203/500 decrease in both; 177/500
+
+# get euclidean distances for each species pair
+rrc_ex_e <- rrc_ex %>% 
+  filter(T %in% c(10, 25)) %>%
+  dplyr::select(-c(a11:g2, m1:beta12)) %>% 
+  pivot_wider(id_cols = c(ref_temp:m2_b, iteration),
+              names_from = T,
+              values_from = c(new_stabil_potential, new_fit_ratio),
+              names_glue = "T{T}_{.value}") %>% 
+  #thermal asymmetries
+  mutate(abs_r_ta = abs(r_EaN - r_EaP),
+         abs_c1_ta = abs(c_Ea1P - c_Ea2N),
+         abs_c2_ta = abs(c_Ea1P - c_Ea1N),
+         abs_c3_ta = abs(c_Ea1P - c_Ea2P), 
+         abs_c4_ta = abs(c_Ea2P - c_Ea2N), 
+         abs_c5_ta = abs(c_Ea2P - c_Ea1N), 
+         abs_c6_ta = abs(c_Ea1N - c_Ea2N), 
+         abs_k_ta = abs(K_EaN - K_EaP),
+         abs_v_ta = abs(v_EaN - v_EaP),
+         abs_m_ta = abs(m_Ea1 - m_Ea2)) %>% 
+  #shifts in competition
+  mutate(dist15 = sqrt((T25_new_stabil_potential - T10_new_stabil_potential)^2 + (T25_new_fit_ratio - T10_new_fit_ratio)^2),
+         shift_fitrat = T25_new_fit_ratio - T10_new_fit_ratio,
+         shift_nichediffs = T25_new_stabil_potential - T10_new_stabil_potential) %>% 
+  pivot_longer(cols = c(dist15, shift_fitrat, shift_nichediffs), names_to = "response_var", values_to = "value") 
+
+#anywhere where ND and FD are exactly the same at end? No, great.
+nrow(rrc_ex_e %>% filter(T == 25 & T25_new_fit_ratio == T25_new_stabil_potential))
+
+#just euclidean distances
+rrc_ex_ed <- rrc_ex_e %>% 
+  filter(response_var == "dist15")
+
+#histogram plot of euclidean distances in the pom pom plot
+pom_hist_ex <- rrc_ex_ed %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram(binwidth = 0.05, colour = "black") + 
+  labs(x = "Euclidean distance with \n15°C warming", y = "Count") + 
+  theme_cowplot(font_size = 14)
+
+# plot absolute shift in niche diffs and fitness diffs with warming #
+rrc_ex_p <- rrc_ex %>% 
+  filter(T %in% c(10, 25)) %>% 
+  mutate(temp = ifelse(T == 10, "Ambient", "+15°C Warming"))
+
+rrc_ex_p_avg <- rrc_ex_p %>% 
+  group_by(temp) %>% 
+  summarise(mean_stabil_potential = mean(new_stabil_potential), 
+            mean_fitrat = mean(new_fit_ratio),
+            med_stabil_potential = median(new_stabil_potential),
+            med_fitrat = median(new_fit_ratio),
+            sd_stabil_potential = sd(new_stabil_potential),
+            sd_fitrat = sd(new_fit_ratio))
+
+#shift in stabilization potential
+nd_shift_ex <-
+  ggplot() + 
+  geom_jitter(data = filter(rrc_ex_p, T>10), aes(x = temp, y = new_stabil_potential), colour = "lightgrey", alpha = 0.3, width = 0.03) +
+  geom_point(data = rrc_ex_p_avg, aes(x = temp, y = med_stabil_potential, fill = temp), size = 5, pch = 21) +
+  labs(x = "Temperature", y = expression(paste("Niche differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none") +
+  coord_cartesian(ylim = c(0, 0.75)) 
+
+#shift in fitness ratio
+fd_shift_ex <-
+  ggplot() + 
+  geom_jitter(data = filter(rrc_ex_p, T>10), aes(x = temp, y = new_fit_ratio), colour = "lightgrey", alpha = 0.3, width = 0.03) +
+  geom_point(data = rrc_ex_p_avg, aes(x = temp, y = med_fitrat, fill = temp), size = 5, pch = 21) + 
+  labs(x = "Temperature", y = expression(paste("Fitness differences"))) +
+  scale_x_discrete(limits = c("Ambient", "+15°C Warming")) + 
+  scale_fill_manual(values = c("#C23A75", "#FBFCBE")) +
+  theme_cowplot(font_size = 14) + 
+  theme(axis.title.x = element_blank(),
+        legend.position = "none")  +
+  coord_cartesian(ylim = c(0, 0.75))
+
+nd_shift_ex + fd_shift_ex
+
+# Pompom with subplots - Figure 5 
+bottom_patch_ex <- pom_hist_ex + nd_shift_ex + fd_shift_ex
+
+comb_plot_ex <- log_pom_ex / bottom_patch_ex + 
+  plot_layout(heights = c(2.25, 1)) + 
+  plot_annotation(tag_levels = "A")
+
+# ggsave(plot = comb_plot_ex, filename = "figures/extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
+
+# prove results are robust to different ranges of temperatures - reviewer response #####
+# ref temp 0
+rrc0 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(0, 15, by = 0.1), #was by 0.1
+                      ref_temp = 0,
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc0 <- bind_rows(rrc0, hold) 
+}
+
+#get average change in position after 15C warming
+rrc0_avg_new <- rrc0 %>% 
+  mutate(rel_T = T) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+#pompom
+log_pom0 <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc0, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-0, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc0, T==0), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc0, T==0), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-0), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc0_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc0_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc0_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 24) + 
+  ggtitle("0-15°C Warming")
+
+# ref temp 0
+rrc20 <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(20, 35, by = 0.1), #was by 0.1
+                      ref_temp = 20,
+                      r_EaN = sample_n(rgr_post_dist, size = 1)$intercept, #draw all EAs from empirical distributions above
+                      r_EaP = sample_n(rgr_post_dist, size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc20 <- bind_rows(rrc20, hold) 
+}
+
+#get average change in position after 15C warming
+rrc20_avg_new <- rrc20 %>% 
+  mutate(rel_T = T - 20) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+#pompom
+log_pom20 <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc20, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-20, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc20, T==20), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc20, T==20), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-20), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc20_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc20_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc20_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 24) + 
+  ggtitle("20-35°C Warming")
+
+ranges <- log_pom0 + log_pom20
+# ggsave(plot = ranges, "figures/diff-tref-pompoms.pdf", width = 28, height = 12)
+
+# What if resources are all unicellular vs multicellular? -- reviewer response -----------------
+
+#load in data with heterotrophy indicated
+cparam_vals <- read_csv("data/processed-data/unimulti_param_post_dists.csv")
+
+#split these into dfs for each parameter
+cparam_vals %>%
+  mutate(parameter = str_replace(parameter, "resource_growth_rate", "rgr"),
+         parameter = str_replace(parameter, "carrying_capacity", "k"),
+         parameter = str_replace(parameter, "conversion_efficiency", "v"),
+         parameter = str_replace(parameter, "mortality_rate", "m"),
+         parameter = str_replace(parameter, "consumption rate", "c")) %>% 
+  group_by(parameter) %>%
+  group_split() %>%
+  set_names(unique(cparam_vals$parameter)) %>%  # Set the names based on unique category values
+  walk(~ assign(paste0(.x$parameter[1], "_c_post_dist"), .x, envir = .GlobalEnv))
+
+#get summary stats for all parameters ########
+cparam_sum <- cparam_vals %>%
+  group_by(parameter) %>% 
+  summarize(
+    across(
+      intercept,
+      list(
+        bottom10 = ~quantile(., 0.10),
+        top10 = ~quantile(., 0.90),
+        Median   = ~median(., na.rm = TRUE),
+        Min      = ~min(., na.rm = TRUE),
+        Max      = ~max(., na.rm = TRUE),
+        sd       = ~sd(., na.rm = TRUE)
+      ),
+      .names = "{.fn}" )
+  ) 
+
+
+#make longform
+cparam_sum1 <- cparam_sum %>% 
+  pivot_longer(cols = c(bottom10:sd), 
+               names_to = "summary_stat",
+               values_to = "value")
+
+#split df up into dfs for each summary statistic
+cparam_sum1 %>% 
+  group_by(summary_stat) %>% 
+  group_split() %>% 
+  purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
+
+rrc_unic <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
+                      ref_temp = 10,
+                      r_EaN = sample_n(filter(rgr_c_post_dist, cellularity == "uni"), size = 1)$intercept,
+                      r_EaP = sample_n(filter(rgr_c_post_dist, cellularity == "uni"), size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_c_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_c_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_c_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_c_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc_unic <- bind_rows(rrc_unic, hold) 
+}
+
+#get average change in position after 15C warming
+rrc_unic_avg_new <- rrc_unic %>% 
+  mutate(rel_T = T - 10) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+# pompom
+log_pom_unic <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc_unic, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc_unic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_unic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc_unic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_unic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc_unic_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 24) + 
+  ggtitle("All unicellular rgr")
+
+#repeat with multicellular only
+rrc_multic <- data.frame()
+for(f in 1:500){ 
+  hold = temp_dep_mac(T = seq(10, 25, by = 0.1), #was by 0.1
+                      ref_temp = 10,
+                      r_EaN = sample_n(filter(rgr_c_post_dist, cellularity == "multi"), size = 1)$intercept,
+                      r_EaP = sample_n(filter(rgr_c_post_dist, cellularity == "multi"), size = 1)$intercept, 
+                      c_Ea1N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea1P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      c_Ea2N = sample_n(c_c_post_dist, size = 1)$intercept,
+                      c_Ea2P = sample_n(c_c_post_dist, size = 1)$intercept, 
+                      K_EaN = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      K_EaP = sample_n(k_c_post_dist, size = 1)$intercept, 
+                      v_EaN = sample_n(v_c_post_dist, size = 1)$intercept,
+                      v_EaP = sample_n(v_c_post_dist, size = 1)$intercept, 
+                      m_Ea1 = sample_n(m_c_post_dist, size = 1)$intercept, 
+                      m_Ea2 = sample_n(m_c_post_dist, size = 1)$intercept,
+                      c1N_b = 0.5, c1P_b = 1, #spec 1 consumes more P 
+                      c2N_b = 1, c2P_b = 0.5, #spec 2 consumes more N 
+                      r_N_b = 1, r_P_b = 0.5, #growth rate for each resource at ref temp 
+                      K_N_b= 2000, K_P_b = 2000, #carrying capacity for each resource at ref temp 
+                      v1N_b = 0.5, v1P_b = 1, #sp 1 converts P more efficiently 
+                      v2N_b = 1, v2P_b = 0.5, #sp 2 converts N more efficiently 
+                      m1_b = 0.01, m2_b = 0.01) #same for both species
+  hold$iteration <- f
+  rrc_multic <- bind_rows(rrc_multic, hold)
+}
+
+#get average change in position after 15C warming
+rrc_multic_avg_new <- rrc_multic %>% 
+  mutate(rel_T = T - 10) %>% 
+  filter(rel_T == 15) %>% 
+  group_by(rel_T) %>% 
+  summarise(new_mean_stab_pot = mean(new_stabil_potential),
+            new_mean_fit_rat = mean(new_fit_ratio),
+            new_med_stab_pot = median(new_stabil_potential),
+            new_med_fit_rat = median(new_fit_ratio))
+
+# pompom
+log_pom_multic <-
+  ggplot() +
+  # coexist area
+  geom_ribbon(data = data.frame(x = seq(0, 0.75, 0.001)),
+              aes(x = x,
+                  y = NULL,
+                  ymin = -x,
+                  ymax = x),
+              fill = "grey", color = "black", alpha = 0.2) +
+  # sim paths
+  geom_path(data = rrc_multic, aes(x = new_stabil_potential, y = new_fit_ratio, color = T-10, group = iteration), linewidth = 3) +
+  # position before warming
+  geom_point(data = filter(rrc_multic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio), colour = "black", size = 7.5) +
+  geom_point(data = filter(rrc_multic, T==10), aes(x = new_stabil_potential, y = new_fit_ratio, colour = T-10), size = 6) +
+  # position after 15C warming
+  geom_point(data = rrc_multic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat), colour = "black",  size = 7.5) +
+  geom_point(data = rrc_multic_avg_new, aes(x = new_med_stab_pot, y = new_med_fit_rat, colour = rel_T),  size = 6) +
+  geom_hline(yintercept = 0, linetype=5) +
+  geom_point(data = rrc_multic_avg_new, x = 0, y = 0, colour = "black", size = 6) +
+  #aesthetic customization
+  scale_colour_viridis_c(option = "magma", begin = 0.53, end = 1, direction = -1) +
+  xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) +
+  labs(colour = "°C Warming") +
+  coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
+  scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
+  # annotate("text", x = 0.35, y = -0.08, label = "Coexistence", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = -0.2, label = "Species 1 wins", size = 5, fontface = 2) +
+  # annotate("text", x = 0.05, y = 0.7, label = "Species 2 wins", size = 5, fontface = 2) +
+  # annotate("text", x = -0.015, y = 0.05, label = "Neutrality", size = 5, fontface = 2) +
+  theme_cowplot(font_size = 24) + 
+  ggtitle("All multicellular rgr")
+
+cellularity_plots <- (log_pom_unic + theme(legend.position = "none")) + (log_pom_multic + theme(legend.position = "none"))
+# ggsave(cellularity_plots, file = "figures/cellularity-pompom.png", width = 16, height = 8)

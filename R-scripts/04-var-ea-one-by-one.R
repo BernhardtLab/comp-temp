@@ -592,7 +592,7 @@ param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot
 param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + plot_annotation(tag_levels = "A")
 # ggsave(plot = param_e_unscaled_plot, filename = "figures/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
 
-# Figure S4 - three panel NFD plots -------------------------------------------
+# Figure S9 - three panel NFD plots -------------------------------------------
 threeps <- r3p + c3p + v3p + k3p + m3p
 # ggsave(plot = threeps, filename = "figures/param_three_panels.pdf", width = 16, height = 12)
 
@@ -600,7 +600,7 @@ threeps <- r3p + c3p + v3p + k3p + m3p
 ############################# SUPPLEMENTAL ANALYSES #########################
 #############################################################################
 
-# vary different combinations of consumption rates - Figure S2----------------------------
+# vary different combinations of consumption rates - Figure S6----------------------------
 
 #####  vary all c_EaPs ####
 c_var1 <- data.frame()

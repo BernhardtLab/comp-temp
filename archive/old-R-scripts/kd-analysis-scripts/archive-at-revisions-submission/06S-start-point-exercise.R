@@ -5,6 +5,8 @@
 #script DOB: 12/15/2025
 #author: Kaleigh Davis, Postdoc UoG with Joey Bernhardt
 
+####### ALL MOVED TO 06-START-POINT-EXERCISE FOR SUBMISSION #############
+
 #### packages and referencing #####
 #load necessary pkgs
 library(tidyverse)

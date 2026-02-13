@@ -70,7 +70,7 @@ param_sum1 %>%
   group_split() %>% 
   purrr::walk(~ assign(paste0(.x$summary_stat[1]), .x, envir = .GlobalEnv))
 
-# change the temp range #####
+# change the temp range - MOVED TO MAIN SCRIPT 05 #####
 # ref temp 0
 rrc0 <- data.frame()
 for(f in 1:500){ 
@@ -219,7 +219,7 @@ ranges <- log_pom0 + log_pom20
 # ggsave(plot = ranges, "figures/diff-tref-pompoms.pdf", width = 28, height = 12)
 
 
-##### simulate extreme (200C) warming in order to observe model behaviour ##############
+##### simulate extreme (200C) warming in order to observe model behaviour -- MOVED THIS TO MAIN SCRIPT 05 ##############
 rrc_200 <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac(T = seq(10, 210, by = 1), #was by 0.1
@@ -714,7 +714,7 @@ comb_plot5 <- log_pom4r / bottom_patch5 +
 
 # ggsave(plot = comb_plot5, filename = "figures/4r_pom_hist_nfd.pdf", width = 12, height = 10)
 
-# Repeat analysis more resources - 8 resources in favour of 2 ####
+# Repeat analysis more resources - 8 resources in favour of 2 -- MOVED TO SEPARATE SCRIPT ####
 rrc_8r <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac_8r(T = seq(10, 25, by = 0.1), 
@@ -964,7 +964,7 @@ track_8r %>%
   filter(T == 25) %>%
   summarise(median_ed = mean(ED))
 
-# Repeat analysis more resources - 8 resources randomly preferred across two species ####
+# Repeat analysis more resources - 8 resources randomly preferred across two species -- MOVED TO SEPARATE SCRIPT ####
 rrc_8ru <- data.frame()
 for(f in 1:500){ 
   hold = temp_dep_mac_8r(T = seq(10, 25, by = 0.1), 
@@ -1238,7 +1238,7 @@ track_8ru %>%
 
 
 
-# make temperature dependence unimodal ##############
+# make temperature dependence unimodal - MOVED TO SEPARATE SCRIPT ##############
 rrc_uni <- data.frame()
 for(f in 1:500){ 
   hold = uni_temp_dep_mac_spec_diffs(T = seq(10, 25, by = 0.1), 
@@ -1340,7 +1340,7 @@ log_pom_uni <-
 # ggsave(filename = "figures/unimodal-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
 
 
-# make temperature dependence unimodal with different Topts for different species##############
+# make temperature dependence unimodal with different Topts for different species - MOEVD TO SEPARATE SCRIPT ##############
 rrc_uni_diffs <- data.frame()
 for(f in 1:500){ 
   hold = uni_temp_dep_mac_spec_diffs(T = seq(10, 25, by = 0.1), 
@@ -1629,7 +1629,8 @@ log_pom_ex1 <-
   theme_cowplot(font_size = 24) + 
   ggtitle("All temperature sensitivities for P (species 1 prefrence) \ndrawn from top 10% of distribution, N drawn from bottom 10%")
   
-#create a dataset that only contains the extremes, and draw randomly ----------------------------------
+
+#create a dataset that only contains the extremes, and draw randomly - MOVED TO MAIN SCRIPT 05 ----------------------------------
 param_extremes <- param_vals %>% 
   group_by(parameter) %>% 
   mutate(q5 = quantile(intercept, 0.05),
@@ -1844,7 +1845,7 @@ comb_plot_ex <- log_pom_ex / bottom_patch_ex +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-ggsave(plot = comb_plot_ex, filename = "figures/extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot_ex, filename = "figures/extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
 
 #### which thermal asymmetries drive large shifts in competition? - one by ones ####
 
