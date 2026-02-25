@@ -17,40 +17,55 @@ folder and figures produced by each script are stored in the
 [figures/](https://github.com/BernhardtLab/comp-temp/tree/main/figures)
 folder.
 
-**01-param-scripts.R**: This script processes synthesized published
+**01-param-dists.R**: This script processes synthesized published
 estimates of temperature sensitivities for the processes underling
 competition in the MacArthur consumer-resource model. The script
 requires param-eas.csv as an input and then generates posterior
 distributions for each parameter and generates the output
 param_post_dists.csv, stored in the
 [data/processed-data/](https://github.com/BernhardtLab/comp-temp/tree/main/data/processed-data)
-folder. This .csv file is a required input for scripts 03, 04, and 05. This script also generates main text figure 2.
+folder. This .csv file is a required input for scripts 03, 04, 05, 06, and 07. This script also generates main text figure 2.
 
 **02-temp-dep-macarthur.R**: This script provides the function that
 incorporates temperature sensitivity into the MacArthur consumer
 resource model. This function is used
-as an input for scripts 03, 04, and 05.
+as an input for scripts 04-07.
 
-**03-var-ea-one-by-one.R**: This script analyses the effects of
+**03-arrhenius.R**: This script provides the function that defines how model parameters 
+respond to temperature. This function is used as an input for scripts 04-07.
+
+**04-var-ea-one-by-one.R**: This script analyses the effects of
 temperature sensitivity in each parameter on niche and fitness
 differences. Each parameter is investigated on its own, while all other
 parameters are held invariant with temperature. This script requires
-inputs from scripts 01 and 02, and produces main text figures 3 and 4,
-as well as supplementary figures S2, S4, and S8.
+inputs from scripts 02 and 03, and produces main text figures 3 and 4,
+as well as supplementary figures S6 and S9.
 
-**04-full-temp-var-analysis.R**: This script analyses the effects of
+**05-full-temp-var-analysis.R**: This script analyses the effects of
 simultaneous temperature sensitivity in all parameter on niche and
-fitness differences. This script requires inputs from scripts 01 and 02,
-and produces main text figure 5, as well as supplementary figures S1,
-S5, and S7.
+fitness differences. This script requires inputs from scripts 02 and 03,
+and produces main text figure 5, as well as supplementary figures S5,
+S10-S12.
 
-**05-start-point-exercise.R**: This script analyses how different
+**06-start-point-exercise.R**: This script analyses how different
 simulation start points, imposed here by differences in the resource use
 preferences of competing species pairs, influences the warming
-trajectories of species. This script requires inputs from scripts 01 and
-02, and produces supplementary figures S9 and S10.
+trajectories of species. This script requires inputs from scripts 02 and 03, 
+and produces supplementary figures S2-4 and S8.
 
-For scripts 02 - 05, temperature sensitivities are defined in each simulation, with the naming convention: "{parameter_EAik}", where ik captures the relevant consumer, resource, or both. The parameter value at the reference temperature in each simulation is given following the naming convention: "{parameter-ik_b}". Consumer species are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively. The set of parameters at the ambient temperature defien the model's starting conditions, and thus the position in ND--FD space of the all species pairs for a given simulation prior to warming. 
+**07-different-CR-modles.R**: This script analyses how warming affects competition when we consider 
+consumer-resource models with more resource diversity (8 species) and unimodal temperature responses. This script 
+requires inputs from scripts 02 and 03, as well as supplemental scripts 07S-temp-dep-macarthur-8r.R 
+and 07S-temp-dep-macarthur-unimodal.R. This script produces Figures S1 and S13.
+
+For scripts 02 - 07, temperature sensitivities are defined in each simulation, with the naming convention:
+"{parameter_EAik}", where ik captures the relevant consumer, resource, or both. The parameter value at the 
+reference temperature in each simulation is given following the naming convention: "{parameter-ik_b}". 
+Consumer species are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N 
+and P, respectively. The set of parameters at the ambient temperature defien the model's starting conditions, 
+and thus the position in ND--FD space of the all species pairs for a given simulation prior to warming. 
+
+Scripts only utilized for supplementary analyses are contained in the folder R-scripts > supplemental-analysis and are arranged based on the main script that they are related to. Script 01S-param-dists-univsmulti.R explores the representation of unicellular and multicellular organisms in our synthesized dataset and generates posterior distributions for each paramter based on cellularity, where possible. Scripts 07S-temp-dep-macarthur-8r.R and 07S-temp-dep-macarthur-unimodal.R define the temperature-dependent competition model and calculations of niche and fitness differences for a consumer-resource model with 8 resources and a two-resource consumer-resource model where parameters respond to warming with unimodal curves, defined by the Johnson-Lewin model (Johnson and Lewin 1946, Journal of Cellular and Comparative Physiology). 
 
 If you have any questions about this repository, please direct them to
 the manuscript's corresponding author, Kaleigh Davis, at
