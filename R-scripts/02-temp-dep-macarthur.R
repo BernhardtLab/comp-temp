@@ -3,19 +3,19 @@
 #script author: Kaleigh Davis, UoG postdoc with Joey Bernhardt
 
 temp_dep_mac <- function(T, ref_temp, 
-                         r_EaN, r_EaP, #activation energy for resource growth rate N and P
-                         c_Ea1N, c_Ea1P, #activation energy for the consumption rate N and P, species 1
-                         c_Ea2N, c_Ea2P, #activation energy consumption rate N and P, species 2
-                         K_EaN, K_EaP, #activation energy carrying capacity N and P
-                         v_EaN, v_EaP, #activation energy conversion efficiency N & P (same for both consumer species)
-                         m_Ea1, m_Ea2, #activation energy mortality rate, species 1 and 2
-                         c1N_b, c1P_b, #consumption rate of N and P at ref temp for species 1
-                         c2N_b, c2P_b, #consumption rate of N and P at ref temp for species 2
-                         r_N_b, r_P_b, #growth rate for each resource at ref temp
-                         K_N_b, K_P_b, #carrying capacity for each resource at ref temp
-                         v1N_b, v1P_b, #conversion efficiency for each resource at ref temp for species 1
-                         v2N_b, v2P_b, #conversion efficiency for each resource at ref temp for species 2
-                         m1_b, m2_b){ #mortality rate at ref temp for each species
+                         r_EaN, r_EaP, #activation energies for resource growth rate  for resources N and P
+                         c_Ea1N, c_Ea1P, #activation energies for the consumption rate of resources N and P, consumer species 1
+                         c_Ea2N, c_Ea2P, #activation energy for the consumption rate of resources N and P, consumer species 2
+                         K_EaN, K_EaP, #activation energies carrying capacity of resources N and P
+                         v_EaN, v_EaP, #activation energies for the conversion efficiency of resources N & P (same for both consumer species)
+                         m_Ea1, m_Ea2, #activation energies for mortality rate, species 1 and 2
+                         c1N_b, c1P_b, #consumption rate of resources N and P at ref temp for species 1
+                         c2N_b, c2P_b, #consumption rate of resources N and P at ref temp for species 2
+                         r_N_b, r_P_b, #growth rate for each resource, N and P, at the ref temp
+                         K_N_b, K_P_b, #carrying capacity for each resource, N and P, at ref temp
+                         v1N_b, v1P_b, #conversion efficiency for each resource, N and P, at ref temp for species 1
+                         v2N_b, v2P_b, #conversion efficiency for each resource, N and P, at ref temp for species 2
+                         m1_b, m2_b){ #mortality rate at ref temp for each consumer species
   
   # resource growth rates
   rN = arrhenius_function(Temp = T, E = r_EaN, b1 = r_N_b, ref_temp = ref_temp)
