@@ -1,12 +1,12 @@
 library(dplyr)
 library(ggplot2)
-source("R-scripts/MacArthur Functions.R")
+source("data/dataset-creation/R-scripts/MacArthur Functions.R")
 
-MacArthur<-read.csv("data_raw/macarthur_v17.csv")
+MacArthur <- read.csv("data/dataset-creation/data_raw/macarthur_v17.csv")
 
 #Subset of the data containing E estimates for individual species only
 #(from lab experiments with >2 temperature treatments)
-SingleSpeciesM<-filter(MacArthur,Single.species.or.multiple=="single species"&Experiment.Type=="Lab"&Number.of.Temps.Measured>2)
+SingleSpeciesM <- filter(MacArthur,Single.species.or.multiple=="single species"&Experiment.Type=="Lab"&Number.of.Temps.Measured>2)
 
 #Count species numbers for each category
 NResourceGrowth<-length(unique(filter(SingleSpeciesM,Simple.Parameter=="resource growth rate")$Species))
