@@ -1,0 +1,24 @@
+﻿Heading,Description
+Simple Parameter,"This column contains the most basic groupings of parameter names. It has five possible values: resource growth rate, resource carrying capacity, mortality rate, consumption rate, and conversion efficiency"
+Specific Metric,Describes what metric is being used under the more general groupings in Simple Parameter. eg. attack rate as a specific metric for consumption rate
+Reference,"The full reference for where the data in a row was obtained. May include a second reference for where the activation energy was reported, if this is not the same as the original paper."
+Experiment Type,Lab or field (our dataset is exclusively lab experiments)
+Environment,"Freshwater, marine or terrestrial, or milk (in the case of bacteria found in milk)"
+General Taxon/Grouping 1,"Usually a common name for a higher taxon (or non-taxonomic group) that the focal species belongs to, such as ""Mosquito"", ""Aphid"", ""Fish"", etc. "
+General Taxon/Grouping 2,"Usually a common name for a higher taxon (or non-taxonomic group) that the focal species belongs to, such as ""Mosquito"", ""Aphid"", ""Fish"", etc. More granual than Grouping 1 "
+General Taxon/Grouping 3,"Usually a common name for a higher taxon (or non-taxonomic group) that the focal species belongs to, such as ""Mosquito"", ""Aphid"", ""Fish"", etc. More granular than Grouping 2 "
+Heterotroph or Autotroph,"A binary category (sorry, mixotrophs!) that categorizes the focal species as either a heterotroph if it consumes other organisms, or an autotroph if it photosynthesizes"
+Species,The latin name of the focal species
+Life Stage,Details what life stage the focal species is in at the time of measurement. Typically adult or juvenile
+Resource General,"Analogous to ""General Taxon/Grouping"" but with regards to the resource species. Is left empty if the focal species is already a resource species in the dataset, or if not available/applicable"
+Resource Species,The latin name of the resource species
+Resource Life Stage,"Analogous to ""Life Stage"" but with regards to the resource species (if present)"
+Max Temp,The maximum temperature used in the calculation of the activation energy (°C)
+Min Temp,The minimum temperature used in the calculation of the activation energy (°C)
+Temp Range,The range of temperatures over which the activation energy was calculated. Calculated as max temp - min temp (°C)
+Number of Temps Measured,The number of distinct temperature treatments represented within the Temp Range
+Activation Energy,The value of the activation energy in eV
+Error,"The value of any error estimate (standard error, confidence interval, etc.) on the activation energy, if given. Units are eV"
+Error Metric,"Which metric the Error value represents. SE (standard error), 95% CI, etc."
+Model Used,This column gives the name of the model used to calculate the activation energy. 
+Where to find in paper,"Shows where in the paper the activation energy (or raw data, if we calculated E ourselves in this analysis) is from."
