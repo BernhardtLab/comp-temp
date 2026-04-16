@@ -41,30 +41,40 @@ The source code for the app is located in the [R-scripts/MacArthur-shiny/](https
 
 ## Requirements
 
-The analysis scripts require R and the following packages:
+The analysis scripts require R and the following packages (versions used in the manuscript are noted):
 
--   `tidyverse`
--   `MCMCpack`
--   `MCMCvis`
--   `bayesplot`
--   `patchwork`
--   `cowplot`
--   `colorspace`
--   `viridis`
--   `janitor`
--   `purrr`
--   `car`
--   `see`
--   `visreg`
--   `beepr`
+-   `tidyverse` (1.3.2)
+-   `MCMCpack` (1.7.0)
+-   `MCMCvis` (0.16.3)
+-   `bayesplot` (1.11.1)
+-   `patchwork` (1.3.2)
+-   `cowplot` (1.1.1)
+-   `colorspace` (2.1.0)
+-   `viridis` (0.6.5)
+-   `janitor` (2.1.0)
+-   `purrr` (1.0.2)
+-   `car` (3.1.2)
+-   `see` (0.13.0)
+-   `visreg` (2.7.0)
+-   `beepr` (2.0)
 
 Packages can be installed via `install.packages()`. The analysis was developed and tested in R; users are advised to use a recent version of R (≥ 4.0) for compatibility.
+
+## Reproducibility
+
+To reproduce the exact results from the manuscript, package versions matter — particularly for the MCMC-based script (01-param-dists.R), where differences in `MCMCpack` or `MCMCvis` versions can affect posterior distributions. To check your current package environment, run the following in R:
+
+``` r
+sessionInfo()
+```
+
+If you encounter differences in results, please check your package versions against those listed in `sessionInfo()` output and consider opening an issue on the repository.
 
 ## Citation
 
 If you use this code or data, please cite the associated manuscript:
 
-> Davis, K.E., Grainger, T.N., Ke, P.-J., Thompson, P.L., O'Connor, M.I., and Bernhardt, J.R. General predictions for the effects of warming on competition. *[Journal]*, *[year]*. DOI: [DOI]
+> Davis, K.E., Grainger, T.N., Ke, P.-J., Thompson, P.L., O'Connor, M.I., and Bernhardt, J.R. General predictions for the effects of warming on competition. Ecology Letters, 2026. DOI: [DOI]
 
 ## License
 
