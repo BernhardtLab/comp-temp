@@ -37,14 +37,6 @@ The [data/raw-data/](https://github.com/BernhardtLab/comp-temp/tree/main/data/ra
 
 The [archive/](https://github.com/BernhardtLab/comp-temp/tree/main/archive) folder contains earlier versions of scripts, data, and figures that were produced during the development of the analysis but are not part of the final manuscript workflow. This includes previous R scripts, intermediate data files, and older figure outputs. These files are retained for reference but are not required to reproduce the results in the paper.
 
-## Interactive Shiny App
-
-An interactive version of the MacArthur consumer-resource model is available as a Shiny app, allowing users to explore model behaviour without running the R scripts directly. The app is hosted at:
-
-<https://joeybernhardt.shinyapps.io/macarthur-consumer-resource-model/>
-
-The source code for the app is located in the [R-scripts/MacArthur-shiny/](https://github.com/BernhardtLab/comp-temp/tree/main/R-scripts/MacArthur-shiny) folder.
-
 ## Requirements
 
 The analysis scripts require R and the following packages (versions used in the manuscript are noted):
