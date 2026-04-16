@@ -31,6 +31,10 @@ The [data/raw-data/](https://github.com/BernhardtLab/comp-temp/tree/main/data/ra
 -   **param-eas.csv**: Synthesized published estimates of temperature sensitivities (activation energies) for the processes underlying competition in the MacArthur consumer-resource model. This is the primary input for script 01.
 -   **params-ea-metadata.csv**: Column-level metadata for param-eas.csv, describing each field including parameter groupings, specific metrics, literature references, experiment type, taxonomic groupings, and the method used to estimate activation energies.
 
+## Archive
+
+The [archive/](https://github.com/BernhardtLab/comp-temp/tree/main/archive) folder contains earlier versions of scripts, data, and figures that were produced during the development of the analysis but are not part of the final manuscript workflow. This includes previous R scripts, intermediate data files, and older figure outputs. These files are retained for reference but are not required to reproduce the results in the paper.
+
 ## Interactive Shiny App
 
 An interactive version of the MacArthur consumer-resource model is available as a Shiny app, allowing users to explore model behaviour without running the R scripts directly. The app is hosted at:
