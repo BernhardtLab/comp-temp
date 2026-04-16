@@ -1,0 +1,5 @@
+Heading,Description
+cellularity,classifies the observation as unicellular or muticellular
+intercept,"A single draw from the posterior distribution of the activation energy (eV) for a given parameter, estimated via MCMC regression in script 01. Positive values indicate parameters that increase with temperature; negative values indicate parameters that decrease with temperature."
+sigma2,"The posterior variance associated with each draw, estimated alongside the intercept via MCMC regression in script 01."
+parameter,"The model parameter that the row's posterior draw corresponds to. One of five values: resource_growth_rate, carrying_capacity, consumption rate, conversion_efficiency, or mortality_rate. These correspond to the parameters r, K, c, v, and m in the MacArthur consumer-resource model."
