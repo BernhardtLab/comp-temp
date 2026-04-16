@@ -1,5 +1,7 @@
 # Data and code for Davis et al., General predictions for the effects of warming on competition
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![DOI](https://img.shields.io/badge/DOI-pending-lightgrey.svg)](#citation)
+
 Authors: Kaleigh E. Davis, Tess N. Grainger, Po-Ju Ke, Patrick L. Thompson, Mary I. O'Connor and Joey R. Bernhardt
 
 Description: In this study, we incorporated temperature sensitivity into a MacArthur consumer-resource model with two consumers and two resources. We incorporated temperature sensitivity using Arrhenius-style temperature effects, and then we added empirically-derived temperature-sensitivity estimates for each mechanistic process in the consumer-resource model. We then simulated warming on species with randomly drawn thermal traits (temperature sensitivities) to investigate the effects of warming on competition. Raw temperature sensitivity data are located in the repository's [data/](https://github.com/BernhardtLab/comp-temp/tree/main/data) folder. The workflow for the analysis includes 7 scripts, meant to be run in order. Scripts are located in the repository's [R-scripts/](https://github.com/BernhardtLab/comp-temp/tree/main/R-scripts) folder and figures produced by each script are stored in the [figures/](https://github.com/BernhardtLab/comp-temp/tree/main/figures) folder.
@@ -72,9 +74,9 @@ To reproduce the exact results from the manuscript, package versions matter — 
 sessionInfo()
 ```
 
-If you encounter differences in results, please check your package versions against those listed in `sessionInfo()` output and consider opening an issue on the repository.
+If you encounter differences in results, please check your package versions against those listed in `sessionInfo()` output.
 
-## Citation
+## Citation {#citation}
 
 If you use this code or data, please cite the associated manuscript:
 
