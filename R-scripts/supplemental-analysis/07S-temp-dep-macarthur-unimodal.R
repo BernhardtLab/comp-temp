@@ -1,8 +1,14 @@
 #This script is to implement a unimodal model in the temperature dependence function, in order to explore how that affects competitive outcomes. It is a daughter script to 02-temp-dep-macarthur.R
 
-#from parent script: This script defines the MacArthur consumer-resource function, where all parameters are assignable at the function deploying stage, and the Arrhenius temperature-depenence function, which feeds directly into the MacArthur C-R function. Temperature senstivities are referred to here as activation energy are parameters containing "EA." Intercept terms, given with the "_b" notation in parameter names, determine the value of the each function at the ambient temperature (Tref, ref_temp). Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively. These functions are called in all subsequent analysis scripts that simulate warming: Scripts 03, 04, and 05.
+#from parent script: This script defines the MacArthur consumer-resource function, where all parameters are assignable at the function deploying stage. Temperature sensitivities are referred to here as activation energy are parameters containing "EA." Intercept terms, given with the "_b" notation in parameter names, determine the value of the each function at the ambient temperature (Tref, ref_temp). Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively. These functions are called in all subsequent analysis scripts that simulate warming: Scripts 03, 04, and 05.
+
+# note: this script defines its own copy of arrhenius_function() (see bottom
+#   of script), which is functionally identical to the one in
+#   R-scripts/03-arrhenius.R. This script is therefore self-contained and
+#   does not need to source script 03.
 
 #script author: Kaleigh Davis, UoG postdoc with Joey Bernhardt
+#script DOB: [date]
 
 
 #johnson-Lewin model for temperature dependence 
