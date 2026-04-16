@@ -1,7 +1,17 @@
-# This script is to generate posterior distributions of temperature sensitivity for each MacArthur parameter from synthesized empirical data. This scripts output is used in each subsequent analysis (scripts 03, 04, 05).
+# This script is to generate posterior distributions of temperature sensitivity for each MacArthur parameter from synthesized empirical data. This script's output is used in each subsequent analysis (scripts 03, 04, 05).
 
 # author: Kaleigh Davis, Postdoc with Joey Bernhardt at U of Guelph
 # script DOB: 2/12/2025
+
+# inputs:
+#   data/raw-data/param-eas.csv — synthesized published estimates of temperature
+#     sensitivities (activation energies) for MacArthur model parameters
+
+# outputs:
+#   data/processed-data/param_post_dists.csv — posterior distributions of
+#     temperature sensitivity for each model parameter; used as input for
+#     scripts 04, 05, 06, and 07
+#   figures/Fig2-ea-plots.pdf — main text figure 2
 
 #load in necessary pkgs
 library(tidyverse)
