@@ -1,7 +1,21 @@
-# This script is to explore the effects of temperature sensitivity of different MacArthur consumer-resource parameters on changes in niche and fitness differences. In this script, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), while all other parameters of the model are assigned a temperature sensitivity of 0. Script 04-full-temp-var-analysis simulates warming when all parameters have temperature sensitivities drawn from their empirical distributions simultaneously. 
+# This script is to explore the effects of temperature sensitivity of different MacArthur consumer-resource parameters on changes in niche and fitness differences. In this script, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), while all other parameters of the model are assigned a temperature sensitivity of 0. Script 05-full-temp-var-analysis simulates warming when all parameters have temperature sensitivities drawn from their empirical distributions simultaneously.
 
 # script DOB: April 1, 2025
 # author: Kaleigh Davis, University of Guelph postdoc
+
+# sourced scripts:
+#   R-scripts/02-temp-dep-macarthur.R — temperature-dependent MacArthur
+#     consumer-resource function
+#   R-scripts/03-arrhenius.R — Arrhenius temperature-dependence function
+
+# inputs:
+#   data/processed-data/param_post_dists.csv — posterior distributions of
+#     temperature sensitivity for each model parameter (generated in script 01)
+
+# outputs:
+#   figures/Fig3-param_var_plots_EA0.pdf — main text figure 3
+#   figures/Fig4-param_e_plots_unscaled_inequality_EA0.pdf — main text figure 4
+#   figures/supp_startpoint_errce.pdf — supplementary figures S6 and S9
 
 #### packages and referencing #####
 # load necessary pkgs
