@@ -5,6 +5,24 @@
 # Author: Kaleigh Davis, PDF University of Guelph
 # Script DOB: 15 December 2025
 
+# sourced scripts:
+#   R-scripts/02-temp-dep-macarthur.R — temperature-dependent MacArthur
+#     consumer-resource function (two resources, Arrhenius temperature dependence)
+#   R-scripts/03-arrhenius.R — Arrhenius temperature-dependence function
+#   R-scripts/supplemental-analysis/07S-temp-dep-macarthur-8r.R — consumer-resource
+#     model with eight shared resources and Arrhenius temperature dependence
+#   R-scripts/supplemental-analysis/07S-temp-dep-macarthur-unimodal.R — consumer-resource
+#     model with unimodal (Johnson-Lewin) temperature dependence
+
+# inputs:
+#   data/processed-data/param_post_dists.csv — posterior distributions of
+#     temperature sensitivity for each model parameter (generated in script 01)
+
+# outputs:
+#   figures/8r_pomnfds.png — supplementary figure S1 (8-resource model)
+#   figures/unimodal-pompom.png — supplementary figure S13 (unimodal temperature dependence)
+#   figures/unimodal-vartopt-pompom.png — supplementary figure S13 (unimodal, varying Topt)
+
 #load packages
 library(tidyverse)
 library(janitor)
