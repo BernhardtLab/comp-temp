@@ -1,9 +1,25 @@
-# This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 05. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
+# This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 06. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
 #This script produces Figures 5 in the main text and all supplementary figures from the same set of starting conditions with four resources. Those Supplementary figures are: S5, S8, 
 
 # Author: Kaleigh Davis, PDF University of Guelph
 # Script DOB: 30 April 2025
+
+# sourced scripts:
+#   R-scripts/02-temp-dep-macarthur.R — temperature-dependent MacArthur
+#     consumer-resource function
+#   R-scripts/03-arrhenius.R — Arrhenius temperature-dependence function
+
+# inputs:
+#   data/processed-data/param_post_dists.csv — posterior distributions of
+#     temperature sensitivity for each model parameter (generated in script 01)
+
+# outputs:
+#   figures/Fig5-pom_hist_nfd.pdf — main text figure 5
+#   figures/5C_warm_pom_hist_nfd.pdf — supplementary figure S5
+#   figures/50C_warm_pom_hist_nfd.pdf — supplementary figure S12
+#   figures/NOTA_pom_hist_nfd.pdf — supplementary figure S10
+#   figures/200C_param_trajectories.pdf — supplementary figure S11
 
 #load packages
 library(tidyverse)
