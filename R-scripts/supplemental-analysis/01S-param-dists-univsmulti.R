@@ -5,6 +5,15 @@
 # author: Kaleigh Davis, Postdoc with Joey Bernhardt at U of Guelph
 # script DOB: 1/7/2025
 
+# inputs:
+#   data/raw-data/param-eas.csv — synthesized published estimates of temperature
+#     sensitivities (activation energies) for MacArthur model parameters
+
+# outputs:
+#   data/processed-data/unimulti_param_post_dists.csv — posterior distributions
+#     of temperature sensitivity split by cellularity (unicellular vs. multicellular)
+#   figures/unimulti-ea-plots1.pdf — supplementary figure S7
+
 #load in necessary pkgs
 library(tidyverse)
 library(janitor)
@@ -17,7 +26,7 @@ library(patchwork)
 library(colorspace)
 
 # get data for published parameter estimates of relevant traits
-mac_means <- read_csv("data/param-eas.csv") %>% 
+mac_means <- read_csv("data/raw-data/param-eas.csv") %>%
   clean_names()
 #here, temperature sensitivity is stored in a column called "activation_energy" in accordance with the Arrhenius model
 
