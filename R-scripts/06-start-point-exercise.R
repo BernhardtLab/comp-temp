@@ -15,7 +15,7 @@
 # outputs:
 #   figures/supp_startpoint_errce.pdf — supplementary figures S2-4
 #   figures/supp_startpoint_urrce2.png — supplementary figure S8
-#   figures/supp_startpoint_urrce2_parmT.pdf — supplementary figure S8 (parameter trajectories)
+#   figures/supp_startpoint_urrce2_parmT.pdf — supplementary figure S8
 #   figures/extra-start-points.png — additional start point comparisons
 #   figures/extra-start-points-notas.png — additional start point comparisons (no thermal asymmetries)
 
