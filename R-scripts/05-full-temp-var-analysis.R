@@ -1,6 +1,6 @@
-# This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 06. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
+# This script tests effects of all parameters varying simultaneously with temperature, and investigates drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 06. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
-#This script produces Figures 5 in the main text and all supplementary figures from the same set of starting conditions with four resources. Those Supplementary figures are: S5, S8, 
+#This script produces Figures 5 in the main text and all supplementary figures from the same set of starting conditions with four resources.
 
 # Author: Kaleigh Davis, PDF University of Guelph
 # Script DOB: 30 April 2025
@@ -16,10 +16,11 @@
 
 # outputs:
 #   figures/Fig5-pom_hist_nfd.pdf — main text figure 5
-#   figures/5C_warm_pom_hist_nfd.pdf — supplementary figure S5
-#   figures/50C_warm_pom_hist_nfd.pdf — supplementary figure S12
-#   figures/NOTA_pom_hist_nfd.pdf — supplementary figure S10
-#   figures/200C_param_trajectories.pdf — supplementary figure S11
+#   figures/S5-5C_warm_pom_hist_nfd.pdf — supplementary figure S5
+#   figures/S12-50C_warm_pom_hist_nfd.pdf — supplementary figure S12
+#   figures/S8-NOTA_pom_hist_nfd.pdf — supplementary figure S8
+#   figures/S10-200C_param_trajectories.pdf — supplementary figure S10
+#   figures/S11-extreme_ea_pom_hist_nfd.pdf - supplementary figure S11
 
 #load packages
 library(tidyverse)
@@ -163,10 +164,10 @@ rrc_start <- rrc %>%
             new_mean_fit_rat = mean(new_fit_ratio),
             new_sd_stab_pot = sd(new_stabil_potential),
             new_sd_fit_rat = sd(new_fit_ratio)) %>% 
-  select(new_mean_stab_pot, new_mean_fit_rat)
+  dplyr::select(new_mean_stab_pot, new_mean_fit_rat)
 
 rrc_shifts <- rrc %>% 
-  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  dplyr::select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
   mutate(stab_pot_start = rrc_start$new_mean_stab_pot,
          fit_rat_start = rrc_start$new_mean_fit_rat,
          shift_fd = new_fit_ratio - fit_rat_start,
@@ -295,7 +296,7 @@ comb_plot1 <- log_pom / bottom_patch +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = comb_plot1, filename = "figures/pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot1, filename = "figures/Fig5-pom_hist_nfd.pdf", width = 12, height = 10)
 
 ################################################################################
 #########################  SUPPLEMENTARY ANALYSES   ############################
@@ -442,7 +443,7 @@ comb_plot50 <- log_pom50 / bottom_patch50 +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = comb_plot50, filename = "figures/50C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot50, filename = "figures/S12-50C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
 # Repeat analysis with 5C warming - Figure S5 ####
 rrc5 <- data.frame()
@@ -581,7 +582,7 @@ comb_plot5 <- log_pom5 / bottom_patch5 +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = comb_plot5, filename = "figures/5C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot5, filename = "figures/S5-5C_warm_pom_hist_nfd.pdf", width = 12, height = 10)
 
 # No thermal asymmetries -- Figure S8 ####
 nota <- data.frame()
@@ -719,7 +720,8 @@ bottom_patch_nota <- pom_hist_nota + nd_shift_nota + fd_shift_nota
 comb_plot_nota <- log_pom_nota / bottom_patch_nota + 
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
-# ggsave(plot = comb_plot_nota, filename = "figures/NOTA_pom_hist_nfd.pdf", width = 12, height = 10)
+
+# ggsave(plot = comb_plot_nota, filename = "figures/S8-NOTA_pom_hist_nfd.pdf", width = 12, height = 10)
 
 ##### simulate extreme (200C) warming in order to observe model behaviour ##############
 rrc_200 <- data.frame()
@@ -872,8 +874,8 @@ rrc200a <-
          intra_inter2 = a22/a21,
          inter_intra1 = a12/a11,
          inter_intra2 = a21/a22) %>% 
-  select(-ref_temp, -coexist) %>% 
-  select(iteration, T, everything()) 
+  dplyr::select(-ref_temp, -coexist) %>% 
+  dplyr::select(iteration, T, everything()) 
 
 #plot KN/rN as a function of KN
 rrc200a %>% 
@@ -945,7 +947,7 @@ warming_tendencies200 <-
              scales = "free") + 
   theme(strip.text = element_text(size = 16))
 
-# ggsave(plot = warming_tendencies200, filename = "figures/200C_param_trajectories.pdf", width = 12, height = 8)
+# ggsave(plot = warming_tendencies200, filename = "figures/S10-200C_param_trajectories.pdf", width = 12, height = 8)
 
 #summaries of each param over the first 15C
 warming_tendencies15 <- 
@@ -959,8 +961,6 @@ warming_tendencies15 <-
              labeller = as_labeller(param_labels, label_parsed), 
              scales = "free")
 
-# ggsave(plot = warming_tendencies15, filename = "figures/15C_param_trajectories.pdf", width = 12, height = 8)
-
 #simulate effects of warming on species pairs with extreme thermal asymmetries - Figure S11 ----------------------------------
 param_extremes <- param_vals %>% 
   group_by(parameter) %>% 
@@ -968,7 +968,7 @@ param_extremes <- param_vals %>%
          q95 = quantile(intercept, 0.95)) %>% 
   filter(intercept <= q5 | intercept >= q95) %>% 
   ungroup() %>% 
-  select(-q5, -q95)
+  dplyr::select(-q5, -q95)
 
 hist(filter(param_extremes, parameter == "resource_growth_rate")$intercept)
 hist(filter(param_extremes, parameter == "carrying_capacity")$intercept)
@@ -1066,10 +1066,10 @@ rrc_ex_start <- rrc_ex %>%
             new_mean_fit_rat = mean(new_fit_ratio),
             new_sd_stab_pot = sd(new_stabil_potential),
             new_sd_fit_rat = sd(new_fit_ratio)) %>% 
-  select(new_mean_stab_pot, new_mean_fit_rat)
+  dplyr::select(new_mean_stab_pot, new_mean_fit_rat)
 
 rrc_ex_shifts <- rrc_ex %>% 
-  select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
+  dplyr::select(iteration, T, new_stabil_potential, new_fit_ratio) %>% 
   mutate(stab_pot_start = rrc_ex_start$new_mean_stab_pot,
          fit_rat_start = rrc_ex_start$new_mean_fit_rat) %>% 
   mutate(fd_shift = ifelse(new_fit_ratio < fit_rat_start, "decrease", 
@@ -1176,7 +1176,7 @@ comb_plot_ex <- log_pom_ex / bottom_patch_ex +
   plot_layout(heights = c(2.25, 1)) + 
   plot_annotation(tag_levels = "A")
 
-# ggsave(plot = comb_plot_ex, filename = "figures/extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
+# ggsave(plot = comb_plot_ex, filename = "figures/S11-extreme_ea_pom_hist_nfd.pdf", width = 12, height = 10)
 
 # prove results are robust to different ranges of temperatures - reviewer response #####
 # ref temp 0
@@ -1324,11 +1324,11 @@ log_pom20 <-
   ggtitle("20-35°C Warming")
 
 ranges <- log_pom0 + log_pom20
-# ggsave(plot = ranges, "figures/diff-tref-pompoms.pdf", width = 28, height = 12)
+#this was a reviewer requested proof of concept that did not make it into the manuscript or supplemental materials
 
 # What if resources are all unicellular vs multicellular? -- reviewer response -----------------
 
-#load in data with heterotrophy indicated
+#load in data with cellularity indicated
 cparam_vals <- read_csv("data/processed-data/unimulti_param_post_dists.csv")
 
 #split these into dfs for each parameter
@@ -1517,4 +1517,4 @@ log_pom_multic <-
   ggtitle("All multicellular rgr")
 
 cellularity_plots <- (log_pom_unic + theme(legend.position = "none")) + (log_pom_multic + theme(legend.position = "none"))
-# ggsave(cellularity_plots, file = "figures/cellularity-pompom.png", width = 16, height = 8)
+#this was a reviewer requested analysis that did not make it into the manuscript or supplemental materials

@@ -1,4 +1,4 @@
-# testing effects of more resource diversity (8 resources) and of unimodal temperature dependence on model results
+# This script tests the effects of more resource diversity (8 resources) and of unimodal temperature dependence on model results.
 
 # Parent script info: This script is to test effects of all parameters varying simultaneously with temperature, and investigate drivers of large changes in competition with warming. The competing consumers in this analysis each specialize on one of two resources and they have equally strong preference for this resource. The two resources have uneven growth rates under ambient conditions, which places the species pair on the boundary of coexistence under ambient conditions. Parameters defining these starting conditions are given in the simulations below, and in summary in Table S1. Exploration of other starting conditions is conducted in script 05. In each simulation, each MacArthur consumer-resource parameter is given by an Arrhenius function, with a temperature sensitivity (activation energy, slope) term and an intercept term, which determines the value of the function at ambient temperatures (Tref, ref temp). In each simulation, temperature sensitivities are defined as "{parameter_EAik}", where ik captures the relevant consumer, resource, or both, and intercepts are defined as "{parameter-ik_b}". Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively, throughout the script. The script simulates the effects of warming when each parameter is given a temperature sensitivity, randomly drawn from the parameter's empirical distribution (generated in 01-param-dists), simultaneously.
 
@@ -19,9 +19,9 @@
 #     temperature sensitivity for each model parameter (generated in script 01)
 
 # outputs:
-#   figures/8r_pomnfds.png — supplementary figure S1 (8-resource model)
-#   figures/unimodal-pompom.png — supplementary figure S13 (unimodal temperature dependence)
-#   figures/unimodal-vartopt-pompom.png — supplementary figure S13 (unimodal, varying Topt)
+#   figures/S1-8r_pomnfds.png — supplementary figure S1 (8-resource model)
+#   figures/S13B-unimodal-pompom.png — supplementary figure S13 (unimodal temperature dependence)
+#   figures/S13C-unimodal-vartopt-pompom.png — supplementary figure S13 (unimodal, varying Topt)
 
 #load packages
 library(tidyverse)
@@ -532,7 +532,7 @@ eightr_plots <- (log_pom8r + theme(legend.position ="none")) + log_pom8ru +
   plot_annotation(tag_levels = "A")
 
 comb_plot_8s1 <- wrap_plots(comb_plot8r, comb_plot8ru, ncol = 2) + plot_annotation(tag_levels = "A") 
-ggsave(plot = comb_plot_8s1, filename = "figures/8r_pomnfds.png", width = 30, height = 20)
+# ggsave(plot = comb_plot_8s1, filename = "figures/S1-8r_pomnfds.png", width = 30, height = 20)
 
 
 #track the euclidean distance from neutrality for each species pair with warming
@@ -677,7 +677,7 @@ log_pom_uni <-
   # scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
   theme_cowplot(font_size = 20)
 
-# ggsave(filename = "figures/unimodal-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
+# ggsave(filename = "figures/S13B-unimodal-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
 
 # make temperature dependence unimodal with different Topts for different species - Figure S13C ##############
 rrc_uni_diffs <- data.frame()
@@ -776,5 +776,5 @@ log_pom_uni_diffs <-
   coord_cartesian(ylim = c(-0.27, 0.8), xlim = c(-0.022, 0.55)) +
   theme_cowplot(font_size = 20)
 
-# ggsave(filename = "figures/unimodal-vartopt-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
+# ggsave(filename = "figures/S13C-unimodal-vartopt-pompom.png", plot = last_plot(), width = 8, height = 6, units = "in")
 

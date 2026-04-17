@@ -25,7 +25,7 @@ library(patchwork)
 library(colorspace)
 
 # get data for published parameter estimates of relevant traits
-mac_means <- read_csv("data/param-eas.csv") %>% 
+mac_means <- read_csv("data/raw-data/param-eas.csv") %>% 
   clean_names()
 #here, temperature sensitivity is stored in a column called "activation_energy" in accordance with the Arrhenius model
 

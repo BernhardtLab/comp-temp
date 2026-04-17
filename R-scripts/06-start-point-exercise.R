@@ -13,11 +13,9 @@
 #     temperature sensitivity for each model parameter (generated in script 01)
 
 # outputs:
-#   figures/supp_startpoint_errce.pdf — supplementary figures S2-4
-#   figures/supp_startpoint_urrce2.png — supplementary figure S8
-#   figures/supp_startpoint_urrce2_parmT.pdf — supplementary figure S8
-#   figures/extra-start-points.png — additional start point comparisons
-#   figures/extra-start-points-notas.png — additional start point comparisons (no thermal asymmetries)
+#   figures/S2-supp_startpoint_errce.pdf — supplementary figures S2
+#   figures/S3-supp_startpoint_urrce.png — supplementary figure S3
+#   figures/S4-extra-start-points.png — additional start point comparisons; Figure S4
 
 #### packages and referencing #####
 #load necessary pkgs
@@ -416,9 +414,9 @@ rrce_all %>%
   geom_point(aes(x = T, y = median, colour = NFD)) +
   facet_wrap(~NFD, scales = "free_y")
 
-# rrc equal start two plots 
+# rrc equal start two plots -- Figure S2
 startpoint1 <- rrce_plots / log_pom_rrce_all + plot_annotation(tag_levels = "A")
-# ggsave(plot = startpoint1, filename = "figures/supp_startpoint_errce.pdf", height = 20, width = 26)
+# ggsave(plot = startpoint1, filename = "figures/S2-supp_startpoint_errce.pdf", height = 20, width = 26)
 
 ######### uneven reciprocal preference, equal growth rates -- scenario 3 - Fig S3 ########
 
@@ -769,8 +767,7 @@ urrce_parmT <- urrce_all %>%
 
 # uneven reciprocal preference, equal start two plots
 startpoint2 <- urrce_plots / log_pom_urrce_all + plot_annotation(tag_levels = "A")
-# ggsave(plot = startpoint2, filename = "figures/supp_startpoint_urrce2.png", height = 20, width = 26, bg = "white")
-# ggsave(plot = urrce_parmT, filename = "figures/supp_startpoint_urrce2_parmT.pdf", height = 14, width = 18)
+# ggsave(plot = startpoint2, filename = "figures/S3-supp_startpoint_urrce.png", height = 20, width = 26, bg = "white")
 
 #repeat pompom plot, but without annotations
 log_pom_urrce_all_noanno <-
@@ -1707,9 +1704,9 @@ diff_start_points <- (log_pom_urrce2_all + log_pom_urrce3_all +  log_pom_urrce5_
 
 diff_start_points_noanno <- (log_pom_urrce2_all_noanno + log_pom_urrce3_all_noanno +  log_pom_urrce5_all_noanno) / (log_pom_urrce4_all_noanno + log_pom_urrce1_all_noanno + log_pom_urrce6_all_noanno) + plot_annotation(tag_levels = "A")
 
-# ggsave(plot = diff_start_points_noanno, filename = "figures/extra-start-points.png", height = 24, width = 30, device = "png")
+# ggsave(plot = diff_start_points_noanno, filename = "figures/S4-extra-start-points.png", height = 24, width = 30, device = "png")
 
-### Prove no thermal asymmetries --> no shift in competition from diverse start points - reviewer response #########
+### No thermal asymmetries --> no shift in competition from diverse start points - reviewer response #########
 ######## no TAs ##################
 # pom base - urrce -------
 urrce_nota_all <- data.frame()
@@ -2175,6 +2172,4 @@ log_pom_urrce6_nota_all <-
 
 # no TAs multiplot ------------
 diff_start_points_notas <- (log_pom_urrce2_nota_all + log_pom_urrce3_nota_all +  log_pom_urrce5_nota_all) / (log_pom_urrce4_nota_all + log_pom_urrce1_nota_all + log_pom_urrce6_nota_all) + plot_annotation(tag_levels = "A")
-
-# ggsave(plot = diff_start_points_notas, filename = "figures/extra-start-points-notas.png", height = 24, width = 30)
 

@@ -186,15 +186,15 @@ consumption_rate %>%
             max = max(activation_energy))
 
 # stitch all these dfs together for use in other scripts
-bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) %>% 
-write_csv(., "data/processed-data/unimulti_param_post_dists.csv")
+bind_rows(lm_mort, lm_rgr, lm_conv_eff, lm_carrying_capacity, lm_consumption_rate) 
+# %>% 
+# write_csv(., "data/processed-data/unimulti_param_post_dists.csv")
+#NOTE: if there were not enough data in a group to generate a distribution (e.g. n = 2), I fit a single distribution across both groups. This is eventually called "mixed" cellularity, but appears in this dataset as "mixed" or NA. 
 
 ### get summary stats for each parameter #####
 #in order to prevent small changes to parameter distribution values with each simulation, I do not re-run the regressions each time.
-data <- read_csv("data/processed-data/unimulti_param_post_dists.csv") 
-  # filter(!(parameter == "carrying_capacity" & cellularity == "multi")) %>% 
-  # filter(!(parameter == "consumption rate" & cellularity == "uni")) #this is hacky, but the best way forward right now. One alternative is to use the single value for the other rate as a stand in. This is possible for the two params with only one cellularity level present, as well.
-data_all <- read_csv("data/processed-data/param_post_dists.csv")
+data <- read_csv("data/processed-data/unimulti_param_post_dists.csv") # separate distributions for uni and multi where possible
+data_all <- read_csv("data/processed-data/param_post_dists.csv") # one distribution per parameter
 
 param_sum <- data %>%
   group_by(parameter, cellularity) %>% 
@@ -373,4 +373,4 @@ ea_plots <-
   consumption_rate_plot + rgr_plot + carrying_capacity_plot + conv_eff_plot + mort_ea_plot + interTAs +
   plot_annotation(tag_levels = "A") #there are no unicellular mortality rate estimates, so I'm not sure why there are two dots there
 
-# ggsave(filename = "figures/unimulti-ea-plots1.pdf", ea_plots, width = 16, height = 12)
+# ggsave(filename = "figures/S7-unimulti-ea-plots1.pdf", ea_plots, width = 16, height = 12)

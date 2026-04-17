@@ -15,7 +15,8 @@
 # outputs:
 #   figures/Fig3-param_var_plots_EA0.pdf — main text figure 3
 #   figures/Fig4-param_e_plots_unscaled_inequality_EA0.pdf — main text figure 4
-#   figures/supp_startpoint_errce.pdf — supplementary figures S6 and S9
+#   figures/S6-c_drawtypes_EAs0.pdf -- supplementary figure 6
+#   figures/S9-param_three_panels.pdf -- supplementary figure 9
 
 #### packages and referencing #####
 # load necessary pkgs
@@ -600,15 +601,15 @@ m_var_plot_e2 <-
 # Figure 3 - effect trajectories --------------------------------------
 param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot + rvar_legend + 
   plot_annotation(tag_levels = "A")
-# ggsave(plot = param_var_plot, filename = "figures/param_var_plots_EA0.pdf", width = 14, height = 10)
+# ggsave(plot = param_var_plot, filename = "figures/Fig3-param_var_plots_EA0.pdf", width = 14, height = 10)
 
 # Figure 4 - effect size of thermal asymmetries and effect size --------------------------------------
 param_e_unscaled_plot <- c_var_plot_e2 + r_var_plot_e2 + k_var_plot_e2 + v_var_plot_e2 + m_var_plot_e2 + plot_annotation(tag_levels = "A")
-# ggsave(plot = param_e_unscaled_plot, filename = "figures/param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
+# ggsave(plot = param_e_unscaled_plot, filename = "figures/Fig4-param_e_plots_unscaled_inequality_EA0.pdf", width = 18, height = 12)
 
 # Figure S9 - three panel NFD plots -------------------------------------------
 threeps <- r3p + c3p + v3p + k3p + m3p
-# ggsave(plot = threeps, filename = "figures/param_three_panels.pdf", width = 16, height = 12)
+# ggsave(plot = threeps, filename = "figures/S9-param_three_panels.pdf", width = 16, height = 12)
 
 #############################################################################
 ############################# SUPPLEMENTAL ANALYSES #########################
@@ -766,5 +767,5 @@ c_var4_plot <-
 # combined plot for different combinations of C draws
 c_0 <- c_var4_plot + c_var5_plot + c_var1_plot + c_var_ta_plot  + c_var_plot + rvar_legend + plot_annotation(tag_levels = "A")
 
-# ggsave(plot = c_0, filename = "figures/c_drawtypes_EAs0.pdf", width = 16, height = 10)
+# ggsave(plot = c_0, filename = "figures/S6-c_drawtypes_EAs0.pdf", width = 16, height = 10)
 #in order, these have focal params: consumption rate of preferred resource only, consumption rate of N only, consumption rate of P only, consumption rates of consumer 1 N & P, all four consumption rates

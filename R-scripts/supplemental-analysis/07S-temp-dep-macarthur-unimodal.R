@@ -1,4 +1,4 @@
-#This script is to implement a unimodal model in the temperature dependence function, in order to explore how that affects competitive outcomes. It is a daughter script to 02-temp-dep-macarthur.R
+#This script is to implement a unimodal model in the temperature dependence function, in order to explore how that affects competitive outcomes. It is a daughter script to 02-temp-dep-macarthur.R. 
 
 #from parent script: This script defines the MacArthur consumer-resource function, where all parameters are assignable at the function deploying stage. Temperature sensitivities are referred to here as activation energy are parameters containing "EA." Intercept terms, given with the "_b" notation in parameter names, determine the value of the each function at the ambient temperature (Tref, ref_temp). Consumers are given by the numbers 1 and 2 and substitutable resources a and b are referred to as N and P, respectively. These functions are called in all subsequent analysis scripts that simulate warming: Scripts 03, 04, and 05.
 
@@ -8,7 +8,7 @@
 #   does not need to source script 03.
 
 #script author: Kaleigh Davis, UoG postdoc with Joey Bernhardt
-#script DOB: [date]
+#script DOB: 17 December 2025
 
 
 #johnson-Lewin model for temperature dependence 
@@ -33,7 +33,7 @@ jl_function2 <- function(Temp, E, b1, ED, Topt_C, ref_temp) {
 model1 <- tibble(temp = seq(from = 5, to = 25, by = 0.01)) %>% 
   mutate(metabolism = map_dbl(temp, 
                               ~jl_function2(Temp = .x, 
-                                           E = -0.65, 
+                                           E = 0.65, 
                                            b1 = 1,
                                            ED = 4.5,
                                            Topt_C = 19,
@@ -43,7 +43,7 @@ ggplot(model1, aes(x = temp, y = metabolism)) +
   geom_point() + 
   labs(x = "Temperature", y = "Metabolic rate")
 
-# ggsave(filename = "figures/jl-tpc.pdf", plot = last_plot(), device = "pdf")
+# ggsave(filename = "figures/conceptual/S13A-jl-tpc.pdf", plot = last_plot(), device = "pdf")
 
 #temperature dependent CR function with diff Topts for two consumer species, Topt at max temp for resource; mortality increases exponentially, not unimodally with warming
 uni_temp_dep_mac_spec_diffs <- function(T, ED, Topt_C1, Topt_C2, Topt_Cr, ref_temp,
@@ -61,27 +61,27 @@ uni_temp_dep_mac_spec_diffs <- function(T, ED, Topt_C1, Topt_C2, Topt_Cr, ref_te
                              v2N_b, v2P_b, #conversion efficiency for each resource at ref temp for species 2
                              m1_b, m2_b){ #mortality rate at ref temp for each species
   
-  # resource growth rates
+  # resource growth rates - unimodal; resources have same Topt
   rN = jl_function2(Temp = T, E = r_EaN, b1 = r_N_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
   rP = jl_function2(Temp = T, E = r_EaP, b1 = r_P_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
   
-  # resource carrying capacity
+  # resource carrying capacity - exponential
   KN = arrhenius_function(Temp = T, E = K_EaN, b1 = K_N_b, ref_temp = ref_temp)
   KP = arrhenius_function(Temp = T, E = K_EaP, b1 = K_P_b, ref_temp = ref_temp)
   
-  # cij = per capita consumption of consumer i on resource j
+  # cij = per capita consumption of consumer i on resource j - unimodal; consumers can have different Topts
   c1N = jl_function2(Temp = T, E = c_Ea1N, b1 = c1N_b, ED = ED, Topt_C = Topt_C1, ref_temp = ref_temp)
   c1P = jl_function2(Temp = T, E = c_Ea1P, b1 = c1P_b, ED = ED, Topt_C = Topt_C1, ref_temp = ref_temp)
   c2N = jl_function2(Temp = T, E = c_Ea2N, b1 = c2N_b, ED = ED, Topt_C = Topt_C2, ref_temp = ref_temp) 
   c2P = jl_function2(Temp = T, E = c_Ea2P, b1 = c2P_b, ED = ED, Topt_C = Topt_C2, ref_temp = ref_temp)
   
-  # vij = conversion factor that converts resource j into biomass of consumer i
-  v1N = jl_function2(Temp = T, E = v_EaN, b1 = v1N_b, ED = ED, Topt_C = Topt_C1, ref_temp = ref_temp)
-  v2N = jl_function2(Temp = T, E = v_EaN, b1 = v2N_b, ED = ED, Topt_C = Topt_C1, ref_temp = ref_temp) 
-  v1P = jl_function2(Temp = T, E = v_EaP, b1 = v1P_b, ED = ED, Topt_C = Topt_C2, ref_temp = ref_temp)
-  v2P = jl_function2(Temp = T, E = v_EaP, b1 = v2P_b, ED = ED, Topt_C = Topt_C2, ref_temp = ref_temp)
+  # vij = conversion factor that converts resource j into biomass of consumer i - unimodal, resources have the same Topt.
+  v1N = jl_function2(Temp = T, E = v_EaN, b1 = v1N_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
+  v2N = jl_function2(Temp = T, E = v_EaN, b1 = v2N_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp) 
+  v1P = jl_function2(Temp = T, E = v_EaP, b1 = v1P_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
+  v2P = jl_function2(Temp = T, E = v_EaP, b1 = v2P_b, ED = ED, Topt_C = Topt_Cr, ref_temp = ref_temp)
   
-  # mortality rates
+  # mortality rates - exponential
   m1 = arrhenius_function(Temp = T, E = m_Ea1, b1 = m1_b, ref_temp = ref_temp)
   m2 = arrhenius_function(Temp = T, E = m_Ea2, b1 = m2_b, ref_temp = ref_temp)
   
