@@ -48,20 +48,20 @@ The [archive/](https://github.com/BernhardtLab/comp-temp/tree/main/archive) fold
 
 The analysis scripts require R and the following packages (versions used in the manuscript are noted):
 
--   `tidyverse` (1.3.2)
--   `MCMCpack` (1.7.0)
+-   `tidyverse` (2.0.0)
+-   `MCMCpack` (1.7.1)
 -   `MCMCvis` (0.16.3)
 -   `bayesplot` (1.11.1)
 -   `patchwork` (1.3.2)
--   `cowplot` (1.1.1)
+-   `cowplot` (1.1.3)
 -   `colorspace` (2.1.0)
 -   `viridis` (0.6.5)
--   `janitor` (2.1.0)
--   `purrr` (1.0.2)
+-   `janitor` (2.2.0)
+-   `purrr` (1.0.4)
 -   `car` (3.1.2)
--   `see` (0.13.0)
+-   `see` (0.11.0)
 -   `visreg` (2.7.0)
--   `beepr` (2.0)
+-   `beepr` (1.3)
 
 Packages can be installed via `install.packages()`. The analysis was developed and tested in R; users are advised to use a recent version of R (≥ 4.0) for compatibility.
 
