@@ -600,7 +600,7 @@ m_var_plot_e2 <-
 
 # Figure 3 - effect trajectories --------------------------------------
 param_var_plot <- c_var_plot + r_var_plot + k_var_plot + v_var_plot + m_var_plot + rvar_legend + 
-  plot_annotation(tag_levels = "A")
+  plot_annotation(tag_levels = list(c("A", "B", "C", "D", "E", "")))
 # ggsave(plot = param_var_plot, filename = "figures/Fig3-param_var_plots_EA0.pdf", width = 14, height = 10)
 
 # Figure 4 - effect size of thermal asymmetries and effect size --------------------------------------
