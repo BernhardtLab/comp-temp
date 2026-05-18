@@ -225,7 +225,7 @@ c_var_plot <-
   scale_y_continuous(breaks = c(-0.25, 0, 0.25, 0.5, 0.75)) +
   scale_x_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1)) +
   xlab(expression(paste("Niche differences (-log(", rho, "))"))) +
-  ylab(expression(paste("Fitness difference (log(", f[2], "/", f[1], "))"))) + 
+  ylab(expression(paste("Fitness differences (log(", f[2], "/", f[1], "))"))) + 
   theme_cowplot(font_size = 20) + 
   theme(legend.position = "none") +
   annotate("text", x = 0.6, y = 0.05, label = expression("Consumption rate," ~ italic(c)[italic(ik)]), size = 6)
